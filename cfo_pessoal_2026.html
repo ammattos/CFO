@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reporte · CFO Pessoal 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ============ DESIGN TOKENS & RESET ============ */
+:root {
+  --accent: #B5CBDD;
+  --warm: #F0EFEB;
+  --bg: #F6F6F4;
+  --card: #FFFFFF;
+  --muted: #595959;
+  --dark: #2A2A2A;
+  --ink: #111111;
+  --line: rgba(17,17,17,0.07);
+  --soft: rgba(181,203,221,0.22);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg: 0 16px 40px -12px rgba(17,17,17,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.5; padding-bottom: 80px; }
+h1, h2, h3, .num, .brand { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+button, select, input { font: inherit; color: inherit; border: none; outline: none; background: none; }
+
+/* ============ LAYOUT & MOBILE FIRST ============ */
+.wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px; }
+@media(min-width: 768px) { .wrap { padding: 28px 24px 60px; } }
+
+/* header */
+header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+@media(min-width: 768px) { header { flex-direction: row; justify-content: space-between; align-items: center; } }
+.brand { font-weight: 600; font-size: 22px; line-height: 1.1; }
+.brand span { display: block; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; margin-top: 4px; letter-spacing: 0; }
+
+/* months horizontal scroll for mobile */
+.months-wrap { overflow-x: auto; padding-bottom: 8px; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
+.months-wrap::-webkit-scrollbar { display: none; }
+.months { display: inline-flex; gap: 8px; }
+.pill { border: 1px solid var(--line); background: var(--card); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.3s ease; white-space: nowrap; box-shadow: var(--shadow-sm); }
+.pill:active { transform: scale(0.95); }
+.pill.on { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.pill.pend { opacity: 0.5; border-style: dashed; }
+
+/* toggles */
+.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; font-weight: 500; }
+.switch input { display: none; }
+.track { width: 44px; height: 24px; border-radius: 99px; background: #E0DFDB; position: relative; transition: background 0.3s; flex-shrink: 0; }
+.track::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.switch input:checked + .track { background: var(--dark); }
+.switch input:checked + .track::after { transform: translateX(20px); }
+
+/* grids & cards */
+.grid { display: flex; flex-direction: column; gap: 16px; }
+@media(min-width: 920px) {
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+  .s12 { grid-column: span 12; } .s8 { grid-column: span 8; } .s6 { grid-column: span 6; } .s4 { grid-column: span 4; }
+}
+.card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s; position: relative; z-index: 1; overflow: hidden; }
+@media(min-width: 768px) { .card { padding: 28px; border-radius: 32px; } }
+@media(hover: hover) { .card.tilt:hover { z-index: 10; box-shadow: var(--shadow-lg); } }
+
+/* common card inner */
+.head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+.card h2 { font-size: 18px; font-weight: 600; color: var(--ink); }
+.hint { font-size: 13px; color: var(--muted); }
+.val { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin-top: 2px; }
+@media(min-width: 768px) { .val { font-size: 32px; } }
+.val.pos { color: var(--ink); } .val.neg { color: #A66E5E; }
+.muted { color: var(--muted); font-size: 13px; }
+
+/* hero 3D */
+.hero { position: relative; min-height: 380px; background: linear-gradient(145deg, #ffffff 0%, var(--warm) 100%); display: flex; flex-direction: column; justify-content: space-between; overflow: visible; }
+#hero3d { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.8; }
+.hero-top h1 { font-size: 32px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
+@media(min-width: 768px) { .hero-top h1 { font-size: 42px; } }
+.kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 24px; }
+@media(min-width: 768px) { .kpis { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+.kpi { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+.kpi .label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.kpi .val { font-size: 20px; }
+.kpi.econ { background: rgba(181, 203, 221, 0.4); border-color: rgba(255,255,255,0.5); }
+.kpi.econ .val { color: var(--ink); }
+.note { margin-top: 20px; font-size: 13px; color: var(--dark); max-width: 600px; background: rgba(255,255,255,0.5); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); }
+
+/* charts */
+.chart-box { position: relative; height: 260px; width: 100%; margin-top: 16px; }
+@media(min-width: 768px) { .chart-box { height: 320px; } }
+
+/* tables & bars */
+.bar { height: 8px; border-radius: 99px; background: var(--warm); overflow: hidden; width: 100%; position: relative; }
+.bar > i { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+.bar > i.over { background: #A66E5E; }
+.bar > i.invest { background: var(--dark); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.r { text-align: right; color: var(--ink); font-weight: 500; font-family: 'Space Grotesk', sans-serif; white-space: nowrap; }
+tr.grp td { padding-top: 24px; border-bottom: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+td.bw { width: 35%; padding-left: 16px; }
+@media(max-width: 480px) { td.bw { width: 30%; padding-left: 12px; } }
+
+/* inputs & forms */
+.form-grid { display: grid; gap: 12px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.inp { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--warm); font-size: 14px; transition: all 0.2s; -webkit-appearance: none; }
+.inp:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px var(--soft); }
+.btn { background: var(--ink); color: #fff; border-radius: 16px; padding: 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: transform 0.2s, background 0.2s; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(17,17,17,0.2); }
+.btn:active { transform: scale(0.97); }
+.check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--dark); font-weight: 500; cursor: pointer; padding: 4px 0; }
+.check input { width: 18px; height: 18px; accent-color: var(--ink); border-radius: 4px; }
+
+/* C6 widget */
+.c6 { background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%); color: #fff; border-radius: 24px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+.c6::before { content: ""; position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(181,203,221,0.25), transparent 60%); pointer-events: none; }
+.c6::after { content: "C6 CARBON"; position: absolute; bottom: 24px; right: 24px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); }
+.c6 .label { color: rgba(255,255,255,0.6); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+.c6 .val { color: #fff; margin: 8px 0; }
+.c6 .foot { font-size: 13px; color: var(--accent); font-weight: 500; }
+
+/* lists */
+.items { margin-top: 16px; display: grid; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+.item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 12px 16px; background: var(--warm); border-radius: 16px; border: 1px solid transparent; transition: border-color 0.2s; }
+.item:hover { border-color: var(--line); }
+.item .desc { display: flex; flex-direction: column; gap: 2px; }
+.item .desc b { color: var(--dark); font-weight: 500; }
+.item .desc span { color: var(--muted); font-size: 11px; }
+.item .amt { font-family: 'Space Grotesk'; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 12px; }
+.item button { background: rgba(17,17,17,0.05); color: var(--muted); padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+.item button:hover { background: rgba(166,110,94,0.1); color: #A66E5E; }
+
+/* Custom modules */
+.ralo-grid { display: grid; gap: 12px; margin-top: 16px; }
+.ralo-item { padding: 16px; border-radius: 20px; background: var(--bg); border: 1px solid var(--line); }
+.ralo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.ralo-header strong { font-size: 15px; color: var(--dark); }
+.ralo-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media(min-width: 500px) { .ralo-metrics { grid-template-columns: repeat(4, 1fr); } }
+.ralo-metrics div { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+.ralo-metrics b { display: block; font-family: 'Space Grotesk'; font-size: 15px; color: var(--ink); margin-top: 2px; font-weight: 600; }
+
+.verdict { margin-top: 16px; padding: 16px; border-radius: 16px; background: var(--soft); font-size: 13px; color: var(--dark); line-height: 1.6; border-left: 4px solid var(--accent); }
+.verdict.alert { background: rgba(166,110,94,0.1); border-left-color: #A66E5E; }
+
+.geo-grid { display: grid; gap: 16px; margin-top: 16px; }
+@media(min-width: 600px) { .geo-grid { grid-template-columns: 1fr 1fr; } }
+.geo-card { padding: 16px; border-radius: 20px; background: var(--warm); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.geo-card h3 { font-size: 15px; margin-bottom: 4px; }
+.geo-card .save { font-size: 24px; color: var(--accent); margin: 8px 0; font-family: 'Space Grotesk'; font-weight: 600; color: var(--ink); }
+.geo-card .save span { font-size: 13px; color: var(--muted); font-family: 'Inter'; font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">Reporte<span>CFO pessoal · Base 2026</span></div>
+  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+    <div class="months-wrap">
+      <div class="months" id="months"></div>
+    </div>
+    <label class="switch" title="Remove o Flash (VT e VR) das receitas para análise realista.">
+      <input type="checkbox" id="exFlash">
+      <span>Excluir benefícios (Flash)</span>
+      <span class="track"></span>
+    </label>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- HERO -->
+  <section class="card hero s12 tilt" id="heroCard">
+    <canvas id="hero3d"></canvas>
+    <div class="hero-top">
+      <h1 id="heroTitle">Economia</h1>
+      <div class="muted" id="heroSub">Base de Receitas Líquidas − Investimentos − Despesas</div>
+    </div>
+    <div>
+      <div class="kpis">
+        <div class="kpi"><div class="label">Receitas</div><div class="val num" id="kRec">—</div></div>
+        <div class="kpi"><div class="label">Investimentos</div><div class="val num" id="kInv">—</div></div>
+        <div class="kpi"><div class="label">Despesas</div><div class="val num" id="kDesp">—</div></div>
+        <div class="kpi econ"><div class="label">Economia Líquida</div><div class="val num" id="kEcon">—</div></div>
+      </div>
+      <div class="note" id="heroNote"></div>
+    </div>
+  </section>
+
+  <!-- BUDGET DYNAMICS -->
+  <section class="card s6 tilt">
+    <div class="head">
+      <h2>Orçamento Inteligente (80/20)</h2>
+      <span class="hint" id="budPool"></span>
+    </div>
+    <div class="verdict" id="budAlert" style="display: none; margin-bottom: 16px; margin-top: 0;"></div>
+    <table id="budTable"></table>
+  </section>
+
+  <!-- C6 + LANÇAMENTO -->
+  <section class="card s6 tilt" style="display: flex; flex-direction: column;">
+    <div class="c6" style="margin-bottom: 24px;">
+      <div class="label">Cartão C6 Carbon Black</div>
+      <div class="val num" id="c6Val">R$ 0,00</div>
+      <div class="foot" id="c6Foot">Vencimento: Dia 10</div>
+    </div>
+    
+    <div class="head" style="margin-bottom: 16px;">
+      <h2>Lançamento Granular</h2>
+      <span class="hint" id="lancMes"></span>
+    </div>
+    
+    <div class="form-grid">
+      <select class="inp" id="lCat"></select>
+      <input class="inp" id="lDesc" placeholder="Descrição (ex.: 2 Tênis de Corrida)">
+      <div class="row-2">
+        <input class="inp" id="lQtd" type="number" min="1" step="1" value="1" placeholder="Qtd.">
+        <input class="inp" id="lVal" type="number" min="0" step="0.01" placeholder="Valor Unitário (R$)">
+      </div>
+      <label class="check"><input type="checkbox" id="lC6"> Lançar na fatura C6 (Crédito)</label>
+      <button class="btn" id="lAdd">Computar no Patrimônio</button>
+    </div>
+    
+    <div class="items" id="lList"></div>
+  </section>
+
+  <!-- GRÁFICO FLUXO -->
+  <section class="card s12 tilt">
+    <div class="head">
+      <h2>Fluxo de Caixa Anual</h2>
+      <span class="hint">Visão macro de receitas, alocações e retenção patrimonial</span>
+    </div>
+    <div class="chart-box"><canvas id="chartFlow"></canvas></div>
+  </section>
+
+  <!-- RALOS -->
+  <section class="card s6 tilt">
+    <div class="head">
+      <h2>Detetive de Ralos</h2>
+      <span class="hint">Custo de oportunidade em juros compostos (1,107% a.m. CDI) dos micro-gastos flexíveis</span>
+    </div>
+    <div class="ralo-grid" id="ralos"></div>
+    <div class="verdict alert" id="ralosVerdict"></div>
+  </section>
+
+  <!-- SIMULADOR -->
+  <section class="card s6 tilt">
+    <div class="head">
+      <h2>Simulador Estratégico: À Vista vs. Parcelado</h2>
+      <span class="hint">Calcula o Valor Presente (VP) mantendo o dinheiro rendendo no CDI (1,107% a.m.)</span>
+    </div>
+    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); margin-bottom: 20px;">
+      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Preço Base (R$)</div><input class="inp" id="sPreco" type="number" value="5000" step="100"></div>
+      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Parcelas (x)</div><input class="inp" id="sN" type="number" value="12" min="1"></div>
+      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Desconto % (À vista)</div><input class="inp" id="sDesc" type="number" value="10" step="1"></div>
+    </div>
+    <div id="simOut" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+    <div class="verdict" id="simVerdict"></div>
+  </section>
+
+  <!-- ARBITRAGEM GEOGRÁFICA -->
+  <section class="card s6 tilt">
+    <div class="head">
+      <h2>Arbitragem Geográfica</h2>
+      <span class="hint">Impacto patrimonial ao migrar para polos Tech/Agro e investir a diferença no CDI por 10 anos.</span>
+    </div>
+    <div style="margin-bottom: 16px;">
+      <div class="muted" style="margin-bottom:6px; font-size:12px;">Custo de Vida Atual Estimado (R$/mês)</div>
+      <input class="inp" id="geoCusto" type="number" value="5000" step="500">
+    </div>
+    <div class="geo-grid">
+      <div class="geo-card">
+        <h3>São Carlos (Polo Tech)</h3>
+        <span class="hint">Custo de vida -42% menor</span>
+        <div class="save" id="geoSC_save">R$ 0 <span>/mês extra</span></div>
+        <div class="muted" id="geoSC_fv">Patrimônio em 10 anos: --</div>
+      </div>
+      <div class="geo-card">
+        <h3>Ribeirão Preto (Agro/Saúde)</h3>
+        <span class="hint">Custo de vida -30% menor</span>
+        <div class="save" id="geoRP_save">R$ 0 <span>/mês extra</span></div>
+        <div class="muted" id="geoRP_fv">Patrimônio em 10 anos: --</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOLA DE NEVE -->
+  <section class="card s6 tilt">
+    <div class="head">
+      <h2>Projeção: Efeito Bola de Neve</h2>
+      <span class="hint">Crescimento patrimonial projetando aportes constantes + juros (0,85% a.m. líquido) em 20 anos.</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <div style="flex: 1; min-width: 200px;">
+        <div class="muted" style="margin-bottom:6px; font-size:12px;">Aporte Mensal Simulado (R$)</div>
+        <input class="inp" id="snAporte" type="number" step="100">
+      </div>
+      <div class="num" id="snFinal" style="font-size: 24px; font-weight: 600; color: var(--ink);"></div>
+    </div>
+    <div class="chart-box" style="height: 220px;"><canvas id="chartSnow"></canvas></div>
+  </section>
+
+</div>
+</div>
+
+<script>
+/* ============ BASE DE DADOS (2026 Histórico Real) ============ */
+const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const D = {
+  rec: [4645.96,4483.08,4607.88,5880.69,4498.66,4775.12,4695.41,5313.25,4934.65,4799.09,0,0],
+  rend: [441.37,368.31,528.30,496.36,528.07,595.51,606.90,614.71,616.78,0,0,0],
+  vt: [267,239.52,243.88,206.36,225.12,225.12,262.64,675.36,393.96,393.96,0,0],
+  vr: [840,760,920,800,800,880,880,840,840,840,0,0],
+  inv: [2360.63,2455.77,2294.46,4017.27,2616,2806.98,2725,2892,2930,3304,0,0],
+  cats: {
+    'Alimentação': [679.44,963.51,698.16,686.81,705.18,1000.71,860.78,991.51,980.59,656.18,0,0],
+    'Imagem Profissional': [529.43,409.96,605.83,0,305.53,383.62,458.25,583.31,333.15,757.59,0,0],
+    'Transporte': [200,163.80,100,0,0,0,0,20,0,0,0,0],
+    'Doação': [0,0,0,0,0,0,0,0,0,0,0,0],
+    'Carro de Aplicativo': [264.07,239.46,444.01,410.80,522.69,250.95,274.39,376.77,518.64,229.67,0,0],
+    'Autocuidado': [0,113.37,55.55,0,59.90,23,130,80,0,24,0,0],
+    'Saúde': [25.49,113.65,62.38,41.34,55.56,57.73,57,9.77,0,0,0,0],
+    'Intelecto': [196.40,0,98.77,316.50,316.49,33.92,65.47,133.60,133.58,33.92,0,0],
+    'Tecnologia': [0,0,0,0,0,125.50,0,105.50,105.50,105.50,0,0],
+    'Residencial': [200,200,200,200,200,200,200,310,200,200,0,0],
+    'Internet Móvel': [27.01,27.01,27.01,27.01,27.01,27.01,27.01,27.01,27.01,29.90,0,0]
+  }
+};
+
+/* Regras de Alocação 80/20 */
+const FIX = ['Residencial','Internet Móvel'];
+const ESS = {'Alimentação':0.50, 'Imagem Profissional':0.37, 'Transporte':0.10, 'Doação':0.03};
+const NESS = {'Carro de Aplicativo':0.50, 'Autocuidado':0.20, 'Saúde':0.15, 'Intelecto':0.10, 'Tecnologia':0.05};
+const CDI = 0.01107, LIQ = 0.0085;
+
+/* ============ ESTADO & PERSISTÊNCIA ============ */
+const S = { i: 9, exFlash: false, extras: [] };
+
+function loadExtras() {
+  try {
+    const data = localStorage.getItem('cfo_extras_2026');
+    if (data) S.extras = JSON.parse(data);
+  } catch(e) { console.error("Erro ao carregar dados", e); }
+}
+function saveExtras() {
+  localStorage.setItem('cfo_extras_2026', JSON.stringify(S.extras));
+}
+
+const BRL = v => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const PCT = v => (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
+const fvAnnuity = (pmt, n, r) => pmt * ((Math.pow(1 + r, n) - 1) / r);
+
+function extraOf(c, i) { return S.extras.filter(e => e.i === i && e.cat === c).reduce((a, e) => a + e.v, 0); }
+
+/* Motor Analítico (CFO Intelligence) */
+function md(i) {
+  const flash = D.vt[i] + D.vr[i];
+  const cats = {}; 
+  let desp = 0;
+  
+  // Consolida dados base + lançamentos dinâmicos
+  for (const c in D.cats) {
+    cats[c] = (D.cats[c][i] || 0) + extraOf(c, i); 
+    desp += cats[c];
+  }
+  
+  const inv = D.inv[i] || 0;
+  // Receita Base. Se exFlash, subtrai VR/VT que são engessados.
+  const recB = (D.rec[i] || 0) - (S.exFlash ? flash : 0);
+  const rend = D.rend[i] || 0;
+  const rec = recB + rend;
+  const econ = rec - inv - desp;
+  const pend = (D.rec[i] || 0) === 0;
+  
+  // Base de cálculo do orçamento (Pós-Investimentos, pois investimentos são protegidos/prioridade)
+  const pool = Math.max(0, recB - inv); 
+  const fix = FIX.reduce((a, c) => a + cats[c], 0);
+  const posF = Math.max(0, pool - fix); // Saldo livre para flexíveis
+  
+  let bud = {};
+  let totalEssTeto = 0.8 * posF;
+  let totalNessTeto = 0.2 * posF;
+
+  // Rebalanceamento Dinâmico (Proporcional)
+  // CFO Inteligente: Se uma categoria estoura, o limite das outras na mesma 'cesta' é reduzido
+  function calcRebalance(groupObj, totalPoolLimit) {
+    let allocated = {};
+    let excessTotal = 0;
+    let weightRemaining = 0;
+
+    // 1º Passo: Alocação teórica e descoberta de estourados
+    for(const c in groupObj) {
+      allocated[c] = pend ? 0 : totalPoolLimit * groupObj[c];
+      if(!pend && cats[c] > allocated[c]) {
+        excessTotal += (cats[c] - allocated[c]);
+      } else if (!pend) {
+        weightRemaining += groupObj[c];
+      }
+    }
+
+    // 2º Passo: Redistribui o peso do excesso nas não estouradas
+    let finalBud = {};
+    for(const c in groupObj) {
+      if (pend) {
+        finalBud[c] = 0;
+      } else if (cats[c] > allocated[c]) {
+        finalBud[c] = allocated[c]; // Mantém o teto original para mostrar o quanto passou
+      } else {
+        // Reduz o teto proporcionalmente ao seu peso no restante
+        let penalty = weightRemaining > 0 ? excessTotal * (groupObj[c] / weightRemaining) : 0;
+        finalBud[c] = Math.max(0, allocated[c] - penalty);
+      }
+    }
+    return { finalBud, excessTotal };
+  }
+
+  const rebalanceEss = calcRebalance(ESS, totalEssTeto);
+  const rebalanceNess = calcRebalance(NESS, totalNessTeto);
+
+  Object.assign(bud, rebalanceEss.finalBud, rebalanceNess.finalBud);
+  
+  // Total C6 Fatura para o mês (para pagar dia 10 do prox mes)
+  const c6 = S.extras.filter(e => e.i === i && e.c6).reduce((a, e) => a + e.v, 0);
+  
+  return { 
+    i, cats, desp, inv, rec, rend, econ, pend, pool, bud, c6, flash,
+    rebalanceSqueeze: (rebalanceEss.excessTotal > 0 || rebalanceNess.excessTotal > 0)
+  };
+}
+
+function ytd() {
+  const out = { rec: 0, inv: 0, desp: 0, econ: 0, rend: 0, n: 0 };
+  for (let i = 0; i < 12; i++) {
+    const m = md(i); 
+    if (m.pend) continue;
+    out.rec += m.rec; out.inv += m.inv; out.desp += m.desp; out.econ += m.econ; out.rend += m.rend; out.n++;
+  }
+  return out;
+}
+
+/* ============ INTERFACE ============ */
+function renderMonths() {
+  const box = document.getElementById('months'); 
+  box.innerHTML = '';
+  M.forEach((m, i) => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (i === S.i ? ' on' : '') + ((D.rec[i]||0) === 0 ? ' pend' : '');
+    b.textContent = m; 
+    b.onclick = () => { S.i = i; renderAll(); };
+    box.appendChild(b);
+  });
+}
+
+function renderHero() {
+  const m = md(S.i), y = ytd();
+  const neg = m.econ < 0;
+  
+  const mNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('heroTitle').textContent = `Resultado de ${mNames[S.i]}`;
+  
+  document.getElementById('kRec').textContent = BRL(m.rec);
+  document.getElementById('kInv').textContent = BRL(m.inv);
+  document.getElementById('kDesp').textContent = BRL(m.desp);
+  
+  const ke = document.getElementById('kEcon');
+  ke.textContent = BRL(m.econ); 
+  ke.className = 'val num ' + (neg ? 'neg' : 'pos');
+  
+  const semRend = y.econ - y.rend;
+  let note = m.pend ? 'Mês sem receitas projetadas. Os cálculos baseiam-se em meses faturados.' : '';
+  
+  if (!m.pend) {
+    if (semRend < 0) {
+      note = `Alerta Estratégico: No ano, a economia de ${BRL(y.econ)} só é positiva pelo rendimento de investimentos (${BRL(y.rend)}). A operação base está deficitária em ${BRL(semRend)}.`;
+    } else {
+      note = `Status Saudável: O Efeito Bola de Neve está ativo. A economia YTD é de ${BRL(y.econ)}, sendo ${BRL(y.rend)} puramente provindos de juros sobre capital (CDI).`;
+    }
+  }
+  document.getElementById('heroNote').textContent = note;
+  
+  if (heroMat) heroMat.color.set(neg ? '#A66E5E' : '#B5CBDD');
+}
+
+/* Gráficos */
+let chartFlow, chartSnow;
+function initCharts() {
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = '#595959';
+
+  const f = document.getElementById('chartFlow').getContext('2d');
+  chartFlow = new Chart(f, {
+    data: { labels: M, datasets: [
+      { type: 'bar', label: 'Receitas', data: [], backgroundColor: '#B5CBDD', borderRadius: 6, maxBarThickness: 16 },
+      { type: 'bar', label: 'Despesas', data: [], backgroundColor: '#E0DFDB', borderRadius: 6, maxBarThickness: 16 },
+      { type: 'bar', label: 'Investido', data: [], backgroundColor: '#2A2A2A', borderRadius: 6, maxBarThickness: 16 },
+      { type: 'line', label: 'Economia', data: [], borderColor: '#111111', backgroundColor: '#111111', tension: 0.4, pointRadius: 3, borderWidth: 2 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                 tooltip: { callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y||0)}` } } },
+      scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
+    }
+  });
+
+  const s = document.getElementById('chartSnow').getContext('2d');
+  chartSnow = new Chart(s, {
+    type: 'line',
+    data: { labels: [], datasets: [
+      { label: 'Patrimônio Acumulado', data: [], borderColor: '#111111', backgroundColor: 'rgba(181,203,221,0.3)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+      { label: 'Capital Aportado', data: [], borderColor: '#888', borderDash: [5,5], pointRadius: 0, borderWidth: 2 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                 tooltip: { callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y)}` } } },
+      scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
+    }
+  });
+}
+
+function renderFlow() {
+  const all = [0,1,2,3,4,5,6,7,8,9,10,11].map(md);
+  chartFlow.data.datasets[0].data = all.map(m => m.pend ? null : m.rec);
+  chartFlow.data.datasets[1].data = all.map(m => m.pend ? null : m.desp);
+  chartFlow.data.datasets[2].data = all.map(m => m.pend ? null : m.inv);
+  chartFlow.data.datasets[3].data = all.map(m => m.pend ? null : m.econ);
+  chartFlow.update();
+}
+
+function renderC6() {
+  const m = md(S.i);
+  // Soma todas as faturas até o momento? No contexto, fatura do mes i é o acumulado dos cartoes.
+  document.getElementById('c6Val').textContent = BRL(m.c6);
+  const nxt = M[(S.i + 1) % 12];
+  document.getElementById('c6Foot').textContent = `Vencimento: Dia 10 de ${nxt || 'Jan'}`;
+}
+
+function renderBudget() {
+  const m = md(S.i);
+  document.getElementById('budPool').textContent = m.pend ? 'Aguardando receitas do mês.' : `Base Flexível: ${BRL(m.pool)} (Livre para Despesas pós-Aportes)`;
+  
+  const alertBox = document.getElementById('budAlert');
+  if (m.rebalanceSqueeze) {
+    alertBox.style.display = 'block';
+    alertBox.innerHTML = `<strong>Ajuste Automático do CFO:</strong> Categoria(s) excederam o limite planejado. O sistema recalculou proporcionalmente o teto das demais despesas para proteger 100% da sua meta de investimentos mensais.`;
+  } else {
+    alertBox.style.display = 'none';
+  }
+
+  const rows = [];
+  
+  // Fixas (sem teto dinâmico, pagamentos brigatórios)
+  rows.push(`<tr class="grp"><td colspan="3">Gastos Fixos Infra</td></tr>`);
+  for(const c of FIX) rows.push(`<tr><td>${c}</td><td class="r">${BRL(m.cats[c])}</td><td class="bw"><div class="bar"><i class="invest" style="width:100%"></i></div></td></tr>`);
+  
+  // Essenciais
+  rows.push(`<tr class="grp"><td colspan="3">Essenciais (Meta 80% do livre)</td></tr>`);
+  for(const c in ESS) rows.push(rowBud(c, m.cats[c], m.bud[c]));
+  
+  // Nao essenciais
+  rows.push(`<tr class="grp"><td colspan="3">Não Essenciais (Meta 20% do livre)</td></tr>`);
+  for(const c in NESS) rows.push(rowBud(c, m.cats[c], m.bud[c]));
+  
+  document.getElementById('budTable').innerHTML = rows.join('');
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('#budTable .bar>i:not(.invest)').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 50);
+}
+
+function rowBud(c, gasto, teto) {
+  const p = teto > 0 ? Math.min(gasto / teto * 100, 100) : (gasto > 0 ? 100 : 0);
+  const over = teto > 0 && gasto > teto;
+  const txt = teto > 0 ? `${BRL(gasto)} <span style="color:var(--muted); font-size:11px; font-weight:400">/ ${BRL(teto)}</span>` : `${BRL(gasto)}`;
+  return `<tr><td>${c}</td><td class="r">${txt}</td><td class="bw"><div class="bar"><i class="${over?'over':''}" data-w="${p.toFixed(1)}"></i></div></td></tr>`;
+}
+
+function renderRalos() {
+  const sums = {}; let n = 0;
+  for(let i=0; i<12; i++) {
+    const m = md(i); 
+    if(m.pend) continue; 
+    n++;
+    for(const c in m.cats) { sums[c] = (sums[c] || 0) + m.cats[c]; }
+  }
+  // Exclui fixas e investimentos
+  const cand = Object.keys(sums)
+    .filter(c => !FIX.includes(c) && sums[c] > 0)
+    .map(c => ({ c, avg: sums[c] / n }))
+    .sort((a,b) => b.avg - a.avg).slice(0, 3); // top 3 para caber melhor no mobile
+
+  const H = [1, 5, 10, 20];
+  
+  document.getElementById('ralos').innerHTML = cand.map(o => `
+    <div class="ralo-item">
+      <div class="ralo-header">
+        <strong>${o.c}</strong>
+        <span class="muted" style="font-family:'Space Grotesk'">Média: ${BRL(o.avg)}/mês</span>
+      </div>
+      <div class="ralo-metrics">
+        ${H.map(h => `<div>${h} ${h===1?'ano':'anos'}<b>${BRL(fvAnnuity(o.avg, h*12, CDI))}</b></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const top = cand[0];
+  document.getElementById('ralosVerdict').innerHTML = top
+    ? `<strong>Torneira Aberta:</strong> A categoria <b>${top.c}</b> é seu maior passivo flexível. Se esse valor mensal médio (${BRL(top.avg)}) fosse realocado no CDI, você acumularia <b>${BRL(fvAnnuity(top.avg, 240, CDI))}</b> em 20 anos. Esse é o seu custo de oportunidade real.`
+    : '';
+}
+
+function renderSim() {
+  const P = +document.getElementById('sPreco').value || 0;
+  const n = Math.max(1, +document.getElementById('sN').value || 1);
+  const d = (+document.getElementById('sDesc').value || 0) / 100;
+  
+  const avista = P * (1 - d);
+  let pv = 0; 
+  const parc = P / n;
+  for (let k = 1; k <= n; k++) pv += parc / Math.pow(1 + CDI, k);
+  
+  document.getElementById('simOut').innerHTML = `
+    <div style="background:var(--warm); padding: 16px; border-radius: 16px;">
+      <div class="muted" style="font-size:11px; text-transform:uppercase;">À vista (-${(d*100).toFixed(0)}%)</div>
+      <div class="num" style="font-size:20px; font-weight:600; margin-top:4px;">${BRL(avista)}</div>
+    </div>
+    <div style="background:var(--warm); padding: 16px; border-radius: 16px;">
+      <div class="muted" style="font-size:11px; text-transform:uppercase;">Parcelado (Val. Presente)</div>
+      <div class="num" style="font-size:20px; font-weight:600; margin-top:4px;">${BRL(pv)}</div>
+      <div class="muted" style="font-size:11px; margin-top:2px;">${n}x de ${BRL(parc)}</div>
+    </div>
+  `;
+  
+  const diff = avista - pv;
+  const v = document.getElementById('simVerdict');
+  if (diff > 0) {
+    v.className = 'verdict alert';
+    v.innerHTML = `<strong>Decisão CFO: Parcelar!</strong> O dinheiro rendendo no CDI durante o pagamento das parcelas compensa a falta de desconto, gerando uma economia de valor presente de <b>${BRL(diff)}</b>.`;
+  } else {
+    v.className = 'verdict';
+    v.innerHTML = `<strong>Decisão CFO: Pagar à Vista.</strong> O desconto imediato é matematicamente superior ao rendimento do CDI no período, gerando uma economia real de <b>${BRL(-diff)}</b>.`;
+  }
+}
+
+function renderGeo() {
+  const currentCost = +document.getElementById('geoCusto').value || 5000;
+  
+  // Taxas de reducao informadas no prompt
+  const rateSC = 0.42; 
+  const rateRP = 0.30;
+  
+  const saveSC = currentCost * rateSC;
+  const saveRP = currentCost * rateRP;
+  
+  // FV para 10 anos (120 meses)
+  const fvSC = fvAnnuity(saveSC, 120, CDI);
+  const fvRP = fvAnnuity(saveRP, 120, CDI);
+  
+  document.getElementById('geoSC_save').innerHTML = `${BRL(saveSC)} <span>/mês extra</span>`;
+  document.getElementById('geoRP_save').innerHTML = `${BRL(saveRP)} <span>/mês extra</span>`;
+  
+  document.getElementById('geoSC_fv').innerHTML = `Delta Patrimonial 10 anos:<br><strong style="color:var(--ink); font-size:15px">${BRL(fvSC)}</strong>`;
+  document.getElementById('geoRP_fv').innerHTML = `Delta Patrimonial 10 anos:<br><strong style="color:var(--ink); font-size:15px">${BRL(fvRP)}</strong>`;
+}
+
+function renderSnow() {
+  const y = ytd();
+  const input = document.getElementById('snAporte');
+  if (!input.dataset.touched) { 
+    // Sugere a média de economia YTD como aporte inicial simulado
+    input.value = Math.max(0, Math.round(y.n ? y.econ / y.n : 0)); 
+  }
+  
+  const a = +input.value || 0;
+  const labels = [], pat = [], ap = [];
+  let p = 0, aportado = 0;
+  
+  for(let t = 1; t <= 240; t++) {
+    p = p * (1 + LIQ) + a; 
+    aportado += a;
+    labels.push(t % 12 === 0 ? `${t/12}a` : '');
+    pat.push(+p.toFixed(2)); 
+    ap.push(+aportado.toFixed(2));
+  }
+  
+  chartSnow.data.labels = labels;
+  chartSnow.data.datasets[0].data = pat;
+  chartSnow.data.datasets[1].data = ap;
+  chartSnow.update();
+  
+  document.getElementById('snFinal').textContent = BRL(p);
+}
+
+function renderLanc() {
+  document.getElementById('lancMes').textContent = `Faturando em: ${M[S.i]}`;
+  const list = S.extras.filter(e => e.i === S.i);
+  
+  document.getElementById('lList').innerHTML = list.length ? list.map(e => `
+    <div class="item">
+      <div class="desc">
+        <b>${e.desc || 'Despesa Avulsa'}</b>
+        <span>${e.cat} ${e.c6 ? ' · C6 Crédito' : ' · Débito/Pix'}</span>
+      </div>
+      <div class="amt">
+        ${BRL(e.v)}
+        <button data-id="${e.id}">X</button>
+      </div>
+    </div>`).reverse().join('')
+    : '<div class="muted" style="padding: 12px 0;">Nenhum lançamento granular neste mês. Os dados macro estão sendo consumidos.</div>';
+    
+  document.querySelectorAll('#lList button').forEach(b => {
+    b.onclick = () => {
+      S.extras = S.extras.filter(e => e.id !== +b.dataset.id); 
+      saveExtras();
+      renderAll();
+    };
+  });
+}
+
+function initLanc() {
+  const sel = document.getElementById('lCat');
+  const groups = [
+    ['Essenciais', Object.keys(ESS)],
+    ['Não Essenciais', Object.keys(NESS)],
+    ['Gastos Fixos', FIX]
+  ];
+  sel.innerHTML = groups.map(([g, cs]) => `<optgroup label="${g}">${cs.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup>`).join('');
+  
+  document.getElementById('lAdd').onclick = () => {
+    const cat = sel.value;
+    const desc = document.getElementById('lDesc').value.trim();
+    const q = +document.getElementById('lQtd').value || 1;
+    const u = +document.getElementById('lVal').value || 0;
+    
+    if (u <= 0) return;
+    
+    S.extras.push({ id: Date.now(), i: S.i, cat, desc, v: q * u, c6: document.getElementById('lC6').checked });
+    saveExtras();
+    
+    document.getElementById('lDesc').value = ''; 
+    document.getElementById('lQtd').value = '1'; 
+    document.getElementById('lVal').value = '';
+    
+    renderAll();
+  };
+}
+
+/* ============ 3D ENGINE ============ */
+let heroMat = null;
+function initHero() {
+  const canvas = document.getElementById('hero3d');
+  if (typeof THREE === 'undefined') return;
+  
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 8;
+
+  heroMat = new THREE.MeshBasicMaterial({ color: 0xB5CBDD, wireframe: true, transparent: true, opacity: 0.6 });
+  const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.4, 0.35, 150, 20, 2, 3), heroMat);
+  scene.add(knot);
+
+  const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.4, 1), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true, transparent: true, opacity: 0.2 }));
+  scene.add(shell);
+
+  const N = 300, pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    pos[i*3] = (Math.random() - 0.5) * 20;
+    pos[i*3+1] = (Math.random() - 0.5) * 10;
+    pos[i*3+2] = (Math.random() - 0.5) * 10;
+  }
+  const pg = new THREE.BufferGeometry(); 
+  pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(pg, new THREE.PointsMaterial({ color: 0x2A2A2A, size: 0.04, transparent: true, opacity: 0.3 }));
+  scene.add(pts);
+
+  let mx = 0, my = 0;
+  const card = document.getElementById('heroCard');
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect(); 
+    mx = ((e.clientX - r.left) / r.width - 0.5); 
+    my = ((e.clientY - r.top) / r.height - 0.5);
+  });
+  
+  // Mobile fallback (gyro emulation or simple auto-rotation scaling)
+  card.addEventListener('touchmove', e => {
+    if(e.touches.length > 0) {
+      const r = card.getBoundingClientRect();
+      mx = ((e.touches[0].clientX - r.left) / r.width - 0.5) * 2;
+      my = ((e.touches[0].clientY - r.top) / r.height - 0.5) * 2;
+    }
+  }, { passive: true });
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false); 
+    camera.aspect = w / h;
+    
+    // Ajuste responsivo do 3D: Move para direita no desktop, centro no mobile
+    const isMobile = w < 768;
+    camera.position.x = isMobile ? 0 : 0; 
+    knot.position.x = isMobile ? 0 : 3; 
+    shell.position.x = knot.position.x;
+    knot.position.y = isMobile ? 1.5 : 0.5; 
+    shell.position.y = knot.position.y;
+    
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize); 
+  resize();
+
+  const clock = new THREE.Clock();
+  (function loop() {
+    const t = clock.getElapsedTime();
+    knot.rotation.x = t * 0.2 + my * 0.5; 
+    knot.rotation.y = t * 0.3 + mx * 0.8;
+    shell.rotation.y = -t * 0.1; 
+    shell.rotation.x = t * 0.05;
+    pts.rotation.y = t * 0.02 + mx * 0.1;
+    
+    camera.position.x += (mx * 0.8 - camera.position.x) * 0.05;
+    camera.position.y += (-my * 0.5 - camera.position.y) * 0.05;
+    camera.lookAt(0, 0, 0);
+    
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  })();
+}
+
+/* ============ GERAL ============ */
+function renderAll() {
+  renderMonths(); 
+  renderHero(); 
+  renderFlow(); 
+  renderC6();
+  renderBudget(); 
+  renderRalos(); 
+  renderSim(); 
+  renderGeo();
+  renderSnow(); 
+  renderLanc();
+}
+
+function bindEvents() {
+  document.getElementById('exFlash').onchange = e => { S.exFlash = e.target.checked; renderAll(); };
+  ['sPreco', 'sN', 'sDesc'].forEach(id => document.getElementById(id).addEventListener('input', renderSim));
+  document.getElementById('geoCusto').addEventListener('input', renderGeo);
+  document.getElementById('snAporte').addEventListener('input', e => { e.target.dataset.touched = '1'; renderSnow(); });
+  
+  // Efeito Tilt sutil para Desktop
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll('.card.tilt').forEach(el => {
+      if (el.id === 'heroCard') return;
+      el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(1000px) rotateX(${(-y * 2).toFixed(2)}deg) rotateY(${(x * 2).toFixed(2)}deg)`;
+      });
+      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+    });
+  }
+}
+
+/* Boot */
+loadExtras();
+initLanc(); 
+initCharts(); 
+initHero(); 
+bindEvents();
+renderAll();
+
+</script>
+</body>
+</html>
