@@ -1869,24 +1869,26 @@ button, input, select {
 
   <!-- ==================== MODAL DE GERENCIAMENTO DE CATEGORIAS ==================== -->
   <div class="modal-layer" id="catModal">
-    <div class="modal-inner-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="font-size:15px; font-weight:700; color:var(--ink);">Gerenciar Categorias</h3>
-        <button onclick="closeCatModal()" style="font-size:18px; font-weight:700; cursor:pointer; color:var(--muted);">&times;</button>
+    <div class="modal-inner-card cm-card">
+      <div class="cm-head"><h3>Categorias</h3><button class="cm-x" onclick="closeCatModal()" aria-label="Fechar">&times;</button></div>
+      <div class="lx-seg" id="cmTabs">
+        <button type="button" class="on" data-tab="exp" onclick="cmTab('exp')">Despesas</button>
+        <button type="button" data-tab="inc" onclick="cmTab('inc')">Receitas</button>
       </div>
-
-      <div class="input-stack-form" style="margin-bottom:18px;">
-        <input class="app-input-field" id="newCatName" placeholder="Nome da Nova Categoria">
-        <select class="app-input-field" id="newCatGroup">
-          <option value="ESS">Essenciais (Teto 80%)</option>
-          <option value="NESS">Discricionárias (Teto 20%)</option>
-          <option value="FIX">Despesas Inelásticas (Fixas)</option>
-        </select>
-        <button class="primary-submit-btn" onclick="saveNewCategory()">Adicionar Categoria</button>
+      <p class="cm-help" id="cmHelp"></p>
+      <div class="cm-list" id="cmList"></div>
+      <div class="cm-new">
+        <div class="cm-new-title" id="cmNewTitle">Nova categoria</div>
+        <label class="lx-label">Nome<input class="app-input-field" id="cmName" placeholder="Ex.: Academia"></label>
+        <label class="lx-label" id="cmGroupRow">Grupo no orçamento<select class="app-input-field" id="cmGroup">
+          <option value="ESS">Essencial · 80% do saldo flexível</option>
+          <option value="NESS">Discricionária · 20% do saldo flexível</option>
+          <option value="FIX">Fixa · fora do teto</option>
+        </select></label>
+        <label class="lx-check"><input type="checkbox" id="cmFlash"><span><b id="cmFlashLabel">Despesa flash</b><small>Paga com VT/VR. Sai de todos os cálculos quando o Flash estiver ativo.</small></span></label>
+        <button class="primary-submit-btn" onclick="cmCreate()">Criar</button>
+        <div class="lx-err" id="cmMsg"></div>
       </div>
-
-      <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Categorias Ativas</div>
-      <div id="modalCatsList" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -1962,11 +1964,12 @@ function persist() {
   try {
     localStorage.setItem('cfo_extras', JSON.stringify(S.extras));
     localStorage.setItem('cfo_incomes', JSON.stringify(S.incomes));
+    localStorage.setItem('cfo_isrc', JSON.stringify(INCOME_SOURCES));
     localStorage.setItem('cfo_cats', JSON.stringify(customCategories));
     localStorage.setItem('cfo_data', JSON.stringify({ DATA_2026, DATA_2027 }));
   } catch (e) { console.warn('Falha ao salvar dados locais', e); }
 }
-const isFlashSrc = src => src === 'VT' || src === 'VR';
+const isFlashSrc = src => { const f = INCOME_SOURCES.find(x => x.name === src); return f ? !!f.flash : (src === 'VT' || src === 'VR'); };
 // flash: undefined = todas; true = só VT/VR; false = só receitas comuns
 const incomeTotal = (y, i, flash) => (S.incomes || []).filter(x => x.year === y && x.i === i && (flash === undefined || isFlashSrc(x.src) === flash)).reduce((s, x) => s + x.v, 0);
 function monthHasData(D, year, idx) {
@@ -2011,7 +2014,7 @@ function calculateSingleMonth(idx, year) {
   for (const c in customCategories) {
     const historical = (D.cats[c] && D.cats[c][idx]) ? D.cats[c][idx] : 0;
     rawCats[c] = historical + getExtrasAmount(c, idx, year);
-    flashByCat[c] = S.extras.filter(e => e.year === year && e.i === idx && e.cat === c && e.flash).reduce((s, e) => s + e.v, 0);
+    flashByCat[c] = S.extras.filter(e => e.year === year && e.i === idx && e.cat === c && (e.flash === undefined ? catFlash(c) : e.flash)).reduce((s, e) => s + e.v, 0);
   }
   for (const c in customCategories) {
     cats[c] = S.exFlash ? Math.max(0, rawCats[c] - flashByCat[c]) : rawCats[c];
@@ -2041,7 +2044,7 @@ function calculateSingleMonth(idx, year) {
     const groupCaps = {};
     let totalWeight = 0;
     for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup) {
+      if (customCategories[c].group === targetGroup && inBudget(c)) {
         totalWeight += (customCategories[c].weight || 0.1);
       }
     }
@@ -2050,7 +2053,7 @@ function calculateSingleMonth(idx, year) {
     let weightRemaining = 0;
 
     for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup) {
+      if (customCategories[c].group === targetGroup && inBudget(c)) {
         const normWeight = totalWeight > 0 ? (customCategories[c].weight || 0.1) / totalWeight : 0.1;
         groupCaps[c] = availableGroupCap * normWeight;
         const spent = cats[c] || 0;
@@ -2063,7 +2066,7 @@ function calculateSingleMonth(idx, year) {
     }
 
     for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup) {
+      if (customCategories[c].group === targetGroup && inBudget(c)) {
         const spent = cats[c] || 0;
         const cap = groupCaps[c];
         if (isPending) {
@@ -2598,7 +2601,6 @@ function renderSimulator() {
 
 const gid = id => document.getElementById(id);
 /* ==================== LANÇAMENTOS: CRIAR E EDITAR ==================== */
-const LX_SOURCES = ['Salário', 'USP', 'Imprevisível', 'VT', 'VR'];
 const LX_PARC = [1, 2, 3, 4, 5, 6, 8, 10, 12, 18, 24];
 let lxType = 'expense', lxCat = 'Alimentação', lxSrc = 'Salário', lxEdit = null;
 function renderMindfulCategories() {
@@ -2615,7 +2617,7 @@ function lxSetType(t) {
 }
 function lxUpdate() {
   const v = parseFloat(gid('lxValue').value) || 0, n = +gid('lxParc').value || 1;
-  gid('lxSources').innerHTML = LX_SOURCES.map(s => `<button type="button" class="lx-chip ${s === lxSrc ? 'on' : ''}" data-src="${esc(s)}">${esc(s)}</button>`).join('');
+  renderIncomeChips();
   gid('lxSummary').innerHTML = lxType === 'expense'
     ? `<div class="lx-sum-row"><span>Categoria</span><b>${esc(lxCat || '-')}</b></div>
        <div class="lx-sum-row"><span>Pagamento</span><b>${gid('lxPay').value === 'c6' ? 'C6 Carbon' : 'Débito / Pix'}</b></div>
@@ -2635,7 +2637,7 @@ function lxShow(title, submitLabel) {
 function openMindfulExpenseModal() {
   lxEdit = null;
   gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
-  gid('lxFlash').checked = false; gid('lxPay').value = 'c6';
+  gid('lxFlash').checked = catFlash(lxCat); gid('lxPay').value = 'c6';
   gid('lxParc').innerHTML = LX_PARC.map(n => `<option value="${n}">${n === 1 ? 'À vista' : n + 'x'}</option>`).join('');
   gid('lxParc').value = '1'; gid('lxParc').disabled = false;
   gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
@@ -2661,7 +2663,7 @@ function openLxEdit(kind, id) {
     gid('lxDesc').value = r.desc.replace(/ \(\d+\/\d+\)$/, '');
     gid('lxValue').value = r.v;
     gid('lxPay').value = r.c6 ? 'c6' : 'debit';
-    gid('lxFlash').checked = !!r.flash;
+    gid('lxFlash').checked = r.flash === undefined ? catFlash(r.cat) : !!r.flash;
     gid('lxParc').value = '1'; gid('lxParc').disabled = true;
     gid('lxMonth').disabled = parcelado;
     renderMindfulCategories();
@@ -2720,7 +2722,7 @@ function lxDelete() {
 }
 gid('mindfulCatSelectorGrid').addEventListener('click', e => {
   const c = e.target.dataset.cat;
-  if (c) { lxCat = c; renderMindfulCategories(); lxUpdate(); }
+  if (c) { lxCat = c; gid('lxFlash').checked = catFlash(c); renderMindfulCategories(); lxUpdate(); }
 });
 gid('lxSources').addEventListener('click', e => {
   const s = e.target.dataset.src;
@@ -3144,6 +3146,157 @@ gid('patUseRec').onclick = () => {
   patSave(); updateApplication();
 };
 
+/* ==================== CATEGORIAS E FONTES DE RECEITA ==================== */
+const FLASH_CAT_DEFAULT = ['Alimentação', 'Carro de Aplicativo'];
+const INCOME_PROTECTED = ['Salário', 'USP', 'Imprevisível', 'VT', 'VR'];
+const INCOME_DEFAULT = [
+  { name: 'Salário', flash: false }, { name: 'USP', flash: false }, { name: 'Imprevisível', flash: false },
+  { name: 'VT', flash: true }, { name: 'VR', flash: true }
+];
+let INCOME_SOURCES = JSON.parse(localStorage.getItem('cfo_isrc') || 'null') || INCOME_DEFAULT.map(x => ({ ...x }));
+const isrcSave = () => localStorage.setItem('cfo_isrc', JSON.stringify(INCOME_SOURCES));
+const GROUP_LABEL = { ESS: 'Essencial · 80%', NESS: 'Discricionária · 20%', FIX: 'Fixa' };
+const catFlash = c => (customCategories[c] && customCategories[c].flash !== undefined) ? !!customCategories[c].flash : FLASH_CAT_DEFAULT.includes(c);
+// Com o Flash ativo, categorias flash saem do orçamento (teto zero e sem consumir o saldo flexível)
+const inBudget = c => !(S.exFlash && catFlash(c));
+function renderIncomeChips() {
+  if (!INCOME_SOURCES.some(x => x.name === lxSrc)) lxSrc = INCOME_SOURCES[0] ? INCOME_SOURCES[0].name : '';
+  gid('lxSources').innerHTML = INCOME_SOURCES.map(x =>
+    `<button type="button" class="lx-chip ${x.name === lxSrc ? 'on' : ''}" data-src="${esc(x.name)}">${esc(x.name)}${x.flash ? ' · flash' : ''}</button>`).join('');
+}
+gid('lxSources').addEventListener('click', e => {
+  const s = e.target.dataset.src;
+  if (s) { lxSrc = s; lxUpdate(); }
+});
+
+let cmTabSel = 'exp', cmEditKey = null;
+const cmMsg = t => { gid('cmMsg').textContent = t; };
+function openCatModal() {
+  cmEditKey = null; cmMsg(''); gid('cmName').value = ''; gid('cmFlash').checked = false;
+  cmTab('exp');
+  gid('catModal').classList.add('active');
+}
+function closeCatModal() { gid('catModal').classList.remove('active'); }
+function cmTab(t) {
+  cmTabSel = t; cmEditKey = null; cmMsg('');
+  document.querySelectorAll('#cmTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  const exp = t === 'exp';
+  gid('cmHelp').textContent = exp
+    ? 'Categorias organizam o orçamento. Essenciais dividem 80% do saldo flexível, discricionárias, 20%, e fixas ficam fora do teto. Categorias marcadas como flash saem dos cálculos quando o Flash está ativo.'
+    : 'Fontes de receita usadas nos lançamentos. Receitas flash (VT e VR) saem de todos os cálculos quando o Flash está ativo.';
+  gid('cmNewTitle').textContent = exp ? 'Nova categoria de despesa' : 'Nova fonte de receita';
+  gid('cmGroupRow').hidden = !exp;
+  gid('cmFlashLabel').textContent = exp ? 'Despesa flash' : 'Receita flash';
+  renderCm();
+}
+function cmRows() {
+  if (cmTabSel === 'exp') return Object.keys(customCategories).map(c => ({
+    key: c, name: c, group: customCategories[c].group, flash: catFlash(c), custom: !!customCategories[c].custom }));
+  return INCOME_SOURCES.map(x => ({ key: x.name, name: x.name, flash: !!x.flash, custom: !INCOME_PROTECTED.includes(x.name) }));
+}
+function renderCm() {
+  const exp = cmTabSel === 'exp';
+  gid('cmList').innerHTML = cmRows().map(r => r.key === cmEditKey ? cmEditRow(r, exp) : cmRow(r, exp)).join('')
+    || '<div class="lx-empty">Nenhuma categoria.</div>';
+}
+function cmRow(r, exp) {
+  const meta = exp ? GROUP_LABEL[r.group] : (r.flash ? 'Receita flash' : 'Receita comum');
+  const extra = [r.custom ? 'personalizada' : 'padrão', exp && r.flash ? 'flash' : ''].filter(Boolean).join(' · ');
+  return `<div class="cm-item">
+    <div class="cm-info"><b>${esc(r.name)}</b><span>${esc(meta)} · ${esc(extra)}</span></div>
+    <button class="cm-btn" data-cm-edit="${esc(r.key)}">Editar</button>
+  </div>`;
+}
+function cmEditRow(r, exp) {
+  const group = exp ? `<label class="lx-label">Grupo no orçamento<select class="app-input-field" data-cm-f="group">${
+    Object.keys(GROUP_LABEL).map(g => `<option value="${g}" ${g === r.group ? 'selected' : ''}>${GROUP_LABEL[g]}</option>`).join('')}</select></label>` : '';
+  const canFlash = exp || r.custom;
+  return `<div class="cm-item editing">
+    <label class="lx-label">Nome${r.custom ? '' : ' (padrão, não pode ser renomeado)'}<input class="app-input-field" data-cm-f="name" value="${esc(r.name)}" ${r.custom ? '' : 'disabled'}></label>
+    ${group}
+    <label class="lx-check"><input type="checkbox" data-cm-f="flash" ${r.flash ? 'checked' : ''} ${canFlash ? '' : 'disabled'}><span><b>${exp ? 'Despesa flash' : 'Receita flash'}</b><small>${canFlash ? 'Sai de todos os cálculos quando o Flash estiver ativo.' : 'Receita padrão flash (VT/VR).'}</small></span></label>
+    <div class="cm-actions">
+      <button class="cm-btn primary" data-cm-save="${esc(r.key)}">Salvar</button>
+      <button class="cm-btn" data-cm-cancel="1">Cancelar</button>
+      ${r.custom ? `<button class="cm-btn danger" data-cm-del="${esc(r.key)}">Remover</button>` : ''}
+    </div>
+  </div>`;
+}
+const cmExists = (name, except) => (cmTabSel === 'exp' ? Object.keys(customCategories) : INCOME_SOURCES.map(x => x.name))
+  .some(n => n !== except && n.toLowerCase() === name.toLowerCase());
+function renameExpenseCat(oldN, newN) {
+  customCategories = Object.fromEntries(Object.entries(customCategories).map(([k, v]) => [k === oldN ? newN : k, v]));
+  S.extras.forEach(e => { if (e.cat === oldN) e.cat = newN; });
+  [DATA_2026, DATA_2027, DATA_2025].forEach(D => { if (D.cats[oldN]) { D.cats[newN] = D.cats[oldN]; delete D.cats[oldN]; } });
+  if (lxCat === oldN) lxCat = newN;
+}
+function renameIncomeSource(oldN, newN) {
+  INCOME_SOURCES.forEach(x => { if (x.name === oldN) x.name = newN; });
+  S.incomes.forEach(x => { if (x.src === oldN) x.src = newN; });
+  if (lxSrc === oldN) lxSrc = newN;
+  isrcSave();
+}
+function cmSave(key) {
+  const row = gid('cmList').querySelector('.cm-item.editing');
+  const name = row.querySelector('[data-cm-f="name"]').value.trim();
+  const flash = row.querySelector('[data-cm-f="flash"]').checked;
+  const isCustom = cmTabSel === 'exp' ? !!customCategories[key].custom : !INCOME_PROTECTED.includes(key);
+  if (!name) return cmMsg('Informe um nome.');
+  if (cmExists(name, key)) return cmMsg('Já existe um item com esse nome.');
+  if (cmTabSel === 'exp') {
+    if (isCustom && name !== key) renameExpenseCat(key, name);
+    customCategories[name].group = row.querySelector('[data-cm-f="group"]').value;
+    customCategories[name].flash = flash;
+    if (!customCategories[name].custom) customCategories[name].flash = flash;
+  } else {
+    if (isCustom && name !== key) renameIncomeSource(key, name);
+    const x = INCOME_SOURCES.find(z => z.name === name);
+    if (isCustom) x.flash = flash;
+    isrcSave();
+  }
+  cmEditKey = null; cmMsg('Alterações salvas.');
+  renderCm(); updateApplication(); renderMindfulCategories();
+}
+function cmDelete(key) {
+  if (cmTabSel === 'exp') {
+    const n = S.extras.filter(e => e.cat === key).length;
+    if (n) return cmMsg(`Esta categoria tem ${n} lançamento(s). Renomeie-a ou remova os lançamentos antes.`);
+    delete customCategories[key];
+    if (lxCat === key) lxCat = Object.keys(customCategories)[0];
+  } else {
+    const n = S.incomes.filter(x => x.src === key).length;
+    if (n) return cmMsg(`Esta fonte tem ${n} lançamento(s). Renomeie-a ou remova os lançamentos antes.`);
+    INCOME_SOURCES = INCOME_SOURCES.filter(x => x.name !== key);
+    isrcSave();
+    if (lxSrc === key) renderIncomeChips();
+  }
+  cmEditKey = null; cmMsg('Removido.');
+  renderCm(); updateApplication(); renderMindfulCategories();
+}
+function cmCreate() {
+  const name = gid('cmName').value.trim();
+  if (!name) return cmMsg('Digite um nome.');
+  if (cmExists(name, null)) return cmMsg('Já existe um item com esse nome.');
+  const flash = gid('cmFlash').checked;
+  if (cmTabSel === 'exp') {
+    const group = gid('cmGroup').value;
+    customCategories[name] = { group, weight: group === 'ESS' ? 0.25 : (group === 'NESS' ? 0.15 : 0), custom: true, flash };
+  } else {
+    INCOME_SOURCES.push({ name, flash });
+    isrcSave();
+  }
+  gid('cmName').value = ''; gid('cmFlash').checked = false;
+  cmMsg(cmTabSel === 'exp' ? 'Categoria criada.' : 'Fonte criada.');
+  renderCm(); updateApplication(); renderMindfulCategories();
+}
+gid('cmList').addEventListener('click', e => {
+  const t = e.target.dataset;
+  if (t.cmEdit !== undefined) { cmEditKey = t.cmEdit; cmMsg(''); renderCm(); }
+  else if (t.cmCancel !== undefined) { cmEditKey = null; renderCm(); }
+  else if (t.cmSave !== undefined) cmSave(t.cmSave);
+  else if (t.cmDel !== undefined) cmDelete(t.cmDel);
+});
+
 /* ==================== GLOBAL ROUTER & CONTROLS ==================== */
 function goToTab(targetId) {
   document.querySelectorAll('.dock-item-btn').forEach(b => {
@@ -3178,54 +3331,6 @@ function updateApplication() {
   renderArbitrageScroller();
   renderSimulator();
   updateFlowChart();
-}
-
-function openCatModal() {
-  document.getElementById('catModal').classList.add('active');
-  renderModalCatsList();
-}
-function closeCatModal() {
-  document.getElementById('catModal').classList.remove('active');
-}
-function renderModalCatsList() {
-  const container = document.getElementById('modalCatsList');
-  container.innerHTML = Object.keys(customCategories).map(cat => {
-    const c = customCategories[cat];
-    const groupName = c.group === 'ESS' ? 'Essencial (80%)' : (c.group === 'NESS' ? 'Discricionária (20%)' : 'Fixa');
-    return `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:var(--bg-deep); border-radius:8px;">
-        <div>
-          <b style="font-size:12px; color:var(--ink);">${cat}</b>
-          <span style="font-size:10px; color:var(--muted); display:block;">${groupName}</span>
-        </div>
-        ${c.custom ? `<button onclick="deleteCustomCat('${cat}')" style="font-size:11px; color:var(--ink); text-decoration:underline; cursor:pointer;">Remover</button>` : `<span style="font-size:10px; color:var(--muted);">Padrão</span>`}
-      </div>
-    `;
-  }).join('');
-}
-
-function saveNewCategory() {
-  const name = document.getElementById('newCatName').value.trim();
-  const group = document.getElementById('newCatGroup').value;
-  if (!name) return;
-
-  customCategories[name] = {
-    group: group,
-    weight: group === 'ESS' ? 0.25 : 0.15,
-    custom: true
-  };
-
-  document.getElementById('newCatName').value = '';
-  renderModalCatsList();
-  renderMindfulCategories();
-  updateApplication();
-}
-
-function deleteCustomCat(name) {
-  delete customCategories[name];
-  renderModalCatsList();
-  renderMindfulCategories();
-  updateApplication();
 }
 
 // Event Listeners
