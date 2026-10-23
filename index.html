@@ -35,7 +35,6 @@ button, select, input { font: inherit; color: inherit; border: none; outline: no
 
 /* header */
 header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
-@media(min-width: 768px) { header { flex-direction: row; justify-content: space-between; align-items: center; } }
 .brand { font-weight: 600; font-size: 22px; line-height: 1.1; }
 .brand span { display: block; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; margin-top: 4px; letter-spacing: 0; }
 
@@ -43,13 +42,13 @@ header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; 
 .months-wrap { overflow-x: auto; padding-bottom: 8px; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
 .months-wrap::-webkit-scrollbar { display: none; }
 .months { display: inline-flex; gap: 8px; }
-.pill { border: 1px solid var(--line); background: var(--card); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.3s ease; white-space: nowrap; box-shadow: var(--shadow-sm); }
+.pill { border: 1px solid var(--line); background: var(--card); padding: 12px 20px; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.3s ease; white-space: nowrap; box-shadow: var(--shadow-sm); min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
 .pill:active { transform: scale(0.95); }
 .pill.on { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .pill.pend { opacity: 0.5; border-style: dashed; }
 
 /* toggles */
-.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; font-weight: 500; }
+.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; font-weight: 500; min-height: 48px; }
 .switch input { display: none; }
 .track { width: 44px; height: 24px; border-radius: 99px; background: #E0DFDB; position: relative; transition: background 0.3s; flex-shrink: 0; }
 .track::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -57,21 +56,14 @@ header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; 
 .switch input:checked + .track::after { transform: translateX(20px); }
 
 /* grids & cards */
-.grid { display: flex; flex-direction: column; gap: 16px; }
-@media(min-width: 920px) {
-  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
-  .s12 { grid-column: span 12; } .s8 { grid-column: span 8; } .s6 { grid-column: span 6; } .s4 { grid-column: span 4; }
-}
-.card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s; position: relative; z-index: 1; overflow: hidden; }
-@media(min-width: 768px) { .card { padding: 28px; border-radius: 32px; } }
-@media(hover: hover) { .card.tilt:hover { z-index: 10; box-shadow: var(--shadow-lg); } }
+.grid { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+.card { background: var(--card); border-radius: 24px; padding: 24px 20px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); position: relative; z-index: 1; overflow: hidden; width: 100%; }
 
 /* common card inner */
 .head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
 .card h2 { font-size: 18px; font-weight: 600; color: var(--ink); }
 .hint { font-size: 13px; color: var(--muted); }
 .val { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin-top: 2px; }
-@media(min-width: 768px) { .val { font-size: 32px; } }
 .val.pos { color: var(--ink); } .val.neg { color: #A66E5E; }
 .muted { color: var(--muted); font-size: 13px; }
 
@@ -79,9 +71,7 @@ header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; 
 .hero { position: relative; min-height: 380px; background: linear-gradient(145deg, #ffffff 0%, var(--warm) 100%); display: flex; flex-direction: column; justify-content: space-between; overflow: visible; }
 #hero3d { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.8; }
 .hero-top h1 { font-size: 32px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
-@media(min-width: 768px) { .hero-top h1 { font-size: 42px; } }
 .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 24px; }
-@media(min-width: 768px) { .kpis { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
 .kpi { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
 .kpi .label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 .kpi .val { font-size: 20px; }
@@ -91,7 +81,6 @@ header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; 
 
 /* charts */
 .chart-box { position: relative; height: 260px; width: 100%; margin-top: 16px; }
-@media(min-width: 768px) { .chart-box { height: 320px; } }
 
 /* tables & bars */
 .bar { height: 8px; border-radius: 99px; background: var(--warm); overflow: hidden; width: 100%; position: relative; }
@@ -106,13 +95,13 @@ td.bw { width: 35%; padding-left: 16px; }
 @media(max-width: 480px) { td.bw { width: 30%; padding-left: 12px; } }
 
 /* inputs & forms */
-.form-grid { display: grid; gap: 12px; }
-.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.inp { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--warm); font-size: 14px; transition: all 0.2s; -webkit-appearance: none; }
+.form-grid { display: grid; gap: 14px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.inp { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--warm); font-size: 15px; transition: all 0.2s; -webkit-appearance: none; min-height: 52px; }
 .inp:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px var(--soft); }
-.btn { background: var(--ink); color: #fff; border-radius: 16px; padding: 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: transform 0.2s, background 0.2s; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(17,17,17,0.2); }
+.btn { background: var(--ink); color: #fff; border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(17,17,17,0.2); min-height: 56px; }
 .btn:active { transform: scale(0.97); }
-.check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--dark); font-weight: 500; cursor: pointer; padding: 4px 0; }
+.check { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--dark); font-weight: 500; cursor: pointer; padding: 8px 0; min-height: 48px; }
 .check input { width: 18px; height: 18px; accent-color: var(--ink); border-radius: 4px; }
 
 /* C6 widget */
@@ -267,10 +256,10 @@ td.bw { width: 35%; padding-left: 16px; }
   <section class="card s6 tilt">
     <div class="head">
       <h2>Arbitragem Geográfica</h2>
-      <span class="hint">Impacto patrimonial ao migrar para polos Tech/Agro e investir a diferença no CDI por 10 anos.</span>
+      <span class="hint">Impacto patrimonial ao migrar de SP Capital para polos no Interior e investir a economia no CDI por 10 anos.</span>
     </div>
     <div style="margin-bottom: 16px;">
-      <div class="muted" style="margin-bottom:6px; font-size:12px;">Custo de Vida Atual Estimado (R$/mês)</div>
+      <div class="muted" style="margin-bottom:6px; font-size:12px;">Custo de Vida Atual em SP Capital (R$/mês)</div>
       <input class="inp" id="geoCusto" type="number" value="5000" step="500">
     </div>
     <div class="geo-grid">
@@ -500,9 +489,8 @@ function initCharts() {
       { type: 'bar', label: 'Investido', data: [], backgroundColor: '#2A2A2A', borderRadius: 6, maxBarThickness: 16 },
       { type: 'line', label: 'Economia', data: [], borderColor: '#111111', backgroundColor: '#111111', tension: 0.4, pointRadius: 3, borderWidth: 2 }
     ]},
-    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                 tooltip: { callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y||0)}` } } },
+    options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'none' },
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { enabled: false } },
       scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
     }
   });
@@ -514,9 +502,8 @@ function initCharts() {
       { label: 'Patrimônio Acumulado', data: [], borderColor: '#111111', backgroundColor: 'rgba(181,203,221,0.3)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
       { label: 'Capital Aportado', data: [], borderColor: '#888', borderDash: [5,5], pointRadius: 0, borderWidth: 2 }
     ]},
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                 tooltip: { callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y)}` } } },
+    options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'none' },
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { enabled: false } },
       scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
     }
   });
@@ -855,19 +842,7 @@ function bindEvents() {
   document.getElementById('geoCusto').addEventListener('input', renderGeo);
   document.getElementById('snAporte').addEventListener('input', e => { e.target.dataset.touched = '1'; renderSnow(); });
   
-  // Efeito Tilt sutil para Desktop
-  if (window.matchMedia("(hover: hover)").matches) {
-    document.querySelectorAll('.card.tilt').forEach(el => {
-      if (el.id === 'heroCard') return;
-      el.addEventListener('mousemove', e => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        el.style.transform = `perspective(1000px) rotateX(${(-y * 2).toFixed(2)}deg) rotateY(${(x * 2).toFixed(2)}deg)`;
-      });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
-    });
-  }
+  // Tilt and hover effects disabled for mobile-first experience.
 }
 
 /* Boot */
