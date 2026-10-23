@@ -1402,6 +1402,42 @@ button, input, select {
 .invoice-chip svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
 .personal-dot{width:14px;height:14px;border-radius:50%;background:var(--accent-blue);border:none;cursor:pointer;opacity:.55;align-self:center;margin:0 6px}
 .personal-dot:hover,.personal-dot:focus-visible{opacity:1}
+/* ===== v6 ===== */
+[hidden]{display:none !important}
+#app>.user-profile-header{margin:0 16px;padding:calc(14px + env(safe-area-inset-top)) 0 12px 0}
+#app>section.date-selector-panel,#app>section.flash-neutralizer-card{margin-left:16px;margin-right:16px}
+#app>section.date-selector-panel{margin-top:4px}
+.c6-card-value{color:#8E9199}
+#mindfulExpenseModal{display:none;flex-direction:column;gap:14px;padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));background:var(--bg-deep);overflow-y:auto}
+#mindfulExpenseModal.active{display:flex}
+.lx-top{display:flex;justify-content:space-between;align-items:center}
+.lx-title{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.lx-close{width:36px;height:36px;border-radius:50%;background:var(--bg-card);border:.5px solid var(--hairline);font-size:20px;color:var(--ink);cursor:pointer;line-height:1}
+.lx-seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg-warm);border-radius:999px;padding:4px}
+.lx-seg button{padding:10px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;background:none}
+.lx-seg button.on{background:var(--ink);color:#FFFFFF}
+.lx-amount{background:var(--bg-card);border-radius:var(--radius-md);border:.5px solid var(--hairline);padding:20px 18px;display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow-subtle)}
+.lx-amount span{font-size:15px;color:var(--muted);font-weight:600}
+.lx-amount input{font-size:38px;font-weight:700;letter-spacing:-.03em;width:100%;background:none;border:none;color:var(--ink);font-variant-numeric:tabular-nums;min-width:0}
+.lx-amount input:focus{outline:none}
+.lx-card{background:var(--bg-card);border-radius:var(--radius-md);border:.5px solid var(--hairline);padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow-subtle)}
+.lx-label{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;flex-direction:column;gap:6px}
+.lx-cats{display:flex;flex-wrap:wrap;gap:6px}
+.lx-cat,.lx-chip{padding:8px 12px;border-radius:999px;background:var(--bg-deep);font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;border:.5px solid var(--hairline)}
+.lx-cat.on,.lx-chip.on{background:var(--ink);color:#FFFFFF;border-color:var(--ink)}
+.lx-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lx-sum{background:var(--bg-deep);border-radius:var(--radius-xs);padding:10px 12px}
+.lx-sum-row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--muted)}
+.lx-sum-row b{color:var(--ink);font-weight:600}
+.lx-submit{background:var(--ink);color:#FFFFFF;border-radius:var(--radius-sm);padding:16px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(14,15,18,.15)}
+.lx-err{font-size:12px;color:var(--muted);text-align:center;min-height:16px}
+.lx-empty{font-size:11px;color:var(--muted);text-align:center;padding:12px}
+.lx-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:var(--bg-deep);border-radius:var(--radius-xs);margin-bottom:6px;border:.5px solid var(--hairline)}
+.lx-item-info b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}
+.lx-item-info span{font-size:10.5px;color:var(--muted)}
+.lx-item-val{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lx-item-val.in{color:var(--accent-text)}
+.lx-item-val button{font-size:10.5px;color:var(--muted);text-decoration:underline;font-weight:500;cursor:pointer;background:none}
 </style>
 </head>
 <body>
@@ -1481,7 +1517,7 @@ button, input, select {
       <div class="hero-meta-title-lockup">
         <div class="hero-super-badge">
           <span class="dot-live"></span>
-          <span>Private Wealth Engine · 102% CDI</span>
+          <span>102% CDI</span>
         </div>
         <h1 class="hero-period-headline" id="heroPeriodTitle">Consolidação Outubro</h1>
       </div>
@@ -1620,13 +1656,12 @@ button, input, select {
     <section class="glass-card">
       <div class="glass-card-header"><div><h2 class="glass-card-title">Registro do Mês</h2><div class="glass-card-sub" id="mLabel">Mês selecionado</div></div></div>
       <div class="inv-grid" style="margin-top:0">
-        <label class="inv-field">Receita líquida (R$)<input class="app-input-field" id="mRec" type="number" step="0.01"></label>
         <label class="inv-field">Rendimento CDI (R$)<input class="app-input-field" id="mRend" type="number" step="0.01"></label>
         <label class="inv-field">Vale-transporte (R$)<input class="app-input-field" id="mVt" type="number" step="0.01"></label>
         <label class="inv-field">Vale-refeição (R$)<input class="app-input-field" id="mVr" type="number" step="0.01"></label>
         <label class="inv-field wide">Aporte contratual (R$)<input class="app-input-field" id="mInv" type="number" step="0.01"></label>
       </div>
-      <p class="inv-note">A receita deve incluir VT e VR, pois a neutralização Flash os separa do caixa pessoal.</p>
+      <p class="inv-note">Salário e demais receitas são lançados em + Lançamento e devem incluir VT e VR, pois a neutralização Flash os separa.</p>
       <button class="primary-submit-btn" style="margin-top:14px" onclick="saveMonthData()">Salvar mês</button>
     </section>
 
@@ -1776,107 +1811,38 @@ button, input, select {
 
   <!-- ==================== MODAL DE ATENÇÃO PLENA (MINDFULNESS / ESTILO DUOLINGO) ==================== -->
   <div id="mindfulExpenseModal">
-    <div class="mindful-modal-header">
-      <span class="mindful-badge-mindful">Mindfulness · Atenção Plena</span>
-      <button class="mindful-close-circle" onclick="closeMindfulExpenseModal()">&times;</button>
+    <div class="lx-top">
+      <button class="lx-close" onclick="closeMindfulExpenseModal()" aria-label="Fechar">&times;</button>
+      <span class="lx-title">Novo lançamento</span>
+      <span style="width:36px"></span>
     </div>
-
-    <!-- Track de Progresso Mindful -->
-    <div class="mindful-progress-bar">
-      <div class="mindful-progress-fill" id="mindfulProgressTrack"></div>
+    <div class="lx-seg" id="lxType">
+      <button type="button" data-type="expense" class="on" onclick="lxSetType('expense')">Despesa</button>
+      <button type="button" data-type="income" onclick="lxSetType('income')">Receita</button>
     </div>
-
-    <!-- ETAPA 1: O Que Você Está Adquirindo? -->
-    <div class="mindful-step-section active" id="mindfulStep1">
-      <div>
-        <h2 class="mindful-step-title">Qual é o item ou serviço que você está adquirindo?</h2>
-        <p class="mindful-step-sub">Nomeie o item com precisão para evitar desvios no orçamento.</p>
-
-        <div style="margin-top:24px;">
-          <input class="app-input-field" id="mindfulDescInput" placeholder="Ex.: 2 Calças de Alfaiataria, Consulta, Livro..." autofocus>
-        </div>
-
-        <div style="margin-top:20px;">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Selecione a Categoria:</div>
-          <div class="mindful-category-grid" id="mindfulCatSelectorGrid"></div>
-        </div>
-      </div>
-
-      <button class="mindful-next-btn" onclick="mindfulGoToStep(2)">Continuar</button>
+    <div class="lx-amount">
+      <span>R$</span><input id="lxValue" type="number" inputmode="decimal" step="0.01" placeholder="0,00" oninput="lxUpdate()">
     </div>
-
-    <!-- ETAPA 2: Valor do Desembolso -->
-    <div class="mindful-step-section" id="mindfulStep2">
-      <div>
-        <h2 class="mindful-step-title">Qual é o valor total deste compromisso?</h2>
-        <p class="mindful-step-sub">Conecte-se com o valor real antes de confirmá-lo.</p>
-
-        <div class="mindful-big-input-box">
-          <span class="mindful-currency-prefix">R$</span>
-          <input class="mindful-amount-input num" id="mindfulValTotalInput" type="number" step="0.01" placeholder="0,00">
-        </div>
-      </div>
-
-      <div style="display:flex;gap:10px;">
-        <button class="mindful-next-btn" style="background:var(--bg-card);color:var(--ink);border:0.5px solid var(--hairline);" onclick="mindfulGoToStep(1)">Voltar</button>
-        <button class="mindful-next-btn" style="flex:2;" onclick="mindfulGoToStep(3)">Continuar</button>
+    <div class="lx-card" id="lxExpenseBox">
+      <label class="lx-label">Descrição<input class="app-input-field" id="lxDesc" placeholder="Ex.: Consulta, Livro"></label>
+      <div class="lx-label">Categoria</div>
+      <div class="lx-cats" id="mindfulCatSelectorGrid"></div>
+      <div class="lx-row">
+        <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="c6">C6 Carbon</option><option value="debit">Débito / Pix</option></select></label>
+        <label class="lx-label">Parcelas<select class="app-input-field" id="lxParc" onchange="lxUpdate()"></select></label>
       </div>
     </div>
-
-    <!-- ETAPA 3: Forma & Consciência de Parcelamento -->
-    <div class="mindful-step-section" id="mindfulStep3">
-      <div>
-        <h2 class="mindful-step-title">Como esse valor será liquidado?</h2>
-        <p class="mindful-step-sub">Avalie o impacto no C6 Carbon Black ou desembolso imediato.</p>
-
-        <div style="margin-top:24px;">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Número de Parcelas:</div>
-          <select class="app-input-field" id="mindfulParcelasSelect" onchange="mindfulUpdateSummary()">
-            <option value="1">1x · À Vista</option>
-            <option value="2">2x Sem Juros</option>
-            <option value="3">3x Sem Juros</option>
-            <option value="4">4x Sem Juros</option>
-            <option value="5">5x Sem Juros</option>
-            <option value="6">6x Sem Juros</option>
-            <option value="8">8x Sem Juros</option>
-            <option value="10">10x Sem Juros</option>
-            <option value="12">12x Sem Juros</option>
-            <option value="18">18x Sem Juros</option>
-            <option value="24">24x Sem Juros</option>
-          </select>
-        </div>
-
-        <label class="c6-checkbox-row" style="margin-top:16px;">
-          <input type="checkbox" id="mindfulC6Check" checked onchange="mindfulUpdateSummary()">
-          <span>Lançar no Crédito (C6 Carbon Black)</span>
-        </label>
-
-        <!-- Card de Síntese Consciente -->
-        <div class="mindful-summary-card">
-          <div class="mindful-summary-row">
-            <span style="color:var(--muted);">Item:</span>
-            <b id="mindfulSumDesc">--</b>
-          </div>
-          <div class="mindful-summary-row">
-            <span style="color:var(--muted);">Categoria:</span>
-            <b id="mindfulSumCat">--</b>
-          </div>
-          <div class="mindful-summary-row">
-            <span style="color:var(--muted);">Desembolso por Parcela:</span>
-            <b id="mindfulSumParcela" class="num">R$ 0,00</b>
-          </div>
-          <div class="mindful-summary-row">
-            <span style="color:var(--muted);">Impacto no CDI (102%):</span>
-            <span style="font-size:11px;color:var(--accent-blue);font-weight:600;" id="mindfulSumCdiReflection">Preserva capital rendendo</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:10px;">
-        <button class="mindful-next-btn" style="background:var(--bg-card);color:var(--ink);border:0.5px solid var(--hairline);" onclick="mindfulGoToStep(2)">Voltar</button>
-        <button class="mindful-next-btn" style="flex:2;" onclick="mindfulSubmitExpense()">Registrar com Consciência</button>
-      </div>
+    <div class="lx-card" id="lxIncomeBox" hidden>
+      <div class="lx-label">Fonte da receita</div>
+      <div class="lx-cats" id="lxSources"></div>
+      <label class="lx-label">Descrição (opcional)<input class="app-input-field" id="lxIncDesc" placeholder="Ex.: Pró-labore de março"></label>
     </div>
+    <div class="lx-card">
+      <label class="lx-label">Mês do lançamento<select class="app-input-field" id="lxMonth" onchange="lxUpdate()"></select></label>
+      <div class="lx-sum" id="lxSummary"></div>
+    </div>
+    <button class="lx-submit" onclick="lxSubmit()">Registrar lançamento</button>
+    <div class="lx-err" id="lxErr"></div>
   </div>
 
   <!-- ==================== MODAL DE GERENCIAMENTO DE CATEGORIAS ==================== -->
@@ -1957,13 +1923,15 @@ const S = {
   extras: []
 };
 
-/* Persistência local (v3) */
+/* Persistência local (v6) */
+S.incomes = [];
 try {
   if (!localStorage.getItem('cfo_v3_clean')) {
     ['cfo_extras', 'cfo_cats', 'cfo_data'].forEach(k => localStorage.removeItem(k));
     localStorage.setItem('cfo_v3_clean', '1');
   }
   const _ex = localStorage.getItem('cfo_extras'); if (_ex) S.extras = JSON.parse(_ex);
+  const _in = localStorage.getItem('cfo_incomes'); if (_in) S.incomes = JSON.parse(_in);
   const _cc = localStorage.getItem('cfo_cats'); if (_cc) customCategories = JSON.parse(_cc);
   const _dd = localStorage.getItem('cfo_data');
   if (_dd) { const d = JSON.parse(_dd); Object.assign(DATA_2026, d.DATA_2026 || {}); Object.assign(DATA_2027, d.DATA_2027 || {}); }
@@ -1971,9 +1939,15 @@ try {
 function persist() {
   try {
     localStorage.setItem('cfo_extras', JSON.stringify(S.extras));
+    localStorage.setItem('cfo_incomes', JSON.stringify(S.incomes));
     localStorage.setItem('cfo_cats', JSON.stringify(customCategories));
     localStorage.setItem('cfo_data', JSON.stringify({ DATA_2026, DATA_2027 }));
   } catch (e) { console.warn('Falha ao salvar dados locais', e); }
+}
+const incomeTotal = (y, i) => (S.incomes || []).filter(x => x.year === y && x.i === i).reduce((s, x) => s + x.v, 0);
+function monthHasData(D, year, idx) {
+  return (D.rec[idx] || 0) > 0 || (D.rend[idx] || 0) > 0 || (D.inv[idx] || 0) > 0
+    || incomeTotal(year, idx) > 0 || S.extras.some(e => e.year === year && e.i === idx);
 }
 
 function getActiveDataset() {
@@ -2002,7 +1976,7 @@ function getExtrasAmount(cat, monthIdx, year) {
 
 function calculateSingleMonth(idx, year) {
   const D = year === 2025 ? DATA_2025 : (year === 2027 ? DATA_2027 : DATA_2026);
-  const isPending = (D.rec[idx] || 0) === 0;
+  const isPending = !monthHasData(D, year, idx);
   const vt = D.vt[idx] || 0;
   const vr = D.vr[idx] || 0;
   const flashTotal = vt + vr;
@@ -2032,7 +2006,7 @@ function calculateSingleMonth(idx, year) {
     totalDesp += cats[c];
   }
 
-  const rawRec = D.rec[idx] || 0;
+  const rawRec = (D.rec[idx] || 0) + incomeTotal(year, idx);
   const recBase = rawRec - (S.exFlash ? flashTotal : 0);
   const rend = D.rend[idx] || 0;
   const totalRec = recBase + rend;
@@ -2137,6 +2111,8 @@ function calculateConsolidatedPeriod(monthsArray, year) {
     budget[c] = monthlyData.reduce((sum, m) => sum + (m.budget[c] || 0), 0);
   }
 
+  const raw = {};
+  for (const c in customCategories) raw[c] = monthlyData.reduce((sum, m) => sum + (m.rawCats[c] || 0), 0);
   const isAnySqueezed = monthlyData.some(m => m.isSqueezed);
   const validMonthsCount = monthlyData.filter(m => !m.isPending).length || 1;
 
@@ -2154,6 +2130,7 @@ function calculateConsolidatedPeriod(monthsArray, year) {
     basePool,
     cats,
     budget,
+    raw,
     isAnySqueezed
   };
 }
@@ -2217,7 +2194,7 @@ function renderDateTrack() {
 
   M.forEach((month, idx) => {
     const isSelected = S.selectedMonths.includes(idx);
-    const isPending = (D.rec[idx] || 0) === 0;
+    const isPending = !monthHasData(D, S.year, idx);
 
     const btn = document.createElement('button');
     btn.className = `month-pill-chip ${isSelected ? 'selected' : ''} ${isPending ? 'pend' : ''}`;
@@ -2413,7 +2390,7 @@ function renderBudget() {
   html += `<div class="budget-category-group"><div class="group-title-label"><span>Essenciais (Teto 80% Líquido)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
   for (const c in customCategories) {
     if (customCategories[c].group === 'ESS') {
-      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0);
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0);
     }
   }
   html += `</div>`;
@@ -2422,7 +2399,7 @@ function renderBudget() {
   html += `<div class="budget-category-group"><div class="group-title-label"><span>Discricionárias (Teto 20% Flexível)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
   for (const c in customCategories) {
     if (customCategories[c].group === 'NESS') {
-      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0);
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0);
     }
   }
   html += `</div>`;
@@ -2430,48 +2407,32 @@ function renderBudget() {
   container.innerHTML = html;
 }
 
-function renderStackedBudgetCard(cat, spent, ceiling) {
+function renderStackedBudgetCard(cat, spent, ceiling, gross) {
   const percent = ceiling > 0 ? Math.min((spent / ceiling) * 100, 100) : (spent > 0 ? 100 : 0);
+  const lanc = S.exFlash && gross > spent + 0.01 ? `<div class="budget-cat-ceiling" style="display:block;margin:2px 0 0">Lançado ${BRL(gross)} · coberto por VR/VT ${BRL(gross - spent)}</div>` : '';
   return `
     <div class="budget-stacked-card">
       <div class="budget-card-top-row">
-        <div>
-          <span class="budget-cat-name">${cat}</span>
-          <span class="budget-cat-ceiling">Teto: ${BRL(ceiling)}</span>
-        </div>
+        <div><span class="budget-cat-name">${esc(cat)}</span><span class="budget-cat-ceiling">Teto: ${BRL(ceiling)}</span>${lanc}</div>
         <span class="budget-cat-spent num">${BRL(spent)}</span>
       </div>
-      <div class="budget-rail-track">
-        <div class="budget-rail-fill" style="width: ${percent.toFixed(1)}%"></div>
-      </div>
-    </div>
-  `;
+      <div class="budget-rail-track"><div class="budget-rail-fill" style="width: ${percent.toFixed(1)}%"></div></div>
+    </div>`;
 }
 
 function renderExpensesLog() {
-  const container = document.getElementById('expenseLogList');
-  const items = S.extras.filter(e => e.year === S.year && S.selectedMonths.includes(e.i)).reverse();
-  if (!items.length) {
-    container.innerHTML = `<div style="font-size:11px;color:var(--muted);text-align:center;padding:12px;">Nenhum lançamento no período selecionado.</div>`;
-    return;
-  }
-  container.innerHTML = items.map(item => `
-    <div class="expense-log-row" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-deep);border-radius:var(--radius-xs);margin-bottom:6px;border:0.5px solid var(--hairline);">
-      <div>
-        <b style="font-size:12px;color:var(--ink);">${item.desc || 'Despesa'}</b>
-        <span style="font-size:10px;color:var(--muted);display:block;">${item.cat} ${item.c6 ? '· C6 Carbon' : ''} (${M[item.i]})</span>
-      </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span class="num" style="font-size:12.5px; font-weight:700; color:var(--ink);">${BRL(item.v)}</span>
-        <button onclick="deleteExpenseEntry(${item.id})" style="font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;">Excluir</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function deleteExpenseEntry(id) {
-  S.extras = S.extras.filter(e => e.id !== id);
-  updateApplication();
+  const exp = S.extras.filter(e => e.year === S.year && S.selectedMonths.includes(e.i))
+    .map(e => ({ k: 'e', id: e.id, i: e.i, t: e.desc || 'Despesa', s: `${e.cat}${e.c6 ? ' · C6 Carbon' : ''}`, v: e.v, sign: '−' }));
+  const inc = S.incomes.filter(x => x.year === S.year && S.selectedMonths.includes(x.i))
+    .map(x => ({ k: 'r', id: x.id, i: x.i, t: x.desc, s: `Receita · ${x.src}`, v: x.v, sign: '+' }));
+  const items = [...exp, ...inc].sort((a, b) => b.id - a.id);
+  const c = gid('expenseLogList');
+  if (!items.length) { c.innerHTML = '<div class="lx-empty">Nenhum lançamento no período selecionado.</div>'; return; }
+  c.innerHTML = items.map(x => `
+    <div class="lx-item">
+      <div class="lx-item-info"><b>${esc(x.t)}</b><span>${esc(x.s)} · ${M[x.i]}</span></div>
+      <div class="lx-item-val ${x.sign === '+' ? 'in' : ''}"><span>${x.sign} ${BRL(x.v)}</span><button data-del="${x.k}:${x.id}">Excluir</button></div>
+    </div>`).join('');
 }
 
 /* ==================== ARBITRAGEM DE MORADIA & DETETIVE DE RALOS ==================== */
@@ -2628,116 +2589,83 @@ function renderSimulator() {
   }
 }
 
-/* ==================== MINDFULNESS / ATENÇÃO PLENA MODAL (FLOW) ==================== */
-let mindfulCurrentStep = 1;
-let mindfulSelectedCategory = 'Imagem Profissional';
-
-function openMindfulExpenseModal() {
-  mindfulCurrentStep = 1;
-  document.getElementById('mindfulDescInput').value = '';
-  document.getElementById('mindfulValTotalInput').value = '';
-  document.getElementById('mindfulParcelasSelect').value = '1';
-  document.getElementById('mindfulC6Check').checked = true;
-
-  renderMindfulCategories();
-  mindfulGoToStep(1);
-
-  const modal = document.getElementById('mindfulExpenseModal');
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('active'), 10);
-}
-
-function closeMindfulExpenseModal() {
-  const modal = document.getElementById('mindfulExpenseModal');
-  modal.classList.remove('active');
-  setTimeout(() => modal.style.display = 'none', 280);
-}
-
+const gid = id => document.getElementById(id);
+/* ==================== LANÇAMENTOS: DESPESAS E RECEITAS ==================== */
+const LX_SOURCES = ['Salário', 'USP', 'Imprevisível'];
+const LX_PARC = [1, 2, 3, 4, 5, 6, 8, 10, 12, 18, 24];
+let lxType = 'expense', lxCat = 'Alimentação', lxSrc = 'Salário';
 function renderMindfulCategories() {
-  const grid = document.getElementById('mindfulCatSelectorGrid');
-  grid.innerHTML = Object.keys(customCategories).map(cat => {
-    const isSel = cat === mindfulSelectedCategory;
-    const c = customCategories[cat];
-    const groupName = c.group === 'ESS' ? 'Essencial (80%)' : (c.group === 'NESS' ? 'Discricionária (20%)' : 'Fixa');
-    return `
-      <div class="mindful-cat-tile ${isSel ? 'selected' : ''}" onclick="selectMindfulCat('${cat}')">
-        <span class="cat-group-label">${groupName}</span>
-        <b style="font-size:12.5px;">${cat}</b>
-      </div>
-    `;
-  }).join('');
+  if (!customCategories[lxCat]) lxCat = Object.keys(customCategories)[0];
+  gid('mindfulCatSelectorGrid').innerHTML = Object.keys(customCategories).map(c =>
+    `<button type="button" class="lx-cat ${c === lxCat ? 'on' : ''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
 }
-
-function selectMindfulCat(cat) {
-  mindfulSelectedCategory = cat;
+function lxSetType(t) {
+  lxType = t;
+  document.querySelectorAll('#lxType button').forEach(b => b.classList.toggle('on', b.dataset.type === t));
+  gid('lxExpenseBox').hidden = t !== 'expense';
+  gid('lxIncomeBox').hidden = t !== 'income';
+  lxUpdate();
+}
+function lxUpdate() {
+  const v = parseFloat(gid('lxValue').value) || 0, n = +gid('lxParc').value || 1;
+  gid('lxSources').innerHTML = LX_SOURCES.map(s => `<button type="button" class="lx-chip ${s === lxSrc ? 'on' : ''}" data-src="${esc(s)}">${esc(s)}</button>`).join('');
+  gid('lxSummary').innerHTML = lxType === 'expense'
+    ? `<div class="lx-sum-row"><span>Categoria</span><b>${esc(lxCat || '-')}</b></div>
+       <div class="lx-sum-row"><span>Pagamento</span><b>${gid('lxPay').value === 'c6' ? 'C6 Carbon' : 'Débito / Pix'}</b></div>
+       <div class="lx-sum-row"><span>Valor por parcela</span><b>${n > 1 ? `${n}x de ${BRL(v / n)}` : BRL(v)}</b></div>`
+    : `<div class="lx-sum-row"><span>Fonte</span><b>${esc(lxSrc)}</b></div>
+       <div class="lx-sum-row"><span>Valor</span><b>${BRL(v)}</b></div>`;
+}
+function openMindfulExpenseModal() {
+  gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
+  gid('lxParc').innerHTML = LX_PARC.map(n => `<option value="${n}">${n === 1 ? 'À vista' : n + 'x'}</option>`).join('');
+  gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
+  gid('lxMonth').value = S.lastAnchorMonth;
+  gid('lxPay').value = 'c6';
   renderMindfulCategories();
-  mindfulUpdateSummary();
+  lxSetType('expense');
+  const m = gid('mindfulExpenseModal');
+  m.style.display = 'flex';
+  setTimeout(() => m.classList.add('active'), 10);
 }
-
-function mindfulGoToStep(step) {
-  mindfulCurrentStep = step;
-  document.getElementById('mindfulProgressTrack').style.width = `${(step / 3) * 100}%`;
-
-  document.querySelectorAll('.mindful-step-section').forEach(s => s.classList.remove('active'));
-  document.getElementById(`mindfulStep${step}`).classList.add('active');
-
-  mindfulUpdateSummary();
+function closeMindfulExpenseModal() {
+  const m = gid('mindfulExpenseModal');
+  m.classList.remove('active');
+  setTimeout(() => m.style.display = 'none', 280);
 }
-
-function mindfulUpdateSummary() {
-  const desc = document.getElementById('mindfulDescInput').value.trim() || 'Item sem nome';
-  const val = +document.getElementById('mindfulValTotalInput').value || 0;
-  const parc = +document.getElementById('mindfulParcelasSelect').value || 1;
-  const isC6 = document.getElementById('mindfulC6Check').checked;
-
-  document.getElementById('mindfulSumDesc').textContent = desc;
-  document.getElementById('mindfulSumCat').textContent = `${mindfulSelectedCategory} ${isC6 ? '(C6 Carbon)' : '(Débito)'}`;
-  document.getElementById('mindfulSumParcela').textContent = `${parc}x de ${BRL(val / parc)}`;
-
-  const reflectionEl = document.getElementById('mindfulSumCdiReflection');
-  if (parc > 1) {
-    reflectionEl.textContent = `Preserva o montante rendendo a 102% do CDI.`;
+function lxSubmit() {
+  const v = parseFloat(gid('lxValue').value) || 0, mi = +gid('lxMonth').value, err = gid('lxErr');
+  if (v <= 0) { err.textContent = 'Informe um valor maior que zero.'; return; }
+  if (lxType === 'income') {
+    S.incomes.push({ id: Date.now(), year: S.year, i: mi, src: lxSrc, desc: gid('lxIncDesc').value.trim() || lxSrc, v });
   } else {
-    reflectionEl.textContent = `Desembolso imediato integral liquidado no mês ativo.`;
-  }
-}
-
-function mindfulSubmitExpense() {
-  const desc = document.getElementById('mindfulDescInput').value.trim() || 'Despesa';
-  const valTotal = +document.getElementById('mindfulValTotalInput').value || 0;
-  const parcelas = +document.getElementById('mindfulParcelasSelect').value || 1;
-  const isC6 = document.getElementById('mindfulC6Check').checked;
-
-  if (valTotal <= 0) {
-    mindfulGoToStep(2);
-    return;
-  }
-
-  const seriesId = 'series_' + Date.now();
-  const valParcela = valTotal / parcelas;
-  const baseMonth = S.lastAnchorMonth;
-
-  for (let k = 0; k < parcelas; k++) {
-    const targetMonth = baseMonth + k;
-    {
-      S.extras.push({
-        id: Date.now() + Math.random(),
-        seriesId: seriesId,
-        year: S.year + Math.floor(targetMonth / 12),
-        i: targetMonth % 12,
-        cat: mindfulSelectedCategory,
-        desc: `${desc} (${k + 1}/${parcelas}x)`,
-        v: valParcela,
-        c6: isC6,
-        parcTotal: parcelas,
-        parcCur: k + 1
-      });
+    if (!lxCat) { err.textContent = 'Escolha uma categoria.'; return; }
+    const desc = gid('lxDesc').value.trim() || lxCat, n = +gid('lxParc').value || 1, c6 = gid('lxPay').value === 'c6', sid = 'série' + Date.now();
+    for (let k = 0; k < n; k++) {
+      const t = mi + k;
+      S.extras.push({ id: Date.now() + k + Math.random(), seriesId: sid, year: S.year + Math.floor(t / 12), i: t % 12,
+        cat: lxCat, desc: n > 1 ? `${desc} (${k + 1}/${n})` : desc, v: v / n, c6, parcTotal: n, parcCur: k + 1 });
     }
   }
-
   closeMindfulExpenseModal();
   updateApplication();
 }
+gid('mindfulCatSelectorGrid').addEventListener('click', e => {
+  const c = e.target.dataset.cat;
+  if (c) { lxCat = c; renderMindfulCategories(); lxUpdate(); }
+});
+gid('lxSources').addEventListener('click', e => {
+  const s = e.target.dataset.src;
+  if (s) { lxSrc = s; lxUpdate(); }
+});
+gid('expenseLogList').addEventListener('click', e => {
+  const d = e.target.dataset.del;
+  if (!d) return;
+  const [k, id] = d.split(':');
+  if (k === 'e') S.extras = S.extras.filter(x => String(x.id) !== id);
+  else S.incomes = S.incomes.filter(x => String(x.id) !== id);
+  updateApplication();
+});
 
 /* ==================== GRÁFICO CONSOLIDADO (CHART.JS) ==================== */
 let flowChart;
@@ -2909,16 +2837,15 @@ function initCardTilt() {
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* ==================== REGISTRO MENSAL ==================== */
-const gid = id => document.getElementById(id);
 function renderMonthForm() {
   const i = S.lastAnchorMonth, D = getActiveDataset();
   gid('mLabel').textContent = `${MONTH_FULL[i]} ${S.year}`;
-  gid('mRec').value = D.rec[i] || ''; gid('mRend').value = D.rend[i] || '';
+  gid('mRend').value = D.rend[i] || '';
   gid('mVt').value = D.vt[i] || ''; gid('mVr').value = D.vr[i] || ''; gid('mInv').value = D.inv[i] || '';
 }
 function saveMonthData() {
   const i = S.lastAnchorMonth, D = getActiveDataset(), v = id => parseFloat(gid(id).value) || 0;
-  D.rec[i] = v('mRec'); D.rend[i] = v('mRend'); D.vt[i] = v('mVt'); D.vr[i] = v('mVr'); D.inv[i] = v('mInv');
+  D.rend[i] = v('mRend'); D.vt[i] = v('mVt'); D.vr[i] = v('mVr'); D.inv[i] = v('mInv');
   updateApplication();
 }
 
