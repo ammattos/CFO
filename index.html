@@ -1438,6 +1438,14 @@ button, input, select {
 .lx-item-val{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 .lx-item-val.in{color:var(--accent-text)}
 .lx-item-val button{font-size:10.5px;color:var(--muted);text-decoration:underline;font-weight:500;cursor:pointer;background:none}
+/* ===== v7 ===== */
+.lx-check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--bg-deep);border-radius:var(--radius-xs);cursor:pointer;font-size:12.5px;color:var(--ink)}
+.lx-check input{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:#111317}
+.lx-check small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.lx-del{background:none;color:var(--muted);text-decoration:underline;font-size:12px;cursor:pointer;padding:6px;align-self:center}
+.lx-item{cursor:pointer}
+.lx-item-val button{position:relative;z-index:1}
+.lx-seg button:disabled{opacity:.5;cursor:default}
 </style>
 </head>
 <body>
@@ -1501,7 +1509,7 @@ button, input, select {
       </div>
       <div class="flash-text-lockup">
         <b>Neutralizar Benefícios Flash (VT/VR)</b>
-        <span id="flashStatusText">Ativo · Custos de Transporte e Alimentação expurgados do bolso</span>
+        <span id="flashStatusText">Ativo · VT/VR e despesas marcadas como flash fora do bolso</span>
       </div>
     </div>
     <div class="switch-control"></div>
@@ -1661,7 +1669,7 @@ button, input, select {
         <label class="inv-field">Vale-refeição (R$)<input class="app-input-field" id="mVr" type="number" step="0.01"></label>
         <label class="inv-field wide">Aporte contratual (R$)<input class="app-input-field" id="mInv" type="number" step="0.01"></label>
       </div>
-      <p class="inv-note">Salário e demais receitas são lançados em + Lançamento e devem incluir VT e VR, pois a neutralização Flash os separa.</p>
+      <p class="inv-note">VT e VR entram aqui como benefícios, não no salário. Com o Flash ativo, são retirados do caixa pessoal.</p>
       <button class="primary-submit-btn" style="margin-top:14px" onclick="saveMonthData()">Salvar mês</button>
     </section>
 
@@ -1813,7 +1821,7 @@ button, input, select {
   <div id="mindfulExpenseModal">
     <div class="lx-top">
       <button class="lx-close" onclick="closeMindfulExpenseModal()" aria-label="Fechar">&times;</button>
-      <span class="lx-title">Novo lançamento</span>
+      <span class="lx-title" id="lxTitle">Novo lançamento</span>
       <span style="width:36px"></span>
     </div>
     <div class="lx-seg" id="lxType">
@@ -1831,6 +1839,7 @@ button, input, select {
         <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="c6">C6 Carbon</option><option value="debit">Débito / Pix</option></select></label>
         <label class="lx-label">Parcelas<select class="app-input-field" id="lxParc" onchange="lxUpdate()"></select></label>
       </div>
+      <label class="lx-check"><input type="checkbox" id="lxFlash" onchange="lxUpdate()"><span><b>Despesa flash</b><small>Paga com VT/VR. Sai do bolso quando o Flash está ativo.</small></span></label>
     </div>
     <div class="lx-card" id="lxIncomeBox" hidden>
       <div class="lx-label">Fonte da receita</div>
@@ -1841,7 +1850,8 @@ button, input, select {
       <label class="lx-label">Mês do lançamento<select class="app-input-field" id="lxMonth" onchange="lxUpdate()"></select></label>
       <div class="lx-sum" id="lxSummary"></div>
     </div>
-    <button class="lx-submit" onclick="lxSubmit()">Registrar lançamento</button>
+    <button class="lx-del" id="lxDelBtn" onclick="lxDelete()" hidden>Excluir lançamento</button>
+    <button class="lx-submit" id="lxSubmitBtn" onclick="lxSubmit()">Registrar lançamento</button>
     <div class="lx-err" id="lxErr"></div>
   </div>
 
@@ -1985,29 +1995,23 @@ function calculateSingleMonth(idx, year) {
   const cats = {};
   let totalDesp = 0;
 
+  const flashByCat = {};
+  let flashSpent = 0;
   for (const c in customCategories) {
     const historical = (D.cats[c] && D.cats[c][idx]) ? D.cats[c][idx] : 0;
-    const added = getExtrasAmount(c, idx, year);
-    rawCats[c] = historical + added;
-
-    if (S.exFlash) {
-      if (c === 'Alimentação') {
-        cats[c] = Math.max(0, rawCats[c] - vr);
-      } else if (c === 'Transporte') {
-        cats[c] = Math.max(0, rawCats[c] - vt);
-      } else if (c === 'Carro de Aplicativo') {
-        cats[c] = rawCats[c];
-      } else {
-        cats[c] = rawCats[c];
-      }
-    } else {
-      cats[c] = rawCats[c];
-    }
+    rawCats[c] = historical + getExtrasAmount(c, idx, year);
+    flashByCat[c] = S.extras.filter(e => e.year === year && e.i === idx && e.cat === c && e.flash).reduce((s, e) => s + e.v, 0);
+    flashSpent += flashByCat[c];
+  }
+  // Benefícios cobrem apenas as despesas marcadas como flash, até o valor disponível
+  const coveredRatio = flashSpent > 0 ? Math.min(1, flashTotal / flashSpent) : 0;
+  for (const c in customCategories) {
+    cats[c] = S.exFlash ? Math.max(0, rawCats[c] - flashByCat[c] * coveredRatio) : rawCats[c];
     totalDesp += cats[c];
   }
 
   const rawRec = (D.rec[idx] || 0) + incomeTotal(year, idx);
-  const recBase = rawRec - (S.exFlash ? flashTotal : 0);
+  const recBase = rawRec + (S.exFlash ? 0 : flashTotal);   // com Flash, VT/VR saem do caixa
   const rend = D.rend[idx] || 0;
   const totalRec = recBase + rend;
   const inv = D.inv[idx] || 0;
@@ -2422,14 +2426,14 @@ function renderStackedBudgetCard(cat, spent, ceiling, gross) {
 
 function renderExpensesLog() {
   const exp = S.extras.filter(e => e.year === S.year && S.selectedMonths.includes(e.i))
-    .map(e => ({ k: 'e', id: e.id, i: e.i, t: e.desc || 'Despesa', s: `${e.cat}${e.c6 ? ' · C6 Carbon' : ''}`, v: e.v, sign: '−' }));
+    .map(e => ({ k: 'e', id: e.id, i: e.i, t: e.desc || 'Despesa', s: `${e.cat}${e.c6 ? ' · C6 Carbon' : ''}${e.flash ? ' · flash' : ''}`, v: e.v, sign: '−' }));
   const inc = S.incomes.filter(x => x.year === S.year && S.selectedMonths.includes(x.i))
     .map(x => ({ k: 'r', id: x.id, i: x.i, t: x.desc, s: `Receita · ${x.src}`, v: x.v, sign: '+' }));
   const items = [...exp, ...inc].sort((a, b) => b.id - a.id);
   const c = gid('expenseLogList');
   if (!items.length) { c.innerHTML = '<div class="lx-empty">Nenhum lançamento no período selecionado.</div>'; return; }
   c.innerHTML = items.map(x => `
-    <div class="lx-item">
+    <div class="lx-item" data-edit="${x.k}:${x.id}">
       <div class="lx-item-info"><b>${esc(x.t)}</b><span>${esc(x.s)} · ${M[x.i]}</span></div>
       <div class="lx-item-val ${x.sign === '+' ? 'in' : ''}"><span>${x.sign} ${BRL(x.v)}</span><button data-del="${x.k}:${x.id}">Excluir</button></div>
     </div>`).join('');
@@ -2590,10 +2594,10 @@ function renderSimulator() {
 }
 
 const gid = id => document.getElementById(id);
-/* ==================== LANÇAMENTOS: DESPESAS E RECEITAS ==================== */
+/* ==================== LANÇAMENTOS: CRIAR E EDITAR ==================== */
 const LX_SOURCES = ['Salário', 'USP', 'Imprevisível'];
 const LX_PARC = [1, 2, 3, 4, 5, 6, 8, 10, 12, 18, 24];
-let lxType = 'expense', lxCat = 'Alimentação', lxSrc = 'Salário';
+let lxType = 'expense', lxCat = 'Alimentação', lxSrc = 'Salário', lxEdit = null;
 function renderMindfulCategories() {
   if (!customCategories[lxCat]) lxCat = Object.keys(customCategories)[0];
   gid('mindfulCatSelectorGrid').innerHTML = Object.keys(customCategories).map(c =>
@@ -2612,21 +2616,60 @@ function lxUpdate() {
   gid('lxSummary').innerHTML = lxType === 'expense'
     ? `<div class="lx-sum-row"><span>Categoria</span><b>${esc(lxCat || '-')}</b></div>
        <div class="lx-sum-row"><span>Pagamento</span><b>${gid('lxPay').value === 'c6' ? 'C6 Carbon' : 'Débito / Pix'}</b></div>
-       <div class="lx-sum-row"><span>Valor por parcela</span><b>${n > 1 ? `${n}x de ${BRL(v / n)}` : BRL(v)}</b></div>`
+       <div class="lx-sum-row"><span>Tipo</span><b>${gid('lxFlash').checked ? 'Despesa flash (VT/VR)' : 'Despesa do bolso'}</b></div>
+       <div class="lx-sum-row"><span>Valor ${n > 1 ? 'por parcela' : ''}</span><b>${n > 1 ? `${n}x de ${BRL(v / n)}` : BRL(v)}</b></div>`
     : `<div class="lx-sum-row"><span>Fonte</span><b>${esc(lxSrc)}</b></div>
        <div class="lx-sum-row"><span>Valor</span><b>${BRL(v)}</b></div>`;
 }
-function openMindfulExpenseModal() {
-  gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
-  gid('lxParc').innerHTML = LX_PARC.map(n => `<option value="${n}">${n === 1 ? 'À vista' : n + 'x'}</option>`).join('');
-  gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
-  gid('lxMonth').value = S.lastAnchorMonth;
-  gid('lxPay').value = 'c6';
-  renderMindfulCategories();
-  lxSetType('expense');
+function lxShow(title, submitLabel) {
+  gid('lxTitle').textContent = title;
+  gid('lxSubmitBtn').textContent = submitLabel;
   const m = gid('mindfulExpenseModal');
   m.style.display = 'flex';
   setTimeout(() => m.classList.add('active'), 10);
+}
+function openMindfulExpenseModal() {
+  lxEdit = null;
+  gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
+  gid('lxFlash').checked = false; gid('lxPay').value = 'c6';
+  gid('lxParc').innerHTML = LX_PARC.map(n => `<option value="${n}">${n === 1 ? 'À vista' : n + 'x'}</option>`).join('');
+  gid('lxParc').value = '1'; gid('lxParc').disabled = false;
+  gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
+  gid('lxMonth').value = S.lastAnchorMonth; gid('lxMonth').disabled = false;
+  gid('lxDelBtn').hidden = true;
+  document.querySelectorAll('#lxType button').forEach(b => b.disabled = false);
+  renderMindfulCategories();
+  lxSetType('expense');
+  lxShow('Novo lançamento', 'Registrar lançamento');
+}
+function openLxEdit(kind, id) {
+  const isE = kind === 'e';
+  const r = isE ? S.extras.find(x => String(x.id) === id) : S.incomes.find(x => String(x.id) === id);
+  if (!r) return;
+  openMindfulExpenseModal();
+  lxEdit = { kind, id };
+  document.querySelectorAll('#lxType button').forEach(b => b.disabled = true);
+  gid('lxDelBtn').hidden = false;
+  gid('lxMonth').value = r.i;
+  if (isE) {
+    const parcelado = r.parcTotal > 1;
+    lxCat = r.cat;
+    gid('lxDesc').value = r.desc.replace(/ \(\d+\/\d+\)$/, '');
+    gid('lxValue').value = r.v;
+    gid('lxPay').value = r.c6 ? 'c6' : 'debit';
+    gid('lxFlash').checked = !!r.flash;
+    gid('lxParc').value = '1'; gid('lxParc').disabled = true;
+    gid('lxMonth').disabled = parcelado;
+    renderMindfulCategories();
+    lxSetType('expense');
+    lxShow(parcelado ? `Editar parcela ${r.parcCur}/${r.parcTotal}` : 'Editar despesa', 'Salvar alterações');
+  } else {
+    lxSrc = r.src;
+    gid('lxIncDesc').value = r.desc;
+    gid('lxValue').value = r.v;
+    lxSetType('income');
+    lxShow('Editar receita', 'Salvar alterações');
+  }
 }
 function closeMindfulExpenseModal() {
   const m = gid('mindfulExpenseModal');
@@ -2636,17 +2679,38 @@ function closeMindfulExpenseModal() {
 function lxSubmit() {
   const v = parseFloat(gid('lxValue').value) || 0, mi = +gid('lxMonth').value, err = gid('lxErr');
   if (v <= 0) { err.textContent = 'Informe um valor maior que zero.'; return; }
-  if (lxType === 'income') {
+  if (lxEdit) {
+    if (lxEdit.kind === 'e') {
+      const r = S.extras.find(x => String(x.id) === lxEdit.id);
+      if (!r) return;
+      const base = gid('lxDesc').value.trim() || lxCat;
+      r.desc = r.parcTotal > 1 ? `${base} (${r.parcCur}/${r.parcTotal})` : base;
+      r.cat = lxCat; r.v = v; r.c6 = gid('lxPay').value === 'c6'; r.flash = gid('lxFlash').checked;
+      if (r.parcTotal <= 1) { r.i = mi; r.year = S.year; }
+    } else {
+      const r = S.incomes.find(x => String(x.id) === lxEdit.id);
+      if (!r) return;
+      r.src = lxSrc; r.desc = gid('lxIncDesc').value.trim() || lxSrc; r.v = v; r.i = mi;
+    }
+  } else if (lxType === 'income') {
     S.incomes.push({ id: Date.now(), year: S.year, i: mi, src: lxSrc, desc: gid('lxIncDesc').value.trim() || lxSrc, v });
   } else {
     if (!lxCat) { err.textContent = 'Escolha uma categoria.'; return; }
-    const desc = gid('lxDesc').value.trim() || lxCat, n = +gid('lxParc').value || 1, c6 = gid('lxPay').value === 'c6', sid = 'série' + Date.now();
+    const desc = gid('lxDesc').value.trim() || lxCat, n = +gid('lxParc').value || 1;
+    const c6 = gid('lxPay').value === 'c6', flash = gid('lxFlash').checked, sid = 'série' + Date.now();
     for (let k = 0; k < n; k++) {
       const t = mi + k;
       S.extras.push({ id: Date.now() + k + Math.random(), seriesId: sid, year: S.year + Math.floor(t / 12), i: t % 12,
-        cat: lxCat, desc: n > 1 ? `${desc} (${k + 1}/${n})` : desc, v: v / n, c6, parcTotal: n, parcCur: k + 1 });
+        cat: lxCat, desc: n > 1 ? `${desc} (${k + 1}/${n})` : desc, v: v / n, c6, flash, parcTotal: n, parcCur: k + 1 });
     }
   }
+  closeMindfulExpenseModal();
+  updateApplication();
+}
+function lxDelete() {
+  if (!lxEdit) return;
+  if (lxEdit.kind === 'e') S.extras = S.extras.filter(x => String(x.id) !== lxEdit.id);
+  else S.incomes = S.incomes.filter(x => String(x.id) !== lxEdit.id);
   closeMindfulExpenseModal();
   updateApplication();
 }
@@ -2660,11 +2724,15 @@ gid('lxSources').addEventListener('click', e => {
 });
 gid('expenseLogList').addEventListener('click', e => {
   const d = e.target.dataset.del;
-  if (!d) return;
-  const [k, id] = d.split(':');
-  if (k === 'e') S.extras = S.extras.filter(x => String(x.id) !== id);
-  else S.incomes = S.incomes.filter(x => String(x.id) !== id);
-  updateApplication();
+  if (d) {
+    const [k, id] = d.split(':');
+    if (k === 'e') S.extras = S.extras.filter(x => String(x.id) !== id);
+    else S.incomes = S.incomes.filter(x => String(x.id) !== id);
+    updateApplication();
+    return;
+  }
+  const row = e.target.closest('[data-edit]');
+  if (row) { const [k, id] = row.dataset.edit.split(':'); openLxEdit(k, id); }
 });
 
 /* ==================== GRÁFICO CONSOLIDADO (CHART.JS) ==================== */
@@ -2672,7 +2740,7 @@ let flowChart;
 function initCharts() {
   Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
   Chart.defaults.color = '#868993';
-  Chart.defaults.animation = false;
+  Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
 
   const ctx = document.getElementById('chartFlow').getContext('2d');
   flowChart = new Chart(ctx, {
@@ -2753,15 +2821,17 @@ function init3DHero() {
   });
   window.addEventListener('pointerup', () => { isDragging = false; });
 
+  let heroOn = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { heroOn = es[0].isIntersecting; }).observe(container);
   clockHero = new THREE.Clock();
   function animate() {
     requestAnimationFrame(animate);
-    if (!isDragging) {
-      const elapsed = clockHero.getElapsedTime();
-      knotHero.rotation.x = elapsed * 0.14;
-      knotHero.rotation.y = elapsed * 0.18;
+    if (heroOn) {
+      const now = performance.now(), dt = Math.min(0.1, (now - (animate.last || now)) / 1000);
+      animate.last = now;
+      if (!isDragging) { knotHero.rotation.x += dt * 0.14; knotHero.rotation.y += dt * 0.18; }
+      rendererHero.render(scene, camera);
     }
-    rendererHero.render(scene, camera);
   }
   animate();
 }
@@ -2803,15 +2873,17 @@ function init3DWealthSphere() {
   });
   window.addEventListener('pointerup', () => { isDraggingW = false; });
 
+  let wealthOn = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { wealthOn = es[0].isIntersecting; }).observe(container);
   clockWealth = new THREE.Clock();
   function animateWealth() {
     requestAnimationFrame(animateWealth);
-    if (!isDraggingW) {
-      const elapsed = clockWealth.getElapsedTime();
-      polyWealth.rotation.x = elapsed * 0.12;
-      polyWealth.rotation.y = elapsed * 0.16;
+    if (wealthOn) {
+      const now = performance.now(), dt = Math.min(0.1, (now - (animateWealth.last || now)) / 1000);
+      animateWealth.last = now;
+      if (!isDraggingW) { polyWealth.rotation.x += dt * 0.12; polyWealth.rotation.y += dt * 0.16; }
+      rendererWealth.render(scene, camera);
     }
-    rendererWealth.render(scene, camera);
   }
   animateWealth();
 }
@@ -2995,7 +3067,7 @@ function toggleRingFencing() {
   const bar = document.getElementById('flashCardBar');
   bar.classList.toggle('active', S.exFlash);
   document.getElementById('flashStatusText').textContent = S.exFlash
-    ? 'Ativo · Custos de Transporte e Alimentação expurgados do bolso'
+    ? 'Ativo · VT/VR e despesas marcadas como flash fora do bolso'
     : 'Inativo · Custos computados integralmente no caixa pessoal';
   updateApplication();
 }
