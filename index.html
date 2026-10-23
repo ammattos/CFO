@@ -2,857 +2,3162 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reporte · CFO Pessoal 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Reporte · CFO Pessoal & Wealth Strategist 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-/* ============ DESIGN TOKENS & RESET ============ */
+/* ==================== GRAMÁTICA VISUAL & LUXO REFINADO ==================== */
 :root {
-  --accent: #B5CBDD;
-  --warm: #F0EFEB;
-  --bg: #F6F6F4;
-  --card: #FFFFFF;
-  --muted: #595959;
-  --dark: #2A2A2A;
-  --ink: #111111;
-  --line: rgba(17,17,17,0.07);
-  --soft: rgba(181,203,221,0.22);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-  --shadow-lg: 0 16px 40px -12px rgba(17,17,17,0.12);
+  /* Superfícies Alabastro & Papel Mineral Nobre */
+  --bg-deep: #F7F6F3;
+  --bg-warm: #EFECE6;
+  --bg-card: #FFFFFF;
+  --bg-surface-glass: rgba(255, 255, 255, 0.86);
+
+  /* Acento Soberano: Azul Safira & Aço Lapidado (USADO APENAS EM DESTAQUES SELETIVOS) */
+  --accent-blue: #9BB8D3;
+  --accent-blue-soft: rgba(34, 92, 138, 0.08);
+  --accent-blue-line: rgba(34, 92, 138, 0.22);
+  --steel-soft: #9BB8D3;
+
+  /* Contrastes Minerais Sóbrios (Zero Vermelho) */
+  --ink: #0E0F12;
+  --ink-secondary: #4A4D57;
+  --muted: #5F626C;
+  --neutral-dark: #1E2025;
+
+  /* Micro-Linhas Capilares & Sombras Difusas */
+  --hairline: rgba(14, 15, 18, 0.045);
+  --hairline-strong: rgba(14, 15, 18, 0.085);
+  --shadow-subtle: 0 10px 32px -10px rgba(14, 15, 18, 0.035), 0 1px 2px rgba(14, 15, 18, 0.015);
+  --shadow-elevated: 0 24px 52px -16px rgba(14, 15, 18, 0.06), 0 2px 4px rgba(14, 15, 18, 0.02);
+  --shadow-dock: 0 22px 50px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(14, 15, 18, 0.05);
+
+  /* Geometria Suave */
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.5; padding-bottom: 80px; }
-h1, h2, h3, .num, .brand { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
-button, select, input { font: inherit; color: inherit; border: none; outline: none; background: none; }
 
-/* ============ LAYOUT & MOBILE FIRST ============ */
-.wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px; }
-@media(min-width: 768px) { .wrap { padding: 28px 24px 60px; } }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
 
-/* header */
-header { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
-.brand { font-weight: 600; font-size: 22px; line-height: 1.1; }
-.brand span { display: block; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; margin-top: 4px; letter-spacing: 0; }
+html, body {
+  background-color: var(--bg-deep);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  overflow-x: hidden;
+}
 
-/* months horizontal scroll for mobile */
-.months-wrap { overflow-x: auto; padding-bottom: 8px; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
-.months-wrap::-webkit-scrollbar { display: none; }
-.months { display: inline-flex; gap: 8px; }
-.pill { border: 1px solid var(--line); background: var(--card); padding: 12px 20px; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.3s ease; white-space: nowrap; box-shadow: var(--shadow-sm); min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
-.pill:active { transform: scale(0.95); }
-.pill.on { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.pill.pend { opacity: 0.5; border-style: dashed; }
+/* Luz mindfulital translúcida */
+body::before {
+  content: "";
+  position: fixed;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(181, 203, 221, 0.16) 0%, rgba(247, 246, 243, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-/* toggles */
-.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; font-weight: 500; min-height: 48px; }
-.switch input { display: none; }
-.track { width: 44px; height: 24px; border-radius: 99px; background: #E0DFDB; position: relative; transition: background 0.3s; flex-shrink: 0; }
-.track::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.switch input:checked + .track { background: var(--dark); }
-.switch input:checked + .track::after { transform: translateX(20px); }
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--ink); /* Números padrão em preto sóbrio */
+}
 
-/* grids & cards */
-.grid { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-.card { background: var(--card); border-radius: 24px; padding: 24px 20px; border: 1px solid var(--line); box-shadow: var(--shadow-sm); position: relative; z-index: 1; overflow: hidden; width: 100%; }
+button, input, select {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
 
-/* common card inner */
-.head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
-.card h2 { font-size: 18px; font-weight: 600; color: var(--ink); }
-.hint { font-size: 13px; color: var(--muted); }
-.val { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin-top: 2px; }
-.val.pos { color: var(--ink); } .val.neg { color: #A66E5E; }
-.muted { color: var(--muted); font-size: 13px; }
+/* ==================== VIEWPORT & APP SHELL ==================== */
+#app {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
 
-/* hero 3D */
-.hero { position: relative; min-height: 380px; background: linear-gradient(145deg, #ffffff 0%, var(--warm) 100%); display: flex; flex-direction: column; justify-content: space-between; overflow: visible; }
-#hero3d { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.8; }
-.hero-top h1 { font-size: 32px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
-.kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 24px; }
-.kpi { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
-.kpi .label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-.kpi .val { font-size: 20px; }
-.kpi.econ { background: rgba(181, 203, 221, 0.4); border-color: rgba(255,255,255,0.5); }
-.kpi.econ .val { color: var(--ink); }
-.note { margin-top: 20px; font-size: 13px; color: var(--dark); max-width: 600px; background: rgba(255,255,255,0.5); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); }
+.view {
+  display: none;
+  flex: 1;
+  padding: 16px 20px calc(120px + env(safe-area-inset-bottom)) 20px;
+  animation: fadeInView 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.view.active { display: block; }
+@keyframes fadeInView { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* charts */
-.chart-box { position: relative; height: 260px; width: 100%; margin-top: 16px; }
+/* ==================== USER PROFILE HEADER ==================== */
+.user-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 4px 14px 4px;
+}
+.user-info-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.user-avatar-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(14, 15, 18, 0.12);
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+}
+.user-greeting-meta {
+  display: flex;
+  flex-direction: column;
+}
+.user-sub-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.user-headline-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+}
 
-/* tables & bars */
-.bar { height: 8px; border-radius: 99px; background: var(--warm); overflow: hidden; width: 100%; position: relative; }
-.bar > i { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-.bar > i.over { background: #A66E5E; }
-.bar > i.invest { background: var(--dark); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
-td.r { text-align: right; color: var(--ink); font-weight: 500; font-family: 'Space Grotesk', sans-serif; white-space: nowrap; }
-tr.grp td { padding-top: 24px; border-bottom: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-td.bw { width: 35%; padding-left: 16px; }
-@media(max-width: 480px) { td.bw { width: 30%; padding-left: 12px; } }
+.header-action-icons {
+  display: flex;
+  gap: 8px;
+}
+.icon-circle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-subtle);
+}
+.icon-circle-btn:active {
+  transform: scale(0.95);
+  background: var(--bg-warm);
+}
 
-/* inputs & forms */
-.form-grid { display: grid; gap: 14px; }
-.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.inp { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--warm); font-size: 15px; transition: all 0.2s; -webkit-appearance: none; min-height: 52px; }
-.inp:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px var(--soft); }
-.btn { background: var(--ink); color: #fff; border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; text-align: center; width: 100%; box-shadow: 0 4px 12px rgba(17,17,17,0.2); min-height: 56px; }
-.btn:active { transform: scale(0.97); }
-.check { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--dark); font-weight: 500; cursor: pointer; padding: 8px 0; min-height: 48px; }
-.check input { width: 18px; height: 18px; accent-color: var(--ink); border-radius: 4px; }
+/* ==================== SELETOR DE ANO & MULTI-MESES ==================== */
+.date-selector-panel {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-subtle);
+}
+.date-selector-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.year-pills-row {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-deep);
+  padding: 3px;
+  border-radius: 999px;
+}
+.year-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.year-btn.active {
+  background: var(--ink);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.quick-presets-row {
+  display: flex;
+  gap: 4px;
+}
+.preset-text-btn {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.preset-text-btn:hover, .preset-text-btn:active {
+  color: var(--ink);
+}
 
-/* C6 widget */
-.c6 { background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%); color: #fff; border-radius: 24px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
-.c6::before { content: ""; position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(181,203,221,0.25), transparent 60%); pointer-events: none; }
-.c6::after { content: "C6 CARBON"; position: absolute; bottom: 24px; right: 24px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); }
-.c6 .label { color: rgba(255,255,255,0.6); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
-.c6 .val { color: #fff; margin: 8px 0; }
-.c6 .foot { font-size: 13px; color: var(--accent); font-weight: 500; }
+/* Ticker Horizontal Multi-Mês */
+.month-horizontal-bar {
+  background: var(--bg-deep);
+  border-radius: 999px;
+  padding: 4px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.month-nav-arrow {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+.month-carousel-track {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.month-carousel-track::-webkit-scrollbar { display: none; }
+.month-pill-chip {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.month-pill-chip.selected {
+  background: var(--ink);
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.month-pill-chip.pend { opacity: 0.4; }
 
-/* lists */
-.items { margin-top: 16px; display: grid; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
-.item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 12px 16px; background: var(--warm); border-radius: 16px; border: 1px solid transparent; transition: border-color 0.2s; }
-.item:hover { border-color: var(--line); }
-.item .desc { display: flex; flex-direction: column; gap: 2px; }
-.item .desc b { color: var(--dark); font-weight: 500; }
-.item .desc span { color: var(--muted); font-size: 11px; }
-.item .amt { font-family: 'Space Grotesk'; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 12px; }
-.item button { background: rgba(17,17,17,0.05); color: var(--muted); padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
-.item button:hover { background: rgba(166,110,94,0.1); color: #A66E5E; }
+.selection-summary-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.selection-count-pill {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border-radius: 999px;
+}
 
-/* Custom modules */
-.ralo-grid { display: grid; gap: 12px; margin-top: 16px; }
-.ralo-item { padding: 16px; border-radius: 20px; background: var(--bg); border: 1px solid var(--line); }
-.ralo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.ralo-header strong { font-size: 15px; color: var(--dark); }
-.ralo-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-@media(min-width: 500px) { .ralo-metrics { grid-template-columns: repeat(4, 1fr); } }
-.ralo-metrics div { font-size: 11px; color: var(--muted); text-transform: uppercase; }
-.ralo-metrics b { display: block; font-family: 'Space Grotesk'; font-size: 15px; color: var(--ink); margin-top: 2px; font-weight: 600; }
+/* ==================== BARRA DE CONTROLE: NEUTRALIZAÇÃO FLASH ==================== */
+.flash-neutralizer-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.flash-neutralizer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.flash-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.flash-text-lockup b {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  display: block;
+}
+.flash-text-lockup span {
+  font-size: 10px;
+  color: var(--muted);
+  display: block;
+}
+.switch-control {
+  width: 44px;
+  height: 24px;
+  background: var(--bg-warm);
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+.switch-control::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flash-neutralizer-card.active .switch-control {
+  background: var(--ink);
+}
+.flash-neutralizer-card.active .switch-control::after {
+  transform: translateX(20px);
+}
 
-.verdict { margin-top: 16px; padding: 16px; border-radius: 16px; background: var(--soft); font-size: 13px; color: var(--dark); line-height: 1.6; border-left: 4px solid var(--accent); }
-.verdict.alert { background: rgba(166,110,94,0.1); border-left-color: #A66E5E; }
+/* ==================== HERO: CONSOLIDAÇÃO PATRIMONIAL ==================== */
+.hero-wealth-consolidation {
+  position: relative;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F9F8F5 100%);
+  border-radius: var(--radius-lg);
+  padding: 26px 22px;
+  margin-bottom: 22px;
+  border: 0.5px solid var(--hairline);
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+}
 
-.geo-grid { display: grid; gap: 16px; margin-top: 16px; }
-@media(min-width: 600px) { .geo-grid { grid-template-columns: 1fr 1fr; } }
-.geo-card { padding: 16px; border-radius: 20px; background: var(--warm); border: 1px solid var(--line); position: relative; overflow: hidden; }
-.geo-card h3 { font-size: 15px; margin-bottom: 4px; }
-.geo-card .save { font-size: 24px; color: var(--accent); margin: 8px 0; font-family: 'Space Grotesk'; font-weight: 600; color: var(--ink); }
-.geo-card .save span { font-size: 13px; color: var(--muted); font-family: 'Inter'; font-weight: 400; }
+#hero-canvas {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 145px;
+  height: 145px;
+  pointer-events: auto; /* Permite interagir rotacionando a peça 3D */
+  cursor: grab;
+  z-index: 3;
+}
+#hero-canvas:active { cursor: grabbing; }
+
+.hero-meta-title-lockup {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+}
+.hero-super-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-text);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-blue-soft);
+  border: 0.5px solid var(--accent-blue-line);
+}
+.hero-super-badge .dot-live {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+}
+.hero-period-headline {
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 6px;
+  letter-spacing: -0.03em;
+}
+
+/* Master KPI: Liquidez Livre (Valores em Preto Mineral Sóbrio) */
+.hero-master-balance {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 18px;
+  padding: 20px;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--hairline);
+  box-shadow: var(--shadow-subtle);
+}
+.master-balance-caption {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+.master-balance-val {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-top: 4px;
+  color: var(--ink);
+}
+
+.master-sub-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--hairline);
+  font-size: 11.5px;
+}
+.rate-tag-badge {
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg-deep);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+/* Secondary KPIs Grid */
+.hero-kpis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+.hero-kpi-cell {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 0.5px solid var(--hairline);
+  padding: 13px 15px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hero-kpi-cell .cell-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.hero-kpi-cell .cell-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ==================== C6 CARBON BLACK COM 3D TILT EFFECT ==================== */
+.reference-card-container {
+  margin-bottom: 24px;
+  perspective: 1000px;
+}
+.c6-carbon-card {
+  width: 100%;
+  aspect-ratio: 1.58 / 1;
+  border-radius: 22px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #FFFFFF;
+  background: linear-gradient(150deg, #17181C 0%, #0E0F12 55%, #070709 100%);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 42px -12px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.c6-carbon-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+.card-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.card-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-brand-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+.card-tier-pill {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  background: rgba(255, 255, 255, 0.09);
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.card-emv-chip {
+  width: 28px;
+  height: 19px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ECC87E 0%, #C5A059 50%, #9A7B38 100%);
+  border: 0.5px solid rgba(0, 0, 0, 0.3);
+}
+.card-mid-balance {
+  margin: auto 0;
+  position: relative;
+  z-index: 2;
+}
+.card-balance-caption {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+.card-balance-val {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-top: 3px;
+  letter-spacing: -0.035em;
+}
+.card-bottom-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  z-index: 2;
+}
+.card-holder-due {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.card-masked-num {
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+.card-due-indicator {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+}
+.card-mastercard-mark {
+  display: flex;
+  align-items: center;
+}
+.card-mastercard-mark .circle {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+}
+.card-mastercard-mark .c1 { background: rgba(255, 255, 255, 0.35); }
+.card-mastercard-mark .c2 { background: rgba(255, 255, 255, 0.18); margin-left: -7px; }
+
+/* ==================== STRATEGIC INSIGHTS MODULE (CFO WEALTH) ==================== */
+.strategic-insights-section {
+  margin-bottom: 24px;
+}
+.section-headline {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+  padding: 0 4px;
+  letter-spacing: -0.02em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.section-headline .section-sub-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.insights-deck-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.insight-bespoke-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 15px 17px;
+  box-shadow: var(--shadow-subtle);
+  position: relative;
+  border-left: 3px solid var(--ink);
+}
+.insight-bespoke-card.highlight-blue {
+  border-left-color: var(--accent-text);
+}
+.insight-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.insight-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.insight-metric-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.insight-desc {
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+}
+
+/* ==================== AÇÕES FREQUENTES ==================== */
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.action-tile-btn {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 14px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-subtle);
+}
+.action-tile-btn:active {
+  transform: scale(0.97);
+  background: var(--bg-warm);
+}
+.action-tile-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.action-tile-btn.mindful-action .action-tile-icon {
+  background: var(--accent-blue-soft);
+  color: var(--accent-text);
+}
+.action-tile-text {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Glass Cards Gerais */
+.glass-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  margin-bottom: 20px;
+  border: 0.5px solid var(--hairline);
+  box-shadow: var(--shadow-subtle);
+}
+.glass-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+.glass-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.glass-card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.badge-tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--bg-deep);
+  color: var(--ink);
+}
+.badge-tag.accent {
+  background: var(--accent-blue-soft);
+  color: var(--accent-text);
+}
+.chart-container-box {
+  position: relative;
+  height: 190px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* ==================== BUDGET EMPILHADO (MICRO-RAILS) ==================== */
+.budget-status-banner {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border: 0.5px solid var(--hairline);
+}
+.budget-status-banner.alert-dark {
+  background: #111317;
+  color: #FFFFFF;
+}
+
+.budget-category-group {
+  margin-bottom: 20px;
+}
+.group-title-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.budget-stacked-card {
+  background: var(--bg-deep);
+  border-radius: var(--radius-xs);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border: 0.5px solid var(--hairline);
+}
+.budget-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.budget-cat-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.budget-cat-ceiling {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-left: 6px;
+}
+.budget-cat-spent {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.budget-rail-track {
+  width: 100%;
+  height: 3.5px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.budget-rail-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+.budget-rail-fill.fixed { background: var(--muted); }
+
+.manage-cats-btn {
+  background: var(--bg-deep);
+  border: 0.5px solid var(--hairline);
+  color: var(--ink);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* ==================== NOVO REDESENHO: ENGENHARIA PATRIMONIAL ==================== */
+.wealth-hero-poly {
+  position: relative;
+  background: linear-gradient(170deg, #16181C 0%, #0F1013 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: #FFFFFF;
+  margin-bottom: 22px;
+  overflow: hidden;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-elevated);
+}
+#wealthCanvas3d {
+  position: absolute;
+  top: 50%;
+  right: -20px;
+  transform: translateY(-50%);
+  width: 160px;
+  height: 160px;
+  pointer-events: auto;
+  cursor: grab;
+}
+#wealthCanvas3d:active { cursor: grabbing; }
+
+.wealth-poly-meta {
+  position: relative;
+  z-index: 2;
+  max-width: 65%;
+}
+.wealth-poly-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--steel-soft);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+.wealth-poly-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+.wealth-poly-caption {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 8px;
+  line-height: 1.45;
+}
+
+/* Arbitragem de Moradia: Visual Cards & Zero Cortes */
+.arb-city-cards-scroller {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 2px 14px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.arb-city-cards-scroller::-webkit-scrollbar { display: none; }
+.arb-city-card {
+  flex: 0 0 160px;
+  background: var(--bg-deep);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  user-select: none;
+}
+.arb-city-card.active {
+  background: var(--ink);
+  color: #FFFFFF;
+  border-color: var(--ink);
+  box-shadow: 0 4px 14px rgba(14, 15, 18, 0.18);
+}
+.arb-city-card .city-discount-chip {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ink-secondary);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.arb-city-card.active .city-discount-chip {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+.arb-city-card .city-card-name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.arb-city-card .city-card-economy {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--muted);
+}
+.arb-city-card.active .city-card-economy {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.arb-detail-spotlight {
+  background: var(--bg-deep);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-top: 6px;
+  border: 0.5px solid var(--hairline);
+}
+.arb-spotlight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.arb-spotlight-item {
+  background: #FFFFFF;
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  border: 0.5px solid var(--hairline);
+}
+.arb-spotlight-item .caption {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.arb-spotlight-item .val {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 3px;
+}
+
+/* Detetive de Ralos Moderno */
+.drain-block-card {
+  background: var(--bg-deep);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.drain-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.drain-block-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.drain-block-avg {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.drain-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 10px;
+  background: #FFFFFF;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 0.5px solid var(--hairline);
+}
+.drain-history-table th {
+  background: var(--bg-warm);
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.drain-history-table td {
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--hairline);
+  color: var(--ink);
+}
+.drain-history-table tr:last-child td { border-bottom: none; }
+
+/* Simulador À Vista vs Parcelado */
+.sim-range-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 14px 0;
+}
+.sim-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+.sim-compare-card {
+  background: var(--bg-deep);
+  border: 0.5px solid var(--hairline);
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.sim-compare-card.winner {
+  border: 1px solid var(--ink);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-subtle);
+}
+.sim-compare-card .caption {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sim-compare-card .val {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 4px;
+}
+
+/* ==================== MINDFULNESS / ATENÇÃO PLENA MODAL (FULLSCREEN FOCUSED FLOW) ==================== */
+#mindfulExpenseModal {
+  position: fixed;
+  inset: 0;
+  background: #F7F6F3;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#mindfulExpenseModal.active {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mindful-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.mindful-badge-mindful {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  background: var(--accent-blue-soft);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.mindful-close-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--ink);
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Duolingo-style Progress Track */
+.mindful-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.mindful-progress-fill {
+  height: 100%;
+  width: 33.3%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.mindful-step-section {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+.mindful-step-section.active { display: flex; }
+
+.mindful-step-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.mindful-step-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.mindful-big-input-box {
+  margin: 40px 0;
+  text-align: center;
+}
+.mindful-currency-prefix {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.mindful-amount-input {
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+  background: transparent;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 4px;
+}
+
+.mindful-category-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 24px 0;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.mindful-cat-tile {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  padding: 14px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s;
+}
+.mindful-cat-tile.selected {
+  background: var(--ink);
+  color: #FFFFFF;
+  border-color: var(--ink);
+  box-shadow: 0 4px 12px rgba(14, 15, 18, 0.15);
+}
+.mindful-cat-tile .cat-group-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mindful-cat-tile.selected .cat-group-label { color: rgba(255, 255, 255, 0.6); }
+
+.mindful-summary-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: var(--shadow-subtle);
+}
+.mindful-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--hairline);
+  font-size: 12.5px;
+}
+.mindful-summary-row:last-child { border-bottom: none; }
+
+.mindful-next-btn {
+  background: var(--ink);
+  color: #FFFFFF;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(14, 15, 18, 0.15);
+  transition: all 0.2s;
+}
+.mindful-next-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+/* ==================== FLOATING DOCK TRANSLÚCIDA ==================== */
+.floating-dock {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 44px);
+  max-width: 396px;
+  height: 62px;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border: 0.5px solid var(--hairline);
+  border-radius: 999px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+  z-index: 100;
+  box-shadow: var(--shadow-dock);
+}
+.dock-item-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.dock-item-btn .dock-icon-wrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: all 0.25s ease;
+}
+.dock-item-btn svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dock-item-btn.active .dock-icon-wrapper {
+  background: var(--ink);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(14, 15, 18, 0.16);
+}
+.dock-item-btn.active svg {
+  stroke: #FFFFFF;
+  stroke-width: 2;
+}
+
+/* Modal Categorias */
+.modal-layer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-layer.active { display: flex; }
+.modal-inner-card {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  border: 0.5px solid var(--hairline);
+}
+/* ===== v3: investimentos, personalização ===== */
+.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.inv-field{display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.inv-field.wide{grid-column:1/-1}
+.inv-note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+.inv-goal-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.inv-goal-head input{font-family:inherit;font-weight:700;font-size:15px;background:none;border:none;padding:0;color:var(--ink);max-width:62%;letter-spacing:-.02em}
+.inv-goal-head input:focus{outline:none;border-bottom:1px solid var(--accent-blue)}
+.inv-danger{font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;padding:0}
+.personal-fab{position:fixed;right:14px;bottom:calc(92px + env(safe-area-inset-bottom));width:34px;height:34px;border-radius:50%;background:var(--bg-card);border:.5px solid var(--hairline);box-shadow:var(--shadow-subtle);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:101;opacity:.8}
+.personal-fab:hover,.personal-fab:focus-visible{opacity:1;color:var(--ink)}
+.personal-fab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.personal-fab circle{fill:currentColor;stroke:none}
+.pm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pm-head h3{font-size:15px;font-weight:700;color:var(--ink)}
+.pm-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.pm-row{display:flex;gap:10px;align-items:center}
+.pm-swatch{width:44px;height:44px;border-radius:12px;border:.5px solid var(--hairline);flex-shrink:0;background:var(--accent-blue)}
+.pm-row .app-input-field{flex:1;text-transform:uppercase}
+.pm-picker{width:44px;height:44px;border:none;background:none;padding:0;cursor:pointer;flex-shrink:0}
+.pm-err{font-size:11px;color:var(--ink-secondary);min-height:18px;margin-top:8px}
+.pm-actions{display:flex;gap:10px;margin-top:14px}
+.pm-actions button{flex:1}
+/* ===== v4 ===== */
+:root{--accent-text:#4E7396;--accent-chart-soft:rgba(155,184,211,.35)}
+#simVerdict{font-size:12px !important;line-height:1.5 !important}
+.c6-carbon-card{background:#111317;border-radius:24px;padding:24px;color:#FFFFFF;min-height:168px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;border:none;box-shadow:0 22px 50px rgba(0,0,0,.10)}
+.c6-carbon-card::before{display:none}
+.c6-carbon-card::after{content:"";position:absolute;top:-50px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.09),rgba(255,255,255,0) 70%);pointer-events:none}
+.c6-card-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600}
+.c6-card-value{font-size:34px;font-weight:700;letter-spacing:-.03em;margin-top:10px}
+.c6-card-foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:rgba(255,255,255,.72);margin-top:18px}
+.c6-card-brand{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:600}
+.personal-fab{width:22px;height:22px;background:var(--accent-blue);border:none;box-shadow:none;opacity:.55}
+.personal-fab svg{display:none}
+.personal-fab:hover,.personal-fab:focus-visible{opacity:1}
+/* ===== v5 ===== */
+.invoice-chip{height:32px;padding:0 11px;border-radius:999px;background:var(--bg-card);border:.5px solid var(--hairline);box-shadow:var(--shadow-subtle);display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;white-space:nowrap}
+.invoice-chip svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}
+.personal-dot{width:14px;height:14px;border-radius:50%;background:var(--accent-blue);border:none;cursor:pointer;opacity:.55;align-self:center;margin:0 6px}
+.personal-dot:hover,.personal-dot:focus-visible{opacity:1}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div id="app">
 
-<header>
-  <div class="brand">Reporte<span>CFO pessoal · Base 2026</span></div>
-  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
-    <div class="months-wrap">
-      <div class="months" id="months"></div>
+  <!-- ==================== HEADER PERSONALIZADO ==================== -->
+  <header class="user-profile-header">
+    <div class="user-info-group">
+      <div class="user-avatar-badge">M</div>
+      <div class="user-greeting-meta">
+        <span class="user-sub-label">Bem-vinda de volta,</span>
+        <span class="user-headline-name">Mirela Mattos</span>
+      </div>
     </div>
-    <label class="switch" title="Remove o Flash (VT e VR) das receitas para análise realista.">
-      <input type="checkbox" id="exFlash">
-      <span>Excluir benefícios (Flash)</span>
-      <span class="track"></span>
-    </label>
+    <div class="header-action-icons">
+      <button class="invoice-chip" onclick="openCardView()" aria-label="Fatura do cartão C6" title="Ver cartão">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span id="invoiceChipVal">R$ 0,00</span>
+      </button>
+      <button class="personal-dot" id="btnPersonal" onclick="openPersonal()" aria-label="Personalizar cor de destaque" title="Personalizar cor"></button>
+      <button class="icon-circle-btn" onclick="openMindfulExpenseModal()" title="Lançamento com Atenção Plena">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      
+    </div>
+  </header>
+
+  <!-- ==================== SELETOR DE ANO & MULTI-MESES ==================== -->
+  <section class="date-selector-panel">
+    <div class="date-selector-top">
+      <div class="year-pills-row" id="yearSelector">
+                <button class="year-btn active" onclick="selectYear(2026)">2026</button>
+        <button class="year-btn" onclick="selectYear(2027)">2027</button>
+      </div>
+
+      <div class="quick-presets-row">
+        <span class="preset-text-btn" onclick="applyDatePreset('active')">Mês</span>
+        <span class="preset-text-btn" onclick="applyDatePreset('ytd')">YTD</span>
+        <span class="preset-text-btn" onclick="applyDatePreset('all')">Ano Todo</span>
+      </div>
+    </div>
+
+    <!-- Ticker Horizontal Multi-Mês com controles -->
+    <div class="month-horizontal-bar">
+      <button class="month-nav-arrow" onclick="navMonthOffset(-1)">‹</button>
+      <div class="month-carousel-track" id="monthTrack"></div>
+      <button class="month-nav-arrow" onclick="navMonthOffset(1)">›</button>
+    </div>
+
+    <div class="selection-summary-badge">
+      <span id="periodLabelText">Consolidado: Outubro 2026</span>
+      <span class="selection-count-pill" id="selectedCountBadge">1 Mês</span>
+    </div>
+  </section>
+
+  <!-- ==================== BARRA DE CONTROLE: NEUTRALIZAÇÃO FLASH ==================== -->
+  <section class="flash-neutralizer-card active" id="flashCardBar" onclick="toggleRingFencing()">
+    <div class="flash-neutralizer-info">
+      <div class="flash-icon-box">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="flash-text-lockup">
+        <b>Neutralizar Benefícios Flash (VT/VR)</b>
+        <span id="flashStatusText">Ativo · Custos de Transporte e Alimentação expurgados do bolso</span>
+      </div>
+    </div>
+    <div class="switch-control"></div>
+  </section>
+
+  <!-- ==================== TAB 1: EXECUTIVE HOME ==================== -->
+  <main id="view-home" class="view active">
+
+    <!-- HERO DESTAQUE: CONSOLIDAÇÃO PATRIMONIAL & PRIVATE WEALTH -->
+    <section class="hero-wealth-consolidation">
+      <div id="hero-canvas" title="Arraste para rotacionar o elemento 3D"></div>
+
+      <div class="hero-meta-title-lockup">
+        <div class="hero-super-badge">
+          <span class="dot-live"></span>
+          <span>Private Wealth Engine · 102% CDI</span>
+        </div>
+        <h1 class="hero-period-headline" id="heroPeriodTitle">Consolidação Outubro</h1>
+      </div>
+
+      <!-- Master KPI Box: Liquidez Livre (Valores em Preto Mineral) -->
+      <div class="hero-master-balance">
+        <div class="master-balance-caption">
+          <span>Liquidez Livre Gerada</span>
+          <span id="heroPoolTypeBadge">Líquido do Bolso</span>
+        </div>
+        <div class="master-balance-val num" id="kEcon">R$ 0,00</div>
+        
+        <div class="master-sub-meta-row">
+          <span style="color:var(--muted);">Taxa de Poupança Efetiva:</span>
+          <span class="rate-tag-badge num" id="kTaxa">0,0%</span>
+        </div>
+      </div>
+
+      <!-- Secondary KPIs Grid -->
+      <div class="hero-kpis-grid">
+        <div class="hero-kpi-cell">
+          <span class="cell-label">Receita Líquida</span>
+          <span class="cell-value num" id="kRec">--</span>
+        </div>
+        <div class="hero-kpi-cell">
+          <span class="cell-label">Despesas Reais (Bolso)</span>
+          <span class="cell-value num" id="kDesp">--</span>
+        </div>
+        <div class="hero-kpi-cell">
+          <span class="cell-label">Aportes Contratuais</span>
+          <span class="cell-value num" id="kInv">--</span>
+        </div>
+        <div class="hero-kpi-cell">
+          <span class="cell-label">Rendimento CDI Acum.</span>
+          <span class="cell-value num" id="kRend">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPANION ASSET: CARTÃO C6 CARBON BLACK -->
+    <section class="reference-card-container">
+      <div class="c6-carbon-card" id="c6CardInteractive">
+        <div class="c6-card-label">Cartão C6 Carbon Black</div>
+        <div class="c6-card-value num" id="c6Val">R$ 0,00</div>
+        <div class="c6-card-foot">
+          <span id="c6DueDateText">Vencimento: dia 10</span>
+          <span class="c6-card-brand">C6 Carbon</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS ESTRATÉGICOS DO CFO -->
+    <section class="strategic-insights-section">
+      <div class="section-headline">
+        <span>Diretrizes & Insights Estratégicos</span>
+        
+      </div>
+
+      <div class="insights-deck-grid" id="insightsDeck">
+        <!-- Renderizado dinamicamente via JS -->
+      </div>
+    </section>
+
+    <!-- Ações Frequentes com Fluxo Mindful -->
+    <div class="section-headline">Ações Executivas</div>
+    <div class="quick-action-grid">
+      <div class="action-tile-btn mindful-action" onclick="openMindfulExpenseModal()">
+        <div class="action-tile-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <span class="action-tile-text">Lançamento com Atenção Plena</span>
+      </div>
+
+      
+
+      <div class="action-tile-btn" onclick="goToTab('view-strategy')">
+        <div class="action-tile-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <span class="action-tile-text">Engenharia CDI</span>
+      </div>
+
+      
+    </div>
+
+    <!-- Gráfico Consolidado -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Fluxo Anual Consolidado</h2>
+          <div class="glass-card-sub" id="chartSubLabel">Histórico do período a 102% do CDI</div>
+        </div>
+        <span class="badge-tag accent">102% CDI</span>
+      </div>
+      <div class="chart-container-box">
+        <canvas id="chartFlow"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== TAB 2: BUDGET & TRANSACTIONS ==================== -->
+  <main id="view-budget" class="view">
+    <div class="section-headline">Orçamento & Gestão de Despesas</div>
+
+    <!-- Gatilho de Atenção Plena / Lançamento Consciente -->
+    <div class="action-tile-btn mindful-action" style="margin-bottom:18px;" onclick="openMindfulExpenseModal()">
+      <div class="action-tile-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <div>
+        <span class="action-tile-text" style="display:block;">Novo Lançamento com Atenção Plena</span>
+        <span style="font-size:11px;color:var(--muted);">Tela focada para registro consciente de despesas</span>
+      </div>
+    </div>
+
+    <!-- Dynamic 80/20 Budget Matrix (Micro-rails finos e sem sobreposição) -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Budget Dinâmico 80/20</h2>
+          <div class="glass-card-sub" id="budBaseSub">Base Flexível Pós-Fixas</div>
+        </div>
+      </div>
+
+      <div id="rebalanceNotice" class="budget-status-banner">
+        Alocação equilibrada. Meta de aportes preservada em 100%.
+      </div>
+
+      <div id="budgetStackedContainer"></div>
+
+      <button class="manage-cats-btn" onclick="openCatModal()">+ Gerenciar & Adicionar Categorias</button>
+    </section>
+
+    <!-- Registro mensal -->
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Registro do Mês</h2><div class="glass-card-sub" id="mLabel">Mês selecionado</div></div></div>
+      <div class="inv-grid" style="margin-top:0">
+        <label class="inv-field">Receita líquida (R$)<input class="app-input-field" id="mRec" type="number" step="0.01"></label>
+        <label class="inv-field">Rendimento CDI (R$)<input class="app-input-field" id="mRend" type="number" step="0.01"></label>
+        <label class="inv-field">Vale-transporte (R$)<input class="app-input-field" id="mVt" type="number" step="0.01"></label>
+        <label class="inv-field">Vale-refeição (R$)<input class="app-input-field" id="mVr" type="number" step="0.01"></label>
+        <label class="inv-field wide">Aporte contratual (R$)<input class="app-input-field" id="mInv" type="number" step="0.01"></label>
+      </div>
+      <p class="inv-note">A receita deve incluir VT e VR, pois a neutralização Flash os separa do caixa pessoal.</p>
+      <button class="primary-submit-btn" style="margin-top:14px" onclick="saveMonthData()">Salvar mês</button>
+    </section>
+
+    <!-- Histórico de Despesas Registradas -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Despesas Lançadas no Período</h2>
+          <div class="glass-card-sub">Lançamentos manuais e parcelamentos ativos</div>
+        </div>
+      </div>
+      <div class="expense-logs-container" id="expenseLogList"></div>
+    </section>
+  </main>
+
+  <!-- ==================== TAB 3: WEALTH STRATEGY (ENGENHARIA PATRIMONIAL REDESENHADA) ==================== -->
+  <main id="view-strategy" class="view">
+    
+    <!-- Hero 3D da Engenharia Patrimonial -->
+    <section class="wealth-hero-poly">
+      <div id="wealthCanvas3d" title="Arraste para rotacionar o núcleo 3D"></div>
+      <div class="wealth-poly-meta">
+        <span class="wealth-poly-tag">Private Wealth Architecture</span>
+        <h2 class="wealth-poly-title">Engenharia de Capital a 102% CDI</h2>
+        <p class="wealth-poly-caption">Modelagem de arbitragem geográfica, VPL e custo de oportunidade composto.</p>
+      </div>
+    </section>
+
+    <!-- Arbitragem Geográfica: Scroller de Cidades sem Cortes -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Arbitragem de Moradia</h2>
+          <div class="glass-card-sub">Excedente investido a 102% do CDI (1,129% a.m.)</div>
+        </div>
+        <span class="badge-tag accent">10 Anos</span>
+      </div>
+
+      <!-- Scroller Horizontal de Cidades -->
+      <div class="arb-city-cards-scroller" id="arbCitiesTrack">
+        <!-- Renderizado dinamicamente via JS -->
+      </div>
+
+      <!-- Detalhamento da Cidade Ativa -->
+      <div class="arb-detail-spotlight" id="arbSpotlightBox">
+        <!-- Detalhes preenchidos via JS -->
+      </div>
+    </section>
+
+    <!-- Detetive de Ralos com Tabelas Analíticas -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Detetive de Ralos Patrimoniais</h2>
+          <div class="glass-card-sub">Custo de oportunidade em juros compostos & histórico</div>
+        </div>
+      </div>
+      <div id="drainsList"></div>
+    </section>
+
+    <!-- Simulador À Vista vs Parcelado -->
+    <section class="glass-card">
+      <div class="glass-card-header">
+        <div>
+          <h2 class="glass-card-title">Simulador À Vista vs. Parcelado</h2>
+          <div class="glass-card-sub">VPL descontado a 102% do CDI</div>
+        </div>
+      </div>
+
+      <div class="input-stack-form">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;">Valor da Compra (R$)</div>
+        <input class="app-input-field" id="sPreco" type="number" value="3200" placeholder="Preço do Item (R$)">
+        
+        <div class="sim-range-wrap">
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;">
+            <span style="color:var(--muted);">Número de Parcelas:</span>
+            <span id="sNVal" class="num">12x</span>
+          </div>
+          <input type="range" id="sN" min="1" max="24" value="12" style="accent-color:var(--ink);">
+
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;">
+            <span style="color:var(--muted);">Desconto à Vista:</span>
+            <span id="sDescVal" class="num">10%</span>
+          </div>
+          <input type="range" id="sDesc" min="0" max="25" value="10" step="0.5" style="accent-color:var(--ink);">
+        </div>
+      </div>
+
+      <div class="sim-compare-grid">
+        <div class="sim-compare-card" id="simVBox">
+          <div class="caption">À Vista com Desconto</div>
+          <div class="val num" id="simV">--</div>
+        </div>
+        <div class="sim-compare-card" id="simPBox">
+          <div class="caption">Parcelado (VPL CDI)</div>
+          <div class="val num" id="simP">--</div>
+        </div>
+      </div>
+
+      <div class="arb-executive-verdict" id="simVerdict" style="margin-top:8px;"></div>
+    </section>
+  </main>
+
+  <!-- ==================== TAB 5: PLANEJAMENTO DE INVESTIMENTOS ==================== -->
+  <main id="view-invest" class="view">
+    <div class="section-headline">Planejamento de Investimentos</div>
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Premissas</h2><div class="glass-card-sub">Taxas e referências das projeções</div></div></div>
+      <div class="inv-grid" style="margin-top:0">
+        <label class="inv-field">CDI (% a.a.)<input class="app-input-field" id="inv_cdi" data-k="cdi" type="number" step="0.01"></label>
+        <label class="inv-field">% do CDI<input class="app-input-field" id="inv_pct" data-k="pct" type="number" step="0.5"></label>
+        <label class="inv-field">IPCA (% a.a.)<input class="app-input-field" id="inv_ipca" data-k="ipca" type="number" step="0.01"></label>
+        <label class="inv-field wide">Despesas essenciais (R$/mês)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
+      </div>
+      <button class="manage-cats-btn" id="invUseApp">Usar média de despesas essenciais do app</button>
+      <p class="inv-note">Revise CDI e IPCA conforme as taxas vigentes. IR de renda fixa pela tabela regressiva, aplicada pelo prazo total. IOF e corretagem não considerados.</p>
+    </section>
+    <section class="glass-card"><div class="arb-spotlight-grid" id="invSummary" style="margin:0"></div></section>
+    <div id="invGoals"></div>
+    <button class="manage-cats-btn" id="invAdd">+ Nova meta</button>
+  </main>
+
+  <!-- ==================== FLOATING DOCK TRANSLÚCIDA ==================== -->
+  <nav class="floating-dock">
+    <div class="dock-item-btn active" data-target="view-home" role="button" aria-label="Início">
+      <div class="dock-icon-wrapper">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+    </div>
+    <div class="dock-item-btn" data-target="view-budget" role="button" aria-label="Orçamento">
+      <div class="dock-icon-wrapper">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+    </div>
+    <div class="dock-item-btn" data-target="view-strategy" role="button" aria-label="Estratégia">
+      <div class="dock-icon-wrapper">
+        <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      </div>
+    </div>
+    
+    <div class="dock-item-btn" data-target="view-invest" role="button" aria-label="Investimentos">
+      <div class="dock-icon-wrapper">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.5h-3.25a1.25 1.25 0 0 0 0 2.5h1.5a1.25 1.25 0 0 1 0 2.5H9.5"/></svg>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== MODAL DE ATENÇÃO PLENA (MINDFULNESS / ESTILO DUOLINGO) ==================== -->
+  <div id="mindfulExpenseModal">
+    <div class="mindful-modal-header">
+      <span class="mindful-badge-mindful">Mindfulness · Atenção Plena</span>
+      <button class="mindful-close-circle" onclick="closeMindfulExpenseModal()">&times;</button>
+    </div>
+
+    <!-- Track de Progresso Mindful -->
+    <div class="mindful-progress-bar">
+      <div class="mindful-progress-fill" id="mindfulProgressTrack"></div>
+    </div>
+
+    <!-- ETAPA 1: O Que Você Está Adquirindo? -->
+    <div class="mindful-step-section active" id="mindfulStep1">
+      <div>
+        <h2 class="mindful-step-title">Qual é o item ou serviço que você está adquirindo?</h2>
+        <p class="mindful-step-sub">Nomeie o item com precisão para evitar desvios no orçamento.</p>
+
+        <div style="margin-top:24px;">
+          <input class="app-input-field" id="mindfulDescInput" placeholder="Ex.: 2 Calças de Alfaiataria, Consulta, Livro..." autofocus>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Selecione a Categoria:</div>
+          <div class="mindful-category-grid" id="mindfulCatSelectorGrid"></div>
+        </div>
+      </div>
+
+      <button class="mindful-next-btn" onclick="mindfulGoToStep(2)">Continuar</button>
+    </div>
+
+    <!-- ETAPA 2: Valor do Desembolso -->
+    <div class="mindful-step-section" id="mindfulStep2">
+      <div>
+        <h2 class="mindful-step-title">Qual é o valor total deste compromisso?</h2>
+        <p class="mindful-step-sub">Conecte-se com o valor real antes de confirmá-lo.</p>
+
+        <div class="mindful-big-input-box">
+          <span class="mindful-currency-prefix">R$</span>
+          <input class="mindful-amount-input num" id="mindfulValTotalInput" type="number" step="0.01" placeholder="0,00">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="mindful-next-btn" style="background:var(--bg-card);color:var(--ink);border:0.5px solid var(--hairline);" onclick="mindfulGoToStep(1)">Voltar</button>
+        <button class="mindful-next-btn" style="flex:2;" onclick="mindfulGoToStep(3)">Continuar</button>
+      </div>
+    </div>
+
+    <!-- ETAPA 3: Forma & Consciência de Parcelamento -->
+    <div class="mindful-step-section" id="mindfulStep3">
+      <div>
+        <h2 class="mindful-step-title">Como esse valor será liquidado?</h2>
+        <p class="mindful-step-sub">Avalie o impacto no C6 Carbon Black ou desembolso imediato.</p>
+
+        <div style="margin-top:24px;">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Número de Parcelas:</div>
+          <select class="app-input-field" id="mindfulParcelasSelect" onchange="mindfulUpdateSummary()">
+            <option value="1">1x · À Vista</option>
+            <option value="2">2x Sem Juros</option>
+            <option value="3">3x Sem Juros</option>
+            <option value="4">4x Sem Juros</option>
+            <option value="5">5x Sem Juros</option>
+            <option value="6">6x Sem Juros</option>
+            <option value="8">8x Sem Juros</option>
+            <option value="10">10x Sem Juros</option>
+            <option value="12">12x Sem Juros</option>
+            <option value="18">18x Sem Juros</option>
+            <option value="24">24x Sem Juros</option>
+          </select>
+        </div>
+
+        <label class="c6-checkbox-row" style="margin-top:16px;">
+          <input type="checkbox" id="mindfulC6Check" checked onchange="mindfulUpdateSummary()">
+          <span>Lançar no Crédito (C6 Carbon Black)</span>
+        </label>
+
+        <!-- Card de Síntese Consciente -->
+        <div class="mindful-summary-card">
+          <div class="mindful-summary-row">
+            <span style="color:var(--muted);">Item:</span>
+            <b id="mindfulSumDesc">--</b>
+          </div>
+          <div class="mindful-summary-row">
+            <span style="color:var(--muted);">Categoria:</span>
+            <b id="mindfulSumCat">--</b>
+          </div>
+          <div class="mindful-summary-row">
+            <span style="color:var(--muted);">Desembolso por Parcela:</span>
+            <b id="mindfulSumParcela" class="num">R$ 0,00</b>
+          </div>
+          <div class="mindful-summary-row">
+            <span style="color:var(--muted);">Impacto no CDI (102%):</span>
+            <span style="font-size:11px;color:var(--accent-blue);font-weight:600;" id="mindfulSumCdiReflection">Preserva capital rendendo</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="mindful-next-btn" style="background:var(--bg-card);color:var(--ink);border:0.5px solid var(--hairline);" onclick="mindfulGoToStep(2)">Voltar</button>
+        <button class="mindful-next-btn" style="flex:2;" onclick="mindfulSubmitExpense()">Registrar com Consciência</button>
+      </div>
+    </div>
   </div>
-</header>
 
-<div class="grid">
-
-  <!-- HERO -->
-  <section class="card hero s12 tilt" id="heroCard">
-    <canvas id="hero3d"></canvas>
-    <div class="hero-top">
-      <h1 id="heroTitle">Economia</h1>
-      <div class="muted" id="heroSub">Base de Receitas Líquidas − Investimentos − Despesas</div>
-    </div>
-    <div>
-      <div class="kpis">
-        <div class="kpi"><div class="label">Receitas</div><div class="val num" id="kRec">—</div></div>
-        <div class="kpi"><div class="label">Investimentos</div><div class="val num" id="kInv">—</div></div>
-        <div class="kpi"><div class="label">Despesas</div><div class="val num" id="kDesp">—</div></div>
-        <div class="kpi econ"><div class="label">Economia Líquida</div><div class="val num" id="kEcon">—</div></div>
+  <!-- ==================== MODAL DE GERENCIAMENTO DE CATEGORIAS ==================== -->
+  <div class="modal-layer" id="catModal">
+    <div class="modal-inner-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:15px; font-weight:700; color:var(--ink);">Gerenciar Categorias</h3>
+        <button onclick="closeCatModal()" style="font-size:18px; font-weight:700; cursor:pointer; color:var(--muted);">&times;</button>
       </div>
-      <div class="note" id="heroNote"></div>
-    </div>
-  </section>
 
-  <!-- BUDGET DYNAMICS -->
-  <section class="card s6 tilt">
-    <div class="head">
-      <h2>Orçamento Inteligente (80/20)</h2>
-      <span class="hint" id="budPool"></span>
-    </div>
-    <div class="verdict" id="budAlert" style="display: none; margin-bottom: 16px; margin-top: 0;"></div>
-    <table id="budTable"></table>
-  </section>
-
-  <!-- C6 + LANÇAMENTO -->
-  <section class="card s6 tilt" style="display: flex; flex-direction: column;">
-    <div class="c6" style="margin-bottom: 24px;">
-      <div class="label">Cartão C6 Carbon Black</div>
-      <div class="val num" id="c6Val">R$ 0,00</div>
-      <div class="foot" id="c6Foot">Vencimento: Dia 10</div>
-    </div>
-    
-    <div class="head" style="margin-bottom: 16px;">
-      <h2>Lançamento Granular</h2>
-      <span class="hint" id="lancMes"></span>
-    </div>
-    
-    <div class="form-grid">
-      <select class="inp" id="lCat"></select>
-      <input class="inp" id="lDesc" placeholder="Descrição (ex.: 2 Tênis de Corrida)">
-      <div class="row-2">
-        <input class="inp" id="lQtd" type="number" min="1" step="1" value="1" placeholder="Qtd.">
-        <input class="inp" id="lVal" type="number" min="0" step="0.01" placeholder="Valor Unitário (R$)">
+      <div class="input-stack-form" style="margin-bottom:18px;">
+        <input class="app-input-field" id="newCatName" placeholder="Nome da Nova Categoria">
+        <select class="app-input-field" id="newCatGroup">
+          <option value="ESS">Essenciais (Teto 80%)</option>
+          <option value="NESS">Discricionárias (Teto 20%)</option>
+          <option value="FIX">Despesas Inelásticas (Fixas)</option>
+        </select>
+        <button class="primary-submit-btn" onclick="saveNewCategory()">Adicionar Categoria</button>
       </div>
-      <label class="check"><input type="checkbox" id="lC6"> Lançar na fatura C6 (Crédito)</label>
-      <button class="btn" id="lAdd">Computar no Patrimônio</button>
-    </div>
-    
-    <div class="items" id="lList"></div>
-  </section>
 
-  <!-- GRÁFICO FLUXO -->
-  <section class="card s12 tilt">
-    <div class="head">
-      <h2>Fluxo de Caixa Anual</h2>
-      <span class="hint">Visão macro de receitas, alocações e retenção patrimonial</span>
+      <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:8px;">Categorias Ativas</div>
+      <div id="modalCatsList" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;"></div>
     </div>
-    <div class="chart-box"><canvas id="chartFlow"></canvas></div>
-  </section>
-
-  <!-- RALOS -->
-  <section class="card s6 tilt">
-    <div class="head">
-      <h2>Detetive de Ralos</h2>
-      <span class="hint">Custo de oportunidade em juros compostos (1,107% a.m. CDI) dos micro-gastos flexíveis</span>
-    </div>
-    <div class="ralo-grid" id="ralos"></div>
-    <div class="verdict alert" id="ralosVerdict"></div>
-  </section>
-
-  <!-- SIMULADOR -->
-  <section class="card s6 tilt">
-    <div class="head">
-      <h2>Simulador Estratégico: À Vista vs. Parcelado</h2>
-      <span class="hint">Calcula o Valor Presente (VP) mantendo o dinheiro rendendo no CDI (1,107% a.m.)</span>
-    </div>
-    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); margin-bottom: 20px;">
-      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Preço Base (R$)</div><input class="inp" id="sPreco" type="number" value="5000" step="100"></div>
-      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Parcelas (x)</div><input class="inp" id="sN" type="number" value="12" min="1"></div>
-      <div><div class="muted" style="margin-bottom:6px; font-size:12px;">Desconto % (À vista)</div><input class="inp" id="sDesc" type="number" value="10" step="1"></div>
-    </div>
-    <div id="simOut" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
-    <div class="verdict" id="simVerdict"></div>
-  </section>
-
-  <!-- ARBITRAGEM GEOGRÁFICA -->
-  <section class="card s6 tilt">
-    <div class="head">
-      <h2>Arbitragem Geográfica</h2>
-      <span class="hint">Impacto patrimonial ao migrar de SP Capital para polos no Interior e investir a economia no CDI por 10 anos.</span>
-    </div>
-    <div style="margin-bottom: 16px;">
-      <div class="muted" style="margin-bottom:6px; font-size:12px;">Custo de Vida Atual em SP Capital (R$/mês)</div>
-      <input class="inp" id="geoCusto" type="number" value="5000" step="500">
-    </div>
-    <div class="geo-grid">
-      <div class="geo-card">
-        <h3>São Carlos (Polo Tech)</h3>
-        <span class="hint">Custo de vida -42% menor</span>
-        <div class="save" id="geoSC_save">R$ 0 <span>/mês extra</span></div>
-        <div class="muted" id="geoSC_fv">Patrimônio em 10 anos: --</div>
-      </div>
-      <div class="geo-card">
-        <h3>Ribeirão Preto (Agro/Saúde)</h3>
-        <span class="hint">Custo de vida -30% menor</span>
-        <div class="save" id="geoRP_save">R$ 0 <span>/mês extra</span></div>
-        <div class="muted" id="geoRP_fv">Patrimônio em 10 anos: --</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- BOLA DE NEVE -->
-  <section class="card s6 tilt">
-    <div class="head">
-      <h2>Projeção: Efeito Bola de Neve</h2>
-      <span class="hint">Crescimento patrimonial projetando aportes constantes + juros (0,85% a.m. líquido) em 20 anos.</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-      <div style="flex: 1; min-width: 200px;">
-        <div class="muted" style="margin-bottom:6px; font-size:12px;">Aporte Mensal Simulado (R$)</div>
-        <input class="inp" id="snAporte" type="number" step="100">
-      </div>
-      <div class="num" id="snFinal" style="font-size: 24px; font-weight: 600; color: var(--ink);"></div>
-    </div>
-    <div class="chart-box" style="height: 220px;"><canvas id="chartSnow"></canvas></div>
-  </section>
+  </div>
 
 </div>
+
+<div class="modal-layer" id="personalModal">
+  <div class="modal-inner-card">
+    <div class="pm-head"><h3>Personalização</h3><button onclick="closePersonal()" style="font-size:20px;color:var(--muted);cursor:pointer;" aria-label="Fechar">&times;</button></div>
+    <p class="pm-sub">Cor de destaque do aplicativo. Aceita qualquer código hexadecimal.</p>
+    <div class="pm-row">
+      <span class="pm-swatch"></span>
+      <input class="app-input-field" id="pmHex" placeholder="#225C8A" maxlength="7" autocomplete="off" onkeydown="if(event.key==='Enter')setAccentFromInput()">
+      <input class="pm-picker" id="pmPicker" type="color" aria-label="Seletor de cor" onchange="pmHex.value=this.value;setAccentFromInput()">
+    </div>
+    <div class="pm-err" id="pmErr"></div>
+    <div class="pm-actions">
+      <button class="manage-cats-btn" style="margin-top:0" onclick="resetAccent()">Restaurar padrão</button>
+      <button class="primary-submit-btn" onclick="setAccentFromInput()">Aplicar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ============ BASE DE DADOS (2026 Histórico Real) ============ */
+/* ==================== FINANCIAL ENGINE & REPORTE 2025/2026/2027 ==================== */
 const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const D = {
-  rec: [4645.96,4483.08,4607.88,5880.69,4498.66,4775.12,4695.41,5313.25,4934.65,4799.09,0,0],
-  rend: [441.37,368.31,528.30,496.36,528.07,595.51,606.90,614.71,616.78,0,0,0],
-  vt: [267,239.52,243.88,206.36,225.12,225.12,262.64,675.36,393.96,393.96,0,0],
-  vr: [840,760,920,800,800,880,880,840,840,840,0,0],
-  inv: [2360.63,2455.77,2294.46,4017.27,2616,2806.98,2725,2892,2930,3304,0,0],
-  cats: {
-    'Alimentação': [679.44,963.51,698.16,686.81,705.18,1000.71,860.78,991.51,980.59,656.18,0,0],
-    'Imagem Profissional': [529.43,409.96,605.83,0,305.53,383.62,458.25,583.31,333.15,757.59,0,0],
-    'Transporte': [200,163.80,100,0,0,0,0,20,0,0,0,0],
-    'Doação': [0,0,0,0,0,0,0,0,0,0,0,0],
-    'Carro de Aplicativo': [264.07,239.46,444.01,410.80,522.69,250.95,274.39,376.77,518.64,229.67,0,0],
-    'Autocuidado': [0,113.37,55.55,0,59.90,23,130,80,0,24,0,0],
-    'Saúde': [25.49,113.65,62.38,41.34,55.56,57.73,57,9.77,0,0,0,0],
-    'Intelecto': [196.40,0,98.77,316.50,316.49,33.92,65.47,133.60,133.58,33.92,0,0],
-    'Tecnologia': [0,0,0,0,0,125.50,0,105.50,105.50,105.50,0,0],
-    'Residencial': [200,200,200,200,200,200,200,310,200,200,0,0],
-    'Internet Móvel': [27.01,27.01,27.01,27.01,27.01,27.01,27.01,27.01,27.01,29.90,0,0]
-  }
+const MONTH_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+let customCategories = {
+  'Alimentação':         { group: 'ESS', weight: 0.50, custom: false },
+  'Imagem Profissional': { group: 'ESS', weight: 0.37, custom: false },
+  'Transporte':          { group: 'ESS', weight: 0.10, custom: false },
+  'Doação':              { group: 'ESS', weight: 0.03, custom: false },
+  'Carro de Aplicativo': { group: 'NESS', weight: 0.50, custom: false },
+  'Autocuidado':         { group: 'NESS', weight: 0.20, custom: false },
+  'Saúde':               { group: 'NESS', weight: 0.15, custom: false },
+  'Intelecto':           { group: 'NESS', weight: 0.10, custom: false },
+  'Tecnologia':          { group: 'NESS', weight: 0.05, custom: false },
+  'Residencial':         { group: 'FIX', weight: 0, custom: false },
+  'Internet Móvel':      { group: 'FIX', weight: 0, custom: false }
 };
 
-/* Regras de Alocação 80/20 */
-const FIX = ['Residencial','Internet Móvel'];
-const ESS = {'Alimentação':0.50, 'Imagem Profissional':0.37, 'Transporte':0.10, 'Doação':0.03};
-const NESS = {'Carro de Aplicativo':0.50, 'Autocuidado':0.20, 'Saúde':0.15, 'Intelecto':0.10, 'Tecnologia':0.05};
-const CDI = 0.01107, LIQ = 0.0085;
+const EMPTY_MONTHS = () => new Array(12).fill(0);
+const makeData = () => ({ rec: EMPTY_MONTHS(), rend: EMPTY_MONTHS(), vt: EMPTY_MONTHS(), vr: EMPTY_MONTHS(), inv: EMPTY_MONTHS(), cats: Object.fromEntries(Object.keys(customCategories).map(c => [c, EMPTY_MONTHS()])) });
+const DATA_2025 = makeData();
+const DATA_2026 = makeData();
+const DATA_2027 = makeData();
 
-/* ============ ESTADO & PERSISTÊNCIA ============ */
-const S = { i: 9, exFlash: false, extras: [] };
+// 102% do CDI: 1,1291% a.m. (14,28% a.a.)
+const CDI = 0.01107 * 1.02;
 
-function loadExtras() {
-  try {
-    const data = localStorage.getItem('cfo_extras_2026');
-    if (data) S.extras = JSON.parse(data);
-  } catch(e) { console.error("Erro ao carregar dados", e); }
-}
-function saveExtras() {
-  localStorage.setItem('cfo_extras_2026', JSON.stringify(S.extras));
-}
+const S = {
+  year: 2026,
+  selectedMonths: [9], // Inicia em Outubro
+  lastAnchorMonth: 9,
+  exFlash: true,
+  extras: []
+};
 
-const BRL = v => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-const PCT = v => (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
-const fvAnnuity = (pmt, n, r) => pmt * ((Math.pow(1 + r, n) - 1) / r);
-
-function extraOf(c, i) { return S.extras.filter(e => e.i === i && e.cat === c).reduce((a, e) => a + e.v, 0); }
-
-/* Motor Analítico (CFO Intelligence) */
-function md(i) {
-  const flash = D.vt[i] + D.vr[i];
-  const cats = {}; 
-  let desp = 0;
-  
-  // Consolida dados base + lançamentos dinâmicos
-  for (const c in D.cats) {
-    cats[c] = (D.cats[c][i] || 0) + extraOf(c, i); 
-    desp += cats[c];
+/* Persistência local (v3) */
+try {
+  if (!localStorage.getItem('cfo_v3_clean')) {
+    ['cfo_extras', 'cfo_cats', 'cfo_data'].forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('cfo_v3_clean', '1');
   }
-  
-  const inv = D.inv[i] || 0;
-  // Receita Base. Se exFlash, subtrai VR/VT que são engessados.
-  const recB = (D.rec[i] || 0) - (S.exFlash ? flash : 0);
-  const rend = D.rend[i] || 0;
-  const rec = recB + rend;
-  const econ = rec - inv - desp;
-  const pend = (D.rec[i] || 0) === 0;
-  
-  // Base de cálculo do orçamento (Pós-Investimentos, pois investimentos são protegidos/prioridade)
-  const pool = Math.max(0, recB - inv); 
-  const fix = FIX.reduce((a, c) => a + cats[c], 0);
-  const posF = Math.max(0, pool - fix); // Saldo livre para flexíveis
-  
-  let bud = {};
-  let totalEssTeto = 0.8 * posF;
-  let totalNessTeto = 0.2 * posF;
+  const _ex = localStorage.getItem('cfo_extras'); if (_ex) S.extras = JSON.parse(_ex);
+  const _cc = localStorage.getItem('cfo_cats'); if (_cc) customCategories = JSON.parse(_cc);
+  const _dd = localStorage.getItem('cfo_data');
+  if (_dd) { const d = JSON.parse(_dd); Object.assign(DATA_2026, d.DATA_2026 || {}); Object.assign(DATA_2027, d.DATA_2027 || {}); }
+} catch (e) { console.warn('Falha ao ler dados locais', e); }
+function persist() {
+  try {
+    localStorage.setItem('cfo_extras', JSON.stringify(S.extras));
+    localStorage.setItem('cfo_cats', JSON.stringify(customCategories));
+    localStorage.setItem('cfo_data', JSON.stringify({ DATA_2026, DATA_2027 }));
+  } catch (e) { console.warn('Falha ao salvar dados locais', e); }
+}
 
-  // Rebalanceamento Dinâmico (Proporcional)
-  // CFO Inteligente: Se uma categoria estoura, o limite das outras na mesma 'cesta' é reduzido
-  function calcRebalance(groupObj, totalPoolLimit) {
-    let allocated = {};
-    let excessTotal = 0;
+function getActiveDataset() {
+  if (S.year === 2025) return DATA_2025;
+  if (S.year === 2027) return DATA_2027;
+  return DATA_2026;
+}
+
+function BRL(v) {
+  if (isNaN(v)) return 'R$ 0,00';
+  const prefix = v < 0 ? '-' : '';
+  return prefix + Math.abs(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function PCT(v) {
+  return (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
+}
+function fvAnnuity(pmt, n, rate) {
+  return pmt * ((Math.pow(1 + rate, n) - 1) / rate);
+}
+
+function getExtrasAmount(cat, monthIdx, year) {
+  return S.extras
+    .filter(e => e.year === year && e.i === monthIdx && e.cat === cat)
+    .reduce((sum, item) => sum + item.v, 0);
+}
+
+function calculateSingleMonth(idx, year) {
+  const D = year === 2025 ? DATA_2025 : (year === 2027 ? DATA_2027 : DATA_2026);
+  const isPending = (D.rec[idx] || 0) === 0;
+  const vt = D.vt[idx] || 0;
+  const vr = D.vr[idx] || 0;
+  const flashTotal = vt + vr;
+
+  const rawCats = {};
+  const cats = {};
+  let totalDesp = 0;
+
+  for (const c in customCategories) {
+    const historical = (D.cats[c] && D.cats[c][idx]) ? D.cats[c][idx] : 0;
+    const added = getExtrasAmount(c, idx, year);
+    rawCats[c] = historical + added;
+
+    if (S.exFlash) {
+      if (c === 'Alimentação') {
+        cats[c] = Math.max(0, rawCats[c] - vr);
+      } else if (c === 'Transporte') {
+        cats[c] = Math.max(0, rawCats[c] - vt);
+      } else if (c === 'Carro de Aplicativo') {
+        cats[c] = rawCats[c];
+      } else {
+        cats[c] = rawCats[c];
+      }
+    } else {
+      cats[c] = rawCats[c];
+    }
+    totalDesp += cats[c];
+  }
+
+  const rawRec = D.rec[idx] || 0;
+  const recBase = rawRec - (S.exFlash ? flashTotal : 0);
+  const rend = D.rend[idx] || 0;
+  const totalRec = recBase + rend;
+  const inv = D.inv[idx] || 0;
+  const econ = totalRec - inv - totalDesp;
+
+  const basePool = Math.max(0, recBase - inv);
+  let totalFix = 0;
+  for (const c in customCategories) {
+    if (customCategories[c].group === 'FIX') totalFix += (cats[c] || 0);
+  }
+  const postFixPool = Math.max(0, basePool - totalFix);
+
+  const budget = {};
+  let isSqueezed = false;
+
+  function allocateGroup(targetGroup, poolMultiplier) {
+    const groupCaps = {};
+    let totalWeight = 0;
+    for (const c in customCategories) {
+      if (customCategories[c].group === targetGroup) {
+        totalWeight += (customCategories[c].weight || 0.1);
+      }
+    }
+    const availableGroupCap = isPending ? 0 : postFixPool * poolMultiplier;
+    let excess = 0;
     let weightRemaining = 0;
 
-    // 1º Passo: Alocação teórica e descoberta de estourados
-    for(const c in groupObj) {
-      allocated[c] = pend ? 0 : totalPoolLimit * groupObj[c];
-      if(!pend && cats[c] > allocated[c]) {
-        excessTotal += (cats[c] - allocated[c]);
-      } else if (!pend) {
-        weightRemaining += groupObj[c];
+    for (const c in customCategories) {
+      if (customCategories[c].group === targetGroup) {
+        const normWeight = totalWeight > 0 ? (customCategories[c].weight || 0.1) / totalWeight : 0.1;
+        groupCaps[c] = availableGroupCap * normWeight;
+        const spent = cats[c] || 0;
+        if (!isPending && spent > groupCaps[c]) {
+          excess += (spent - groupCaps[c]);
+        } else if (!isPending) {
+          weightRemaining += normWeight;
+        }
       }
     }
 
-    // 2º Passo: Redistribui o peso do excesso nas não estouradas
-    let finalBud = {};
-    for(const c in groupObj) {
-      if (pend) {
-        finalBud[c] = 0;
-      } else if (cats[c] > allocated[c]) {
-        finalBud[c] = allocated[c]; // Mantém o teto original para mostrar o quanto passou
-      } else {
-        // Reduz o teto proporcionalmente ao seu peso no restante
-        let penalty = weightRemaining > 0 ? excessTotal * (groupObj[c] / weightRemaining) : 0;
-        finalBud[c] = Math.max(0, allocated[c] - penalty);
+    for (const c in customCategories) {
+      if (customCategories[c].group === targetGroup) {
+        const spent = cats[c] || 0;
+        const cap = groupCaps[c];
+        if (isPending) {
+          budget[c] = 0;
+        } else if (spent > cap) {
+          budget[c] = cap;
+          isSqueezed = true;
+        } else {
+          const normWeight = totalWeight > 0 ? (customCategories[c].weight || 0.1) / totalWeight : 0.1;
+          const penalty = weightRemaining > 0 ? excess * (normWeight / weightRemaining) : 0;
+          budget[c] = Math.max(0, cap - penalty);
+        }
       }
     }
-    return { finalBud, excessTotal };
   }
 
-  const rebalanceEss = calcRebalance(ESS, totalEssTeto);
-  const rebalanceNess = calcRebalance(NESS, totalNessTeto);
+  allocateGroup('ESS', 0.8);
+  allocateGroup('NESS', 0.2);
 
-  Object.assign(bud, rebalanceEss.finalBud, rebalanceNess.finalBud);
-  
-  // Total C6 Fatura para o mês (para pagar dia 10 do prox mes)
-  const c6 = S.extras.filter(e => e.i === i && e.c6).reduce((a, e) => a + e.v, 0);
-  
-  return { 
-    i, cats, desp, inv, rec, rend, econ, pend, pool, bud, c6, flash,
-    rebalanceSqueeze: (rebalanceEss.excessTotal > 0 || rebalanceNess.excessTotal > 0)
+  const c6Accumulated = S.extras
+    .filter(e => e.year === year && e.i === idx && e.c6)
+    .reduce((sum, item) => sum + item.v, 0);
+
+  return {
+    idx,
+    year,
+    isPending,
+    cats,
+    rawCats,
+    totalDesp,
+    inv,
+    rend,
+    totalRec,
+    econ,
+    basePool,
+    budget,
+    c6Accumulated,
+    isSqueezed,
+    flashTotal
   };
 }
 
-function ytd() {
-  const out = { rec: 0, inv: 0, desp: 0, econ: 0, rend: 0, n: 0 };
-  for (let i = 0; i < 12; i++) {
-    const m = md(i); 
-    if (m.pend) continue;
-    out.rec += m.rec; out.inv += m.inv; out.desp += m.desp; out.econ += m.econ; out.rend += m.rend; out.n++;
+function calculateConsolidatedPeriod(monthsArray, year) {
+  const sortedMonths = [...monthsArray].sort((a,b) => a - b);
+  const monthlyData = sortedMonths.map(i => calculateSingleMonth(i, year)).filter(m => !m.isPending);
+
+  const totalRec = monthlyData.reduce((sum, m) => sum + m.totalRec, 0);
+  const totalDesp = monthlyData.reduce((sum, m) => sum + m.totalDesp, 0);
+  const totalInv = monthlyData.reduce((sum, m) => sum + m.inv, 0);
+  const totalRend = monthlyData.reduce((sum, m) => sum + m.rend, 0);
+  const totalEcon = monthlyData.reduce((sum, m) => sum + m.econ, 0);
+  const totalC6 = monthlyData.reduce((sum, m) => sum + m.c6Accumulated, 0);
+  const basePool = monthlyData.reduce((sum, m) => sum + m.basePool, 0);
+
+  const cats = {};
+  const budget = {};
+  for (const c in customCategories) {
+    cats[c] = monthlyData.reduce((sum, m) => sum + (m.cats[c] || 0), 0);
+    budget[c] = monthlyData.reduce((sum, m) => sum + (m.budget[c] || 0), 0);
   }
-  return out;
+
+  const isAnySqueezed = monthlyData.some(m => m.isSqueezed);
+  const validMonthsCount = monthlyData.filter(m => !m.isPending).length || 1;
+
+  return {
+    year,
+    months: sortedMonths,
+    monthsCount: sortedMonths.length,
+    validMonthsCount,
+    totalRec,
+    totalDesp,
+    totalInv,
+    totalRend,
+    totalEcon,
+    totalC6,
+    basePool,
+    cats,
+    budget,
+    isAnySqueezed
+  };
 }
 
-/* ============ INTERFACE ============ */
-function renderMonths() {
-  const box = document.getElementById('months'); 
-  box.innerHTML = '';
-  M.forEach((m, i) => {
-    const b = document.createElement('button');
-    b.className = 'pill' + (i === S.i ? ' on' : '') + ((D.rec[i]||0) === 0 ? ' pend' : '');
-    b.textContent = m; 
-    b.onclick = () => { S.i = i; renderAll(); };
-    box.appendChild(b);
+/* ==================== RENDERING & NAVEGAÇÃO ==================== */
+function selectYear(yr) {
+  S.year = yr;
+  document.querySelectorAll('.year-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === yr.toString());
   });
+  updateApplication();
 }
 
-function renderHero() {
-  const m = md(S.i), y = ytd();
-  const neg = m.econ < 0;
-  
-  const mNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('heroTitle').textContent = `Resultado de ${mNames[S.i]}`;
-  
-  document.getElementById('kRec').textContent = BRL(m.rec);
-  document.getElementById('kInv').textContent = BRL(m.inv);
-  document.getElementById('kDesp').textContent = BRL(m.desp);
-  
-  const ke = document.getElementById('kEcon');
-  ke.textContent = BRL(m.econ); 
-  ke.className = 'val num ' + (neg ? 'neg' : 'pos');
-  
-  const semRend = y.econ - y.rend;
-  let note = m.pend ? 'Mês sem receitas projetadas. Os cálculos baseiam-se em meses faturados.' : '';
-  
-  if (!m.pend) {
-    if (semRend < 0) {
-      note = `Alerta Estratégico: No ano, a economia de ${BRL(y.econ)} só é positiva pelo rendimento de investimentos (${BRL(y.rend)}). A operação base está deficitária em ${BRL(semRend)}.`;
-    } else {
-      note = `Status Saudável: O Efeito Bola de Neve está ativo. A economia YTD é de ${BRL(y.econ)}, sendo ${BRL(y.rend)} puramente provindos de juros sobre capital (CDI).`;
-    }
+function applyDatePreset(type) {
+  if (type === 'active') {
+    S.selectedMonths = [S.lastAnchorMonth];
+  } else if (type === 'ytd') {
+    S.selectedMonths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  } else if (type === 'all') {
+    S.selectedMonths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   }
-  document.getElementById('heroNote').textContent = note;
-  
-  if (heroMat) heroMat.color.set(neg ? '#A66E5E' : '#B5CBDD');
+  updateApplication();
+  scrollSelectedPills();
 }
 
-/* Gráficos */
-let chartFlow, chartSnow;
-function initCharts() {
-  Chart.defaults.font.family = "'Inter', sans-serif";
-  Chart.defaults.color = '#595959';
-
-  const f = document.getElementById('chartFlow').getContext('2d');
-  chartFlow = new Chart(f, {
-    data: { labels: M, datasets: [
-      { type: 'bar', label: 'Receitas', data: [], backgroundColor: '#B5CBDD', borderRadius: 6, maxBarThickness: 16 },
-      { type: 'bar', label: 'Despesas', data: [], backgroundColor: '#E0DFDB', borderRadius: 6, maxBarThickness: 16 },
-      { type: 'bar', label: 'Investido', data: [], backgroundColor: '#2A2A2A', borderRadius: 6, maxBarThickness: 16 },
-      { type: 'line', label: 'Economia', data: [], borderColor: '#111111', backgroundColor: '#111111', tension: 0.4, pointRadius: 3, borderWidth: 2 }
-    ]},
-    options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'none' },
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { enabled: false } },
-      scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
-    }
-  });
-
-  const s = document.getElementById('chartSnow').getContext('2d');
-  chartSnow = new Chart(s, {
-    type: 'line',
-    data: { labels: [], datasets: [
-      { label: 'Patrimônio Acumulado', data: [], borderColor: '#111111', backgroundColor: 'rgba(181,203,221,0.3)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
-      { label: 'Capital Aportado', data: [], borderColor: '#888', borderDash: [5,5], pointRadius: 0, borderWidth: 2 }
-    ]},
-    options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'none' },
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { enabled: false } },
-      scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { callback: v => 'R$ '+ (v/1000)+'k' } } }
-    }
-  });
-}
-
-function renderFlow() {
-  const all = [0,1,2,3,4,5,6,7,8,9,10,11].map(md);
-  chartFlow.data.datasets[0].data = all.map(m => m.pend ? null : m.rec);
-  chartFlow.data.datasets[1].data = all.map(m => m.pend ? null : m.desp);
-  chartFlow.data.datasets[2].data = all.map(m => m.pend ? null : m.inv);
-  chartFlow.data.datasets[3].data = all.map(m => m.pend ? null : m.econ);
-  chartFlow.update();
-}
-
-function renderC6() {
-  const m = md(S.i);
-  // Soma todas as faturas até o momento? No contexto, fatura do mes i é o acumulado dos cartoes.
-  document.getElementById('c6Val').textContent = BRL(m.c6);
-  const nxt = M[(S.i + 1) % 12];
-  document.getElementById('c6Foot').textContent = `Vencimento: Dia 10 de ${nxt || 'Jan'}`;
-}
-
-function renderBudget() {
-  const m = md(S.i);
-  document.getElementById('budPool').textContent = m.pend ? 'Aguardando receitas do mês.' : `Base Flexível: ${BRL(m.pool)} (Livre para Despesas pós-Aportes)`;
-  
-  const alertBox = document.getElementById('budAlert');
-  if (m.rebalanceSqueeze) {
-    alertBox.style.display = 'block';
-    alertBox.innerHTML = `<strong>Ajuste Automático do CFO:</strong> Categoria(s) excederam o limite planejado. O sistema recalculou proporcionalmente o teto das demais despesas para proteger 100% da sua meta de investimentos mensais.`;
+function toggleMonthSelection(idx, event) {
+  if (event && event.shiftKey) {
+    const min = Math.min(S.lastAnchorMonth, idx);
+    const max = Math.max(S.lastAnchorMonth, idx);
+    const range = [];
+    for (let k = min; k <= max; k++) range.push(k);
+    S.selectedMonths = range;
   } else {
-    alertBox.style.display = 'none';
+    if (S.selectedMonths.includes(idx)) {
+      if (S.selectedMonths.length > 1) {
+        S.selectedMonths = S.selectedMonths.filter(m => m !== idx);
+      }
+    } else {
+      S.selectedMonths.push(idx);
+      S.selectedMonths.sort((a,b) => a - b);
+      S.lastAnchorMonth = idx;
+    }
   }
-
-  const rows = [];
-  
-  // Fixas (sem teto dinâmico, pagamentos brigatórios)
-  rows.push(`<tr class="grp"><td colspan="3">Gastos Fixos Infra</td></tr>`);
-  for(const c of FIX) rows.push(`<tr><td>${c}</td><td class="r">${BRL(m.cats[c])}</td><td class="bw"><div class="bar"><i class="invest" style="width:100%"></i></div></td></tr>`);
-  
-  // Essenciais
-  rows.push(`<tr class="grp"><td colspan="3">Essenciais (Meta 80% do livre)</td></tr>`);
-  for(const c in ESS) rows.push(rowBud(c, m.cats[c], m.bud[c]));
-  
-  // Nao essenciais
-  rows.push(`<tr class="grp"><td colspan="3">Não Essenciais (Meta 20% do livre)</td></tr>`);
-  for(const c in NESS) rows.push(rowBud(c, m.cats[c], m.bud[c]));
-  
-  document.getElementById('budTable').innerHTML = rows.join('');
-  // Animate bars
-  setTimeout(() => {
-    document.querySelectorAll('#budTable .bar>i:not(.invest)').forEach(el => {
-      el.style.width = el.dataset.w + '%';
-    });
-  }, 50);
+  updateApplication();
 }
 
-function rowBud(c, gasto, teto) {
-  const p = teto > 0 ? Math.min(gasto / teto * 100, 100) : (gasto > 0 ? 100 : 0);
-  const over = teto > 0 && gasto > teto;
-  const txt = teto > 0 ? `${BRL(gasto)} <span style="color:var(--muted); font-size:11px; font-weight:400">/ ${BRL(teto)}</span>` : `${BRL(gasto)}`;
-  return `<tr><td>${c}</td><td class="r">${txt}</td><td class="bw"><div class="bar"><i class="${over?'over':''}" data-w="${p.toFixed(1)}"></i></div></td></tr>`;
+function navMonthOffset(offset) {
+  let anchor = S.lastAnchorMonth + offset;
+  if (anchor < 0) anchor = 0;
+  if (anchor > 11) anchor = 11;
+  S.lastAnchorMonth = anchor;
+  S.selectedMonths = [anchor];
+  updateApplication();
+  scrollSelectedPills();
 }
 
-function renderRalos() {
-  const sums = {}; let n = 0;
-  for(let i=0; i<12; i++) {
-    const m = md(i); 
-    if(m.pend) continue; 
-    n++;
-    for(const c in m.cats) { sums[c] = (sums[c] || 0) + m.cats[c]; }
-  }
-  // Exclui fixas e investimentos
-  const cand = Object.keys(sums)
-    .filter(c => !FIX.includes(c) && sums[c] > 0)
-    .map(c => ({ c, avg: sums[c] / n }))
-    .sort((a,b) => b.avg - a.avg).slice(0, 3); // top 3 para caber melhor no mobile
+function renderDateTrack() {
+  const container = document.getElementById('monthTrack');
+  container.innerHTML = '';
+  const D = getActiveDataset();
 
-  const H = [1, 5, 10, 20];
+  M.forEach((month, idx) => {
+    const isSelected = S.selectedMonths.includes(idx);
+    const isPending = (D.rec[idx] || 0) === 0;
+
+    const btn = document.createElement('button');
+    btn.className = `month-pill-chip ${isSelected ? 'selected' : ''} ${isPending ? 'pend' : ''}`;
+    btn.textContent = month;
+    btn.title = `Clique para alternar ${MONTH_FULL[idx]}`;
+    btn.onclick = (e) => toggleMonthSelection(idx, e);
+    container.appendChild(btn);
+  });
+
+  const count = S.selectedMonths.length;
+  document.getElementById('selectedCountBadge').textContent = `${count} ${count === 1 ? 'Mês' : 'Meses'}`;
   
-  document.getElementById('ralos').innerHTML = cand.map(o => `
-    <div class="ralo-item">
-      <div class="ralo-header">
-        <strong>${o.c}</strong>
-        <span class="muted" style="font-family:'Space Grotesk'">Média: ${BRL(o.avg)}/mês</span>
+  if (count === 1) {
+    const single = S.selectedMonths[0];
+    document.getElementById('periodLabelText').textContent = `${MONTH_FULL[single]} ${S.year}`;
+  } else if (count === 12) {
+    document.getElementById('periodLabelText').textContent = `Ano Completo ${S.year}`;
+  } else {
+    const sorted = [...S.selectedMonths].sort((a,b) => a - b);
+    const first = M[sorted[0]];
+    const last = M[sorted[sorted.length - 1]];
+    document.getElementById('periodLabelText').textContent = `Consolidado (${first} a ${last} · ${S.year})`;
+  }
+}
+
+function scrollSelectedPills() {
+  const container = document.getElementById('monthTrack');
+  const activeBtn = container.querySelector('.month-pill-chip.selected');
+  if (activeBtn) {
+    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+}
+
+/* ==================== HERO: CONSOLIDAÇÃO PATRIMONIAL ==================== */
+function renderConsolidationHero() {
+  const p = calculateConsolidatedPeriod(S.selectedMonths, S.year);
+  
+  const headlineEl = document.getElementById('heroPeriodTitle');
+  if (p.monthsCount === 1) {
+    headlineEl.textContent = `${MONTH_FULL[p.months[0]]} ${S.year}`;
+  } else {
+    headlineEl.textContent = `Consolidado ${p.monthsCount} Meses (${S.year})`;
+  }
+
+  // Master KPI: Sóbrio e Mineral (Preto)
+  const econEl = document.getElementById('kEcon');
+  econEl.textContent = BRL(p.totalEcon);
+
+  // Taxa de Poupança Efetiva
+  const taxaEl = document.getElementById('kTaxa');
+  if (p.totalRec > 0) {
+    const rate = p.totalEcon / p.totalRec;
+    taxaEl.textContent = PCT(rate);
+  } else {
+    taxaEl.textContent = 'Aguardando';
+  }
+
+  // Grid Secundário
+  document.getElementById('kRec').textContent = BRL(p.totalRec);
+  document.getElementById('kDesp').textContent = BRL(p.totalDesp);
+  document.getElementById('kInv').textContent = BRL(p.totalInv);
+  document.getElementById('kRend').textContent = BRL(p.totalRend);
+
+  // Companion C6 Carbon Card
+  document.getElementById('c6Val').textContent = BRL(p.totalC6);
+  document.getElementById('invoiceChipVal').textContent = BRL(p.totalC6);
+  const nextMonthName = MONTH_FULL[(p.months[p.months.length - 1] + 1) % 12];
+  document.getElementById('c6DueDateText').textContent = `Vencimento: dia 10 de ${nextMonthName.slice(0, 3)}`;
+}
+
+/* ==================== STRATEGIC INSIGHTS MODULE (CFO WEALTH) ==================== */
+/* ==================== DIRETRIZES DINÂMICAS (dados + data atual) ==================== */
+const todayIdx = () => { const t = new Date(); return t.getFullYear() * 12 + t.getMonth(); };
+function initToday() {
+  const t = new Date();
+  if ([2026, 2027].includes(t.getFullYear())) { S.year = t.getFullYear(); S.lastAnchorMonth = t.getMonth(); S.selectedMonths = [t.getMonth()]; }
+  document.querySelectorAll('.year-btn').forEach(b => b.classList.toggle('active', b.textContent === String(S.year)));
+}
+function nextDueDays() {
+  const t = new Date(), today = new Date(t.getFullYear(), t.getMonth(), t.getDate()), due = new Date(t.getFullYear(), t.getMonth(), 10);
+  if (t.getDate() > 10) due.setMonth(due.getMonth() + 1);
+  return Math.max(0, Math.round((due - today) / 86400000));
+}
+function buildInsights() {
+  const t = new Date(), p = calculateConsolidatedPeriod(S.selectedMonths, S.year), D = getActiveDataset();
+  const out = [], avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const add = (prio, title, tag, desc, hi) => out.push({ prio, title, tag, desc, hi });
+  if (!p.totalRec && !p.totalDesp && !S.extras.length) {
+    add(9, 'Diretrizes', 'Aguardando dados', 'Registre a receita líquida e os lançamentos do mês para gerar diretrizes automáticas.', false);
+    return out;
+  }
+  const rate = p.totalRec > 0 ? p.totalEcon / p.totalRec : 0;
+  if (p.totalEcon < 0) add(1, 'Resultado do período', 'Déficit', `Despesas e aportes superaram a receita em ${BRL(-p.totalEcon)} (taxa de ${PCT(rate)}).`, false);
+  else add(rate >= 0.2 ? 4 : 1, 'Taxa de poupança', rate >= 0.2 ? 'Saudável' : 'Ajuste requerido',
+    `Taxa de ${PCT(rate)} no período, com referência de 20%. ${rate >= 0.2 ? `Excedente de ${BRL(p.totalEcon)}.` : `Faltam ${BRL(0.2 * p.totalRec - p.totalEcon)} para a referência.`}`, rate >= 0.2);
+  if (p.totalRend > 0 && p.totalEcon > 0 && p.totalEcon - p.totalRend < 0)
+    add(1, 'Dependência de rendimento', 'Atenção', `A liquidez de ${BRL(p.totalEcon)} só é positiva pelo rendimento de ${BRL(p.totalRend)}. Sem ele, o resultado seria ${BRL(p.totalEcon - p.totalRend)}.`, false);
+  const flex = Object.keys(customCategories).filter(c => customCategories[c].group !== 'FIX');
+  const over = flex.filter(c => (p.budget[c] || 0) > 0)
+    .map(c => ({ c, spent: p.cats[c] || 0, ceil: p.budget[c] }))
+    .filter(x => x.spent > x.ceil + 0.005).sort((a, b) => (b.spent - b.ceil) - (a.spent - a.ceil));
+  if (over.length) add(2, 'Teto por categoria', 'Acima do teto',
+    `${esc(over[0].c)} excedeu o teto em ${BRL(over[0].spent - over[0].ceil)} (${PCT(over[0].spent / over[0].ceil - 1)} acima).${over.length > 1 ? ` Também fora do limite: ${over.slice(1).map(x => esc(x.c)).join(', ')}.` : ''}`, false);
+  else if (p.totalDesp > 0) add(5, 'Teto por categoria', 'Dentro do teto', 'Todas as categorias flexíveis estão dentro do limite no período.', true);
+  if (S.year === t.getFullYear() && S.selectedMonths.includes(t.getMonth())) {
+    const m = calculateSingleMonth(t.getMonth(), S.year), dim = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate(), el = t.getDate() / dim;
+    if (!m.isPending && el >= 0.25) {
+      const spent = flex.reduce((s, c) => s + (m.cats[c] || 0), 0), cap = flex.reduce((s, c) => s + (m.budget[c] || 0), 0), proj = spent / el;
+      add(2, `Ritmo de ${MONTH_FULL[t.getMonth()]}`, proj <= cap ? 'Dentro do ritmo' : 'Projeção acima',
+        `${PCT(el)} do mês decorrido, com ${BRL(spent)} em despesas flexíveis. Mantido o ritmo, o mês fecha em ${BRL(proj)} contra um limite de ${BRL(cap)}.`, proj <= cap);
+    }
+  }
+  if (p.totalC6 > 0) {
+    const d = nextDueDays();
+    add(d <= 7 ? 1 : 3, 'Fatura C6 Carbon', d <= 7 ? 'Vence em breve' : 'Monitorar',
+      `Lançamentos no cartão de ${BRL(p.totalC6)} no período${p.totalRec > 0 ? ` (${PCT(p.totalC6 / p.totalRec)} da receita)` : ''}. Vencimento em ${d} ${d === 1 ? 'dia' : 'dias'}.`, false);
+  }
+  INV.goals.slice(0, 2).forEach(g => {
+    const a = invCalc(g);
+    add(3, esc(g.name), a.ok ? 'No prazo' : 'Aporte insuficiente',
+      `Projeção de ${PCT(a.prog)} da meta em ${a.n} ${a.n === 1 ? 'mês' : 'meses'}. ${a.ok ? `Aporte atual de ${BRL(g.contrib || 0)}/mês é suficiente.` : `Aporte necessário: ${BRL(a.reqC)}/mês (informado: ${BRL(g.contrib || 0)}).`}`, a.ok);
+  });
+  const res = INV.goals.find(g => g.type === 'reserva'), cota = res ? (res.contrib || 0) * p.validMonthsCount : 0;
+  if (cota > 0 && p.totalRec > 0) add(4, 'Aportes contratuais', p.totalInv >= cota ? 'Cota cumprida' : 'Abaixo da cota',
+    `Aportes de ${BRL(p.totalInv)} no período frente à cota de reserva de ${BRL(cota)}.`, p.totalInv >= cota);
+  const done = [];
+  for (let i = 0; i < 12; i++) {
+    if (S.year === t.getFullYear() && i > t.getMonth()) break;
+    const m = calculateSingleMonth(i, S.year);
+    if (!m.isPending) done.push(m.totalDesp);
+  }
+  if (done.length >= 6) {
+    const a = avg(done.slice(-3)), b = avg(done.slice(-6, -3));
+    add(4, 'Tendência de despesas', a > b ? 'Em alta' : 'Em queda',
+      `Média dos últimos 3 meses de ${BRL(a)}, ${PCT(b > 0 ? a / b - 1 : 0)} frente aos 3 meses anteriores.`, a <= b);
+  }
+  if (S.exFlash) {
+    let fl = 0;
+    for (const i of S.selectedMonths) fl += (D.vt[i] || 0) + (D.vr[i] || 0);
+    if (fl > 0) add(6, 'Benefícios Flash', 'Isolados', `VT e VR de ${BRL(fl)} no período estão fora do caixa pessoal.`, true);
+  }
+  return out.sort((x, y) => x.prio - y.prio).slice(0, 6);
+}
+function renderStrategicInsights() {
+  document.getElementById('insightsDeck').innerHTML = buildInsights().map(i =>
+    `<div class="insight-bespoke-card ${i.hi ? 'highlight-blue' : ''}"><div class="insight-card-top"><span class="insight-title">${i.title}</span><span class="insight-metric-tag">${i.tag}</span></div><div class="insight-desc">${i.desc}</div></div>`
+  ).join('');
+}
+function openCardView() {
+  goToTab('view-home');
+  const el = document.getElementById('c6CardInteractive');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ==================== BUDGET EMPILHADO (MICRO-RAILS) ==================== */
+function renderBudget() {
+  const p = calculateConsolidatedPeriod(S.selectedMonths, S.year);
+  document.getElementById('budBaseSub').textContent = `Base Flexível Consolidada: ${BRL(p.basePool)}`;
+
+  const notice = document.getElementById('rebalanceNotice');
+  if (p.isAnySqueezed) {
+    notice.className = 'budget-status-banner alert-dark';
+    notice.textContent = 'Alerta CFO: Teto ultrapassado em categorias flexíveis. Limites rebalanceados proporcionalmente.';
+  } else {
+    notice.className = 'budget-status-banner';
+    notice.textContent = 'Alocação equilibrada. Regra 80/20 respeitada sem estresse de caixa.';
+  }
+
+  const container = document.getElementById('budgetStackedContainer');
+  let html = '';
+
+  // 1. Inelásticas (Fixas)
+  html += `<div class="budget-category-group"><div class="group-title-label"><span>Despesas Inelásticas (Fixas)</span><span>Contratual</span></div>`;
+  for (const c in customCategories) {
+    if (customCategories[c].group === 'FIX') {
+      const spent = p.cats[c] || 0;
+      html += `
+        <div class="budget-stacked-card">
+          <div class="budget-card-top-row">
+            <div><span class="budget-cat-name">${c}</span><span class="budget-cat-ceiling">Fixa</span></div>
+            <span class="budget-cat-spent num">${BRL(spent)}</span>
+          </div>
+          <div class="budget-rail-track">
+            <div class="budget-rail-fill fixed" style="width:100%"></div>
+          </div>
+        </div>
+      `;
+    }
+  }
+  html += `</div>`;
+
+  // 2. Essenciais (Teto 80%)
+  html += `<div class="budget-category-group"><div class="group-title-label"><span>Essenciais (Teto 80% Líquido)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
+  for (const c in customCategories) {
+    if (customCategories[c].group === 'ESS') {
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0);
+    }
+  }
+  html += `</div>`;
+
+  // 3. Discricionárias (Teto 20%)
+  html += `<div class="budget-category-group"><div class="group-title-label"><span>Discricionárias (Teto 20% Flexível)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
+  for (const c in customCategories) {
+    if (customCategories[c].group === 'NESS') {
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0);
+    }
+  }
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function renderStackedBudgetCard(cat, spent, ceiling) {
+  const percent = ceiling > 0 ? Math.min((spent / ceiling) * 100, 100) : (spent > 0 ? 100 : 0);
+  return `
+    <div class="budget-stacked-card">
+      <div class="budget-card-top-row">
+        <div>
+          <span class="budget-cat-name">${cat}</span>
+          <span class="budget-cat-ceiling">Teto: ${BRL(ceiling)}</span>
+        </div>
+        <span class="budget-cat-spent num">${BRL(spent)}</span>
       </div>
-      <div class="ralo-metrics">
-        ${H.map(h => `<div>${h} ${h===1?'ano':'anos'}<b>${BRL(fvAnnuity(o.avg, h*12, CDI))}</b></div>`).join('')}
+      <div class="budget-rail-track">
+        <div class="budget-rail-fill" style="width: ${percent.toFixed(1)}%"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderExpensesLog() {
+  const container = document.getElementById('expenseLogList');
+  const items = S.extras.filter(e => e.year === S.year && S.selectedMonths.includes(e.i)).reverse();
+  if (!items.length) {
+    container.innerHTML = `<div style="font-size:11px;color:var(--muted);text-align:center;padding:12px;">Nenhum lançamento no período selecionado.</div>`;
+    return;
+  }
+  container.innerHTML = items.map(item => `
+    <div class="expense-log-row" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-deep);border-radius:var(--radius-xs);margin-bottom:6px;border:0.5px solid var(--hairline);">
+      <div>
+        <b style="font-size:12px;color:var(--ink);">${item.desc || 'Despesa'}</b>
+        <span style="font-size:10px;color:var(--muted);display:block;">${item.cat} ${item.c6 ? '· C6 Carbon' : ''} (${M[item.i]})</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="num" style="font-size:12.5px; font-weight:700; color:var(--ink);">${BRL(item.v)}</span>
+        <button onclick="deleteExpenseEntry(${item.id})" style="font-size:10.5px;color:var(--muted);text-decoration:underline;cursor:pointer;">Excluir</button>
       </div>
     </div>
   `).join('');
-
-  const top = cand[0];
-  document.getElementById('ralosVerdict').innerHTML = top
-    ? `<strong>Torneira Aberta:</strong> A categoria <b>${top.c}</b> é seu maior passivo flexível. Se esse valor mensal médio (${BRL(top.avg)}) fosse realocado no CDI, você acumularia <b>${BRL(fvAnnuity(top.avg, 240, CDI))}</b> em 20 anos. Esse é o seu custo de oportunidade real.`
-    : '';
 }
 
-function renderSim() {
-  const P = +document.getElementById('sPreco').value || 0;
-  const n = Math.max(1, +document.getElementById('sN').value || 1);
-  const d = (+document.getElementById('sDesc').value || 0) / 100;
-  
-  const avista = P * (1 - d);
-  let pv = 0; 
-  const parc = P / n;
-  for (let k = 1; k <= n; k++) pv += parc / Math.pow(1 + CDI, k);
-  
-  document.getElementById('simOut').innerHTML = `
-    <div style="background:var(--warm); padding: 16px; border-radius: 16px;">
-      <div class="muted" style="font-size:11px; text-transform:uppercase;">À vista (-${(d*100).toFixed(0)}%)</div>
-      <div class="num" style="font-size:20px; font-weight:600; margin-top:4px;">${BRL(avista)}</div>
+function deleteExpenseEntry(id) {
+  S.extras = S.extras.filter(e => e.id !== id);
+  updateApplication();
+}
+
+/* ==================== ARBITRAGEM DE MORADIA & DETETIVE DE RALOS ==================== */
+const CITIES = [
+  { name: 'São Carlos', discount: 0.42, desc: 'Polo de tecnologia, USP e startups com alto custo-benefício habitacional.' },
+  { name: 'Ribeirão Preto', discount: 0.30, desc: 'Capital do agronegócio e polo médico com infraestrutura completa.' },
+  { name: 'Piracicaba', discount: 0.32, desc: 'Polo bioenergético, ESALQ/USP com excelente equilíbrio de vida.' },
+  { name: 'Sorocaba', discount: 0.26, desc: 'Proximidade com a capital aliada a custos habitacionais enxutos.' },
+  { name: 'Campinas', discount: 0.20, desc: 'Hub tecnológico metropolitano com aeroporto internacional e Unicamp.' },
+  { name: 'São José dos Campos', discount: 0.18, desc: 'Polo aeroespacial e tecnológico no Vale do Paraíba.' },
+  { name: 'Florianópolis', discount: 0.12, desc: 'Qualidade de vida litorânea com polo tech consolidado.' }
+];
+let activeCityIndex = 0;
+
+function renderArbitrageScroller() {
+  const track = document.getElementById('arbCitiesTrack');
+  track.innerHTML = CITIES.map((city, idx) => {
+    const monthlySavings = 3500 * city.discount;
+    return `
+      <div class="arb-city-card ${idx === activeCityIndex ? 'active' : ''}" onclick="selectCityCard(${idx})">
+        <span class="city-discount-chip">-${(city.discount * 100).toFixed(0)}% Moradia</span>
+        <div class="city-card-name">${city.name}</div>
+        <div class="city-card-economy num">Poupança: ${BRL(monthlySavings)}/mês</div>
+      </div>
+    `;
+  }).join('');
+
+  renderArbitrageDetail();
+}
+
+function selectCityCard(idx) {
+  activeCityIndex = idx;
+  renderArbitrageScroller();
+}
+
+function renderArbitrageDetail() {
+  const city = CITIES[activeCityIndex];
+  const baseCostSP = 3500;
+  const monthlySavings = baseCostSP * city.discount;
+  const fv10Years = fvAnnuity(monthlySavings, 120, CDI);
+
+  const container = document.getElementById('arbSpotlightBox');
+  container.innerHTML = `
+    <div class="arb-spotlight-grid">
+      <div class="arb-spotlight-item">
+        <div class="caption">Economia Mensal Estimada</div>
+        <div class="val num">${BRL(monthlySavings)}</div>
+      </div>
+      <div class="arb-spotlight-item">
+        <div class="caption">Patrimônio em 10 Anos (CDI)</div>
+        <div class="val num">${BRL(fv10Years)}</div>
+      </div>
     </div>
-    <div style="background:var(--warm); padding: 16px; border-radius: 16px;">
-      <div class="muted" style="font-size:11px; text-transform:uppercase;">Parcelado (Val. Presente)</div>
-      <div class="num" style="font-size:20px; font-weight:600; margin-top:4px;">${BRL(pv)}</div>
-      <div class="muted" style="font-size:11px; margin-top:2px;">${n}x de ${BRL(parc)}</div>
+    <div style="font-size:12px;color:var(--ink-secondary);line-height:1.55;">
+      <b>${city.name}:</b> ${city.desc} Ao reinvestir integralmente esse excedente a 102% do CDI (1,129% a.m.), o patrimônio líquido acumulado alcança <b>${BRL(fv10Years)}</b> em 10 anos.
     </div>
   `;
-  
+}
+
+function renderDrainsDetective() {
+  const totals = {};
+  let count = 0;
+  for (const i of S.selectedMonths) {
+    const m = calculateSingleMonth(i, S.year);
+    if (m.isPending) continue;
+    count++;
+    for (const c in m.cats) {
+      totals[c] = (totals[c] || 0) + m.cats[c];
+    }
+  }
+
+  const sorted = Object.keys(totals)
+    .filter(c => customCategories[c] && customCategories[c].group !== 'FIX')
+    .map(c => ({ cat: c, avg: totals[c] / count }))
+    .sort((a, b) => b.avg - a.avg)
+    .slice(0, 3);
+
+  const container = document.getElementById('drainsList');
+  if (!sorted.length) { container.innerHTML = ''; return; }
+
+  container.innerHTML = sorted.map(d => {
+    const categoryExtras = S.extras.filter(e => e.year === S.year && e.cat === d.cat).slice(-3).reverse();
+    const rowsHtml = categoryExtras.length ? categoryExtras.map(e => `
+      <tr>
+        <td><b>${M[e.i]}</b></td>
+        <td>${e.desc}</td>
+        <td style="text-align:right;" class="num"><b>${BRL(e.v)}</b></td>
+      </tr>
+    `).join('') : `
+      <tr>
+        <td><b>${M[S.lastAnchorMonth]}</b></td>
+        <td>Consolidado mensal apurado</td>
+        <td style="text-align:right;" class="num"><b>${BRL(d.avg)}</b></td>
+      </tr>
+    `;
+
+    return `
+      <div class="drain-block-card">
+        <div class="drain-block-header">
+          <span class="drain-block-title">${d.cat}</span>
+          <span class="drain-block-avg num">${BRL(d.avg)}/mês</span>
+        </div>
+        <div style="font-size:11px; color:var(--ink-secondary); margin-bottom:8px;">
+          Custo de Oportunidade a 102% do CDI: <b>${BRL(fvAnnuity(d.avg, 120, CDI))}</b> em 10 anos.
+        </div>
+        <table class="drain-history-table">
+          <thead>
+            <tr>
+              <th style="width:45px;">Mês</th>
+              <th>Últimos Lançamentos</th>
+              <th style="text-align:right;">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSimulator() {
+  const p = +document.getElementById('sPreco').value || 0;
+  const n = +document.getElementById('sN').value || 1;
+  const d = (+document.getElementById('sDesc').value || 0) / 100;
+
+  document.getElementById('sNVal').textContent = `${n}x`;
+  document.getElementById('sDescVal').textContent = `${(d * 100).toFixed(1)}%`;
+
+  const avista = p * (1 - d);
+  const installment = p / n;
+  let pv = 0;
+  for (let k = 1; k <= n; k++) {
+    pv += installment / Math.pow(1 + CDI, k);
+  }
+
+  document.getElementById('simV').textContent = BRL(avista);
+  document.getElementById('simP').textContent = BRL(pv);
+
   const diff = avista - pv;
-  const v = document.getElementById('simVerdict');
+  const verdictEl = document.getElementById('simVerdict');
+  const simVBox = document.getElementById('simVBox');
+  const simPBox = document.getElementById('simPBox');
+
   if (diff > 0) {
-    v.className = 'verdict alert';
-    v.innerHTML = `<strong>Decisão CFO: Parcelar!</strong> O dinheiro rendendo no CDI durante o pagamento das parcelas compensa a falta de desconto, gerando uma economia de valor presente de <b>${BRL(diff)}</b>.`;
+    simPBox.classList.add('winner');
+    simVBox.classList.remove('winner');
+    verdictEl.innerHTML = `Veredito Executivo: <b>Parcelar no C6 Carbon!</b> O saldo mantido rendendo a 102% do CDI supera o desconto à vista e preserva <b>${BRL(diff)}</b> em Valor Presente Líquido.`;
   } else {
-    v.className = 'verdict';
-    v.innerHTML = `<strong>Decisão CFO: Pagar à Vista.</strong> O desconto imediato é matematicamente superior ao rendimento do CDI no período, gerando uma economia real de <b>${BRL(-diff)}</b>.`;
+    simVBox.classList.add('winner');
+    simPBox.classList.remove('winner');
+    verdictEl.innerHTML = `Veredito Executivo: <b>Liquidar À Vista!</b> O desconto concedido supera a rentabilidade do CDI no período em <b>${BRL(-diff)}</b>.`;
   }
 }
 
-function renderGeo() {
-  const currentCost = +document.getElementById('geoCusto').value || 5000;
-  
-  // Taxas de reducao informadas no prompt
-  const rateSC = 0.42; 
-  const rateRP = 0.30;
-  
-  const saveSC = currentCost * rateSC;
-  const saveRP = currentCost * rateRP;
-  
-  // FV para 10 anos (120 meses)
-  const fvSC = fvAnnuity(saveSC, 120, CDI);
-  const fvRP = fvAnnuity(saveRP, 120, CDI);
-  
-  document.getElementById('geoSC_save').innerHTML = `${BRL(saveSC)} <span>/mês extra</span>`;
-  document.getElementById('geoRP_save').innerHTML = `${BRL(saveRP)} <span>/mês extra</span>`;
-  
-  document.getElementById('geoSC_fv').innerHTML = `Delta Patrimonial 10 anos:<br><strong style="color:var(--ink); font-size:15px">${BRL(fvSC)}</strong>`;
-  document.getElementById('geoRP_fv').innerHTML = `Delta Patrimonial 10 anos:<br><strong style="color:var(--ink); font-size:15px">${BRL(fvRP)}</strong>`;
+/* ==================== MINDFULNESS / ATENÇÃO PLENA MODAL (FLOW) ==================== */
+let mindfulCurrentStep = 1;
+let mindfulSelectedCategory = 'Imagem Profissional';
+
+function openMindfulExpenseModal() {
+  mindfulCurrentStep = 1;
+  document.getElementById('mindfulDescInput').value = '';
+  document.getElementById('mindfulValTotalInput').value = '';
+  document.getElementById('mindfulParcelasSelect').value = '1';
+  document.getElementById('mindfulC6Check').checked = true;
+
+  renderMindfulCategories();
+  mindfulGoToStep(1);
+
+  const modal = document.getElementById('mindfulExpenseModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('active'), 10);
 }
 
-function renderSnow() {
-  const y = ytd();
-  const input = document.getElementById('snAporte');
-  if (!input.dataset.touched) { 
-    // Sugere a média de economia YTD como aporte inicial simulado
-    input.value = Math.max(0, Math.round(y.n ? y.econ / y.n : 0)); 
-  }
-  
-  const a = +input.value || 0;
-  const labels = [], pat = [], ap = [];
-  let p = 0, aportado = 0;
-  
-  for(let t = 1; t <= 240; t++) {
-    p = p * (1 + LIQ) + a; 
-    aportado += a;
-    labels.push(t % 12 === 0 ? `${t/12}a` : '');
-    pat.push(+p.toFixed(2)); 
-    ap.push(+aportado.toFixed(2));
-  }
-  
-  chartSnow.data.labels = labels;
-  chartSnow.data.datasets[0].data = pat;
-  chartSnow.data.datasets[1].data = ap;
-  chartSnow.update();
-  
-  document.getElementById('snFinal').textContent = BRL(p);
+function closeMindfulExpenseModal() {
+  const modal = document.getElementById('mindfulExpenseModal');
+  modal.classList.remove('active');
+  setTimeout(() => modal.style.display = 'none', 280);
 }
 
-function renderLanc() {
-  document.getElementById('lancMes').textContent = `Faturando em: ${M[S.i]}`;
-  const list = S.extras.filter(e => e.i === S.i);
-  
-  document.getElementById('lList').innerHTML = list.length ? list.map(e => `
-    <div class="item">
-      <div class="desc">
-        <b>${e.desc || 'Despesa Avulsa'}</b>
-        <span>${e.cat} ${e.c6 ? ' · C6 Crédito' : ' · Débito/Pix'}</span>
+function renderMindfulCategories() {
+  const grid = document.getElementById('mindfulCatSelectorGrid');
+  grid.innerHTML = Object.keys(customCategories).map(cat => {
+    const isSel = cat === mindfulSelectedCategory;
+    const c = customCategories[cat];
+    const groupName = c.group === 'ESS' ? 'Essencial (80%)' : (c.group === 'NESS' ? 'Discricionária (20%)' : 'Fixa');
+    return `
+      <div class="mindful-cat-tile ${isSel ? 'selected' : ''}" onclick="selectMindfulCat('${cat}')">
+        <span class="cat-group-label">${groupName}</span>
+        <b style="font-size:12.5px;">${cat}</b>
       </div>
-      <div class="amt">
-        ${BRL(e.v)}
-        <button data-id="${e.id}">X</button>
-      </div>
-    </div>`).reverse().join('')
-    : '<div class="muted" style="padding: 12px 0;">Nenhum lançamento granular neste mês. Os dados macro estão sendo consumidos.</div>';
-    
-  document.querySelectorAll('#lList button').forEach(b => {
-    b.onclick = () => {
-      S.extras = S.extras.filter(e => e.id !== +b.dataset.id); 
-      saveExtras();
-      renderAll();
-    };
+    `;
+  }).join('');
+}
+
+function selectMindfulCat(cat) {
+  mindfulSelectedCategory = cat;
+  renderMindfulCategories();
+  mindfulUpdateSummary();
+}
+
+function mindfulGoToStep(step) {
+  mindfulCurrentStep = step;
+  document.getElementById('mindfulProgressTrack').style.width = `${(step / 3) * 100}%`;
+
+  document.querySelectorAll('.mindful-step-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`mindfulStep${step}`).classList.add('active');
+
+  mindfulUpdateSummary();
+}
+
+function mindfulUpdateSummary() {
+  const desc = document.getElementById('mindfulDescInput').value.trim() || 'Item sem nome';
+  const val = +document.getElementById('mindfulValTotalInput').value || 0;
+  const parc = +document.getElementById('mindfulParcelasSelect').value || 1;
+  const isC6 = document.getElementById('mindfulC6Check').checked;
+
+  document.getElementById('mindfulSumDesc').textContent = desc;
+  document.getElementById('mindfulSumCat').textContent = `${mindfulSelectedCategory} ${isC6 ? '(C6 Carbon)' : '(Débito)'}`;
+  document.getElementById('mindfulSumParcela').textContent = `${parc}x de ${BRL(val / parc)}`;
+
+  const reflectionEl = document.getElementById('mindfulSumCdiReflection');
+  if (parc > 1) {
+    reflectionEl.textContent = `Preserva o montante rendendo a 102% do CDI.`;
+  } else {
+    reflectionEl.textContent = `Desembolso imediato integral liquidado no mês ativo.`;
+  }
+}
+
+function mindfulSubmitExpense() {
+  const desc = document.getElementById('mindfulDescInput').value.trim() || 'Despesa';
+  const valTotal = +document.getElementById('mindfulValTotalInput').value || 0;
+  const parcelas = +document.getElementById('mindfulParcelasSelect').value || 1;
+  const isC6 = document.getElementById('mindfulC6Check').checked;
+
+  if (valTotal <= 0) {
+    mindfulGoToStep(2);
+    return;
+  }
+
+  const seriesId = 'series_' + Date.now();
+  const valParcela = valTotal / parcelas;
+  const baseMonth = S.lastAnchorMonth;
+
+  for (let k = 0; k < parcelas; k++) {
+    const targetMonth = baseMonth + k;
+    {
+      S.extras.push({
+        id: Date.now() + Math.random(),
+        seriesId: seriesId,
+        year: S.year + Math.floor(targetMonth / 12),
+        i: targetMonth % 12,
+        cat: mindfulSelectedCategory,
+        desc: `${desc} (${k + 1}/${parcelas}x)`,
+        v: valParcela,
+        c6: isC6,
+        parcTotal: parcelas,
+        parcCur: k + 1
+      });
+    }
+  }
+
+  closeMindfulExpenseModal();
+  updateApplication();
+}
+
+/* ==================== GRÁFICO CONSOLIDADO (CHART.JS) ==================== */
+let flowChart;
+function initCharts() {
+  Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+  Chart.defaults.color = '#868993';
+  Chart.defaults.animation = false;
+
+  const ctx = document.getElementById('chartFlow').getContext('2d');
+  flowChart = new Chart(ctx, {
+    data: {
+      labels: M,
+      datasets: [
+        { type: 'bar', label: 'Receitas', backgroundColor: '#B5CBDD', borderRadius: 4, data: [] },
+        { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.08)', borderRadius: 4, data: [] },
+        { type: 'line', label: 'Liquidez Livre', borderColor: '#225C8A', borderWidth: 2, pointRadius: 0, tension: 0.35, data: [] }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#868993' } },
+        y: { display: false }
+      }
+    }
   });
 }
 
-function initLanc() {
-  const sel = document.getElementById('lCat');
-  const groups = [
-    ['Essenciais', Object.keys(ESS)],
-    ['Não Essenciais', Object.keys(NESS)],
-    ['Gastos Fixos', FIX]
-  ];
-  sel.innerHTML = groups.map(([g, cs]) => `<optgroup label="${g}">${cs.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup>`).join('');
+function updateFlowChart() {
+  const metrics = [0,1,2,3,4,5,6,7,8,9,10,11].map(i => calculateSingleMonth(i, S.year));
+  flowChart.data.datasets[0].data = metrics.map(m => m.isPending ? null : m.totalRec);
+  flowChart.data.datasets[1].data = metrics.map(m => m.isPending ? null : m.totalDesp);
+  flowChart.data.datasets[2].data = metrics.map(m => m.isPending ? null : m.econ);
   
-  document.getElementById('lAdd').onclick = () => {
-    const cat = sel.value;
-    const desc = document.getElementById('lDesc').value.trim();
-    const q = +document.getElementById('lQtd').value || 1;
-    const u = +document.getElementById('lVal').value || 0;
-    
-    if (u <= 0) return;
-    
-    S.extras.push({ id: Date.now(), i: S.i, cat, desc, v: q * u, c6: document.getElementById('lC6').checked });
-    saveExtras();
-    
-    document.getElementById('lDesc').value = ''; 
-    document.getElementById('lQtd').value = '1'; 
-    document.getElementById('lVal').value = '';
-    
-    renderAll();
-  };
+  flowChart.data.datasets[0].backgroundColor = metrics.map((m, idx) => 
+    S.selectedMonths.includes(idx) ? ACC() : ACCS()
+  );
+  flowChart.update();
 }
 
-/* ============ 3D ENGINE ============ */
-let heroMat = null;
-function initHero() {
-  const canvas = document.getElementById('hero3d');
-  if (typeof THREE === 'undefined') return;
-  
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  
+/* ==================== THREE.JS 3D KINETIC MESHES ==================== */
+let rendererHero, knotHero, clockHero;
+let rendererWealth, polyWealth, clockWealth;
+
+function init3DHero() {
+  const container = document.getElementById('hero-canvas');
+  if (typeof THREE === 'undefined' || !container) return;
+
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.z = 8;
+  camera.position.z = 5;
 
-  heroMat = new THREE.MeshBasicMaterial({ color: 0xB5CBDD, wireframe: true, transparent: true, opacity: 0.6 });
-  const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.4, 0.35, 150, 20, 2, 3), heroMat);
-  scene.add(knot);
+  rendererHero = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  rendererHero.setSize(145, 145);
+  rendererHero.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(rendererHero.domElement);
 
-  const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.4, 1), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true, transparent: true, opacity: 0.2 }));
-  scene.add(shell);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x9BB8D3, wireframe: true, transparent: true, opacity: 0.7 });
+  const geom = new THREE.TorusKnotGeometry(1.15, 0.28, 80, 12);
+  knotHero = new THREE.Mesh(geom, mat);
+  scene.add(knotHero);
 
-  const N = 300, pos = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    pos[i*3] = (Math.random() - 0.5) * 20;
-    pos[i*3+1] = (Math.random() - 0.5) * 10;
-    pos[i*3+2] = (Math.random() - 0.5) * 10;
-  }
-  const pg = new THREE.BufferGeometry(); 
-  pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const pts = new THREE.Points(pg, new THREE.PointsMaterial({ color: 0x2A2A2A, size: 0.04, transparent: true, opacity: 0.3 }));
-  scene.add(pts);
+  // Interação ao arrastar
+  let isDragging = false;
+  let prevX = 0;
+  let prevY = 0;
 
-  let mx = 0, my = 0;
-  const card = document.getElementById('heroCard');
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect(); 
-    mx = ((e.clientX - r.left) / r.width - 0.5); 
-    my = ((e.clientY - r.top) / r.height - 0.5);
+  container.addEventListener('pointerdown', e => {
+    isDragging = true;
+    prevX = e.clientX;
+    prevY = e.clientY;
   });
-  
-  // Mobile fallback (gyro emulation or simple auto-rotation scaling)
-  card.addEventListener('touchmove', e => {
-    if(e.touches.length > 0) {
-      const r = card.getBoundingClientRect();
-      mx = ((e.touches[0].clientX - r.left) / r.width - 0.5) * 2;
-      my = ((e.touches[0].clientY - r.top) / r.height - 0.5) * 2;
+  window.addEventListener('pointermove', e => {
+    if (!isDragging || !knotHero) return;
+    const dx = e.clientX - prevX;
+    const dy = e.clientY - prevY;
+    knotHero.rotation.y += dx * 0.015;
+    knotHero.rotation.x += dy * 0.015;
+    prevX = e.clientX;
+    prevY = e.clientY;
+  });
+  window.addEventListener('pointerup', () => { isDragging = false; });
+
+  clockHero = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!isDragging) {
+      const elapsed = clockHero.getElapsedTime();
+      knotHero.rotation.x = elapsed * 0.14;
+      knotHero.rotation.y = elapsed * 0.18;
     }
-  }, { passive: true });
-
-  function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    renderer.setSize(w, h, false); 
-    camera.aspect = w / h;
-    
-    // Ajuste responsivo do 3D: Move para direita no desktop, centro no mobile
-    const isMobile = w < 768;
-    camera.position.x = isMobile ? 0 : 0; 
-    knot.position.x = isMobile ? 0 : 3; 
-    shell.position.x = knot.position.x;
-    knot.position.y = isMobile ? 1.5 : 0.5; 
-    shell.position.y = knot.position.y;
-    
-    camera.updateProjectionMatrix();
+    rendererHero.render(scene, camera);
   }
-  window.addEventListener('resize', resize); 
-  resize();
-
-  const clock = new THREE.Clock();
-  (function loop() {
-    const t = clock.getElapsedTime();
-    knot.rotation.x = t * 0.2 + my * 0.5; 
-    knot.rotation.y = t * 0.3 + mx * 0.8;
-    shell.rotation.y = -t * 0.1; 
-    shell.rotation.x = t * 0.05;
-    pts.rotation.y = t * 0.02 + mx * 0.1;
-    
-    camera.position.x += (mx * 0.8 - camera.position.x) * 0.05;
-    camera.position.y += (-my * 0.5 - camera.position.y) * 0.05;
-    camera.lookAt(0, 0, 0);
-    
-    renderer.render(scene, camera);
-    requestAnimationFrame(loop);
-  })();
+  animate();
 }
 
-/* ============ GERAL ============ */
-function renderAll() {
-  renderMonths(); 
-  renderHero(); 
-  renderFlow(); 
-  renderC6();
-  renderBudget(); 
-  renderRalos(); 
-  renderSim(); 
-  renderGeo();
-  renderSnow(); 
-  renderLanc();
+function init3DWealthSphere() {
+  const container = document.getElementById('wealthCanvas3d');
+  if (typeof THREE === 'undefined' || !container) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 5;
+
+  rendererWealth = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  rendererWealth.setSize(160, 160);
+  rendererWealth.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(rendererWealth.domElement);
+
+  const mat = new THREE.MeshBasicMaterial({ color: 0x9BB8D3, wireframe: true, transparent: true, opacity: 0.6 });
+  const geom = new THREE.IcosahedronGeometry(1.6, 1);
+  polyWealth = new THREE.Mesh(geom, mat);
+  scene.add(polyWealth);
+
+  let isDraggingW = false;
+  let prevWX = 0, prevWY = 0;
+
+  container.addEventListener('pointerdown', e => {
+    isDraggingW = true;
+    prevWX = e.clientX;
+    prevWY = e.clientY;
+  });
+  window.addEventListener('pointermove', e => {
+    if (!isDraggingW || !polyWealth) return;
+    const dx = e.clientX - prevWX;
+    const dy = e.clientY - prevWY;
+    polyWealth.rotation.y += dx * 0.015;
+    polyWealth.rotation.x += dy * 0.015;
+    prevWX = e.clientX;
+    prevWY = e.clientY;
+  });
+  window.addEventListener('pointerup', () => { isDraggingW = false; });
+
+  clockWealth = new THREE.Clock();
+  function animateWealth() {
+    requestAnimationFrame(animateWealth);
+    if (!isDraggingW) {
+      const elapsed = clockWealth.getElapsedTime();
+      polyWealth.rotation.x = elapsed * 0.12;
+      polyWealth.rotation.y = elapsed * 0.16;
+    }
+    rendererWealth.render(scene, camera);
+  }
+  animateWealth();
 }
 
-function bindEvents() {
-  document.getElementById('exFlash').onchange = e => { S.exFlash = e.target.checked; renderAll(); };
-  ['sPreco', 'sN', 'sDesc'].forEach(id => document.getElementById(id).addEventListener('input', renderSim));
-  document.getElementById('geoCusto').addEventListener('input', renderGeo);
-  document.getElementById('snAporte').addEventListener('input', e => { e.target.dataset.touched = '1'; renderSnow(); });
-  
-  // Tilt and hover effects disabled for mobile-first experience.
+/* ==================== C6 3D CARD TILT INTERACTION ==================== */
+function initCardTilt() {
+  const card = document.getElementById('c6CardInteractive');
+  if (!card) return;
+
+  card.addEventListener('pointermove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotX = (-y / rect.height) * 16;
+    const rotY = (x / rect.width) * 16;
+    card.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+  });
+
+  card.addEventListener('pointerleave', () => {
+    card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+  });
 }
 
-/* Boot */
-loadExtras();
-initLanc(); 
-initCharts(); 
-initHero(); 
-bindEvents();
-renderAll();
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ==================== REGISTRO MENSAL ==================== */
+const gid = id => document.getElementById(id);
+function renderMonthForm() {
+  const i = S.lastAnchorMonth, D = getActiveDataset();
+  gid('mLabel').textContent = `${MONTH_FULL[i]} ${S.year}`;
+  gid('mRec').value = D.rec[i] || ''; gid('mRend').value = D.rend[i] || '';
+  gid('mVt').value = D.vt[i] || ''; gid('mVr').value = D.vr[i] || ''; gid('mInv').value = D.inv[i] || '';
+}
+function saveMonthData() {
+  const i = S.lastAnchorMonth, D = getActiveDataset(), v = id => parseFloat(gid(id).value) || 0;
+  D.rec[i] = v('mRec'); D.rend[i] = v('mRend'); D.vt[i] = v('mVt'); D.vr[i] = v('mVr'); D.inv[i] = v('mInv');
+  updateApplication();
+}
 
+/* ==================== PLANEJAMENTO DE INVESTIMENTOS ==================== */
+let INV = JSON.parse(localStorage.getItem('cfo_inv') || 'null') || {
+  prem: { cdi: 14.40, pct: 102, ipca: 4.50, ess: 2000, ref: '2026-10' },
+  goals: [
+    { id: 1, name: 'Reserva de Emergência', type: 'reserva', months: 6, target: 0, deadline: '2027-12', balance: 0, contrib: 1186.52 },
+    { id: 2, name: 'Eurotrip 2027', type: 'viagem', months: 0, target: 20000, deadline: '2027-06', balance: 0, contrib: 0 }
+  ]
+};
+const invSave = () => localStorage.setItem('cfo_inv', JSON.stringify(INV));
+const ymIdx = s => { const [y, m] = (s || '').split('-').map(Number); return y * 12 + m - 1; };
+const irRate = n => n <= 6 ? 0.225 : n <= 12 ? 0.20 : n <= 24 ? 0.175 : 0.15;
+function invCalc(g) {
+  const p = INV.prem, i = Math.pow(1 + p.cdi / 100 * p.pct / 100, 1 / 12) - 1, ipca = p.ipca / 100;
+  const n = Math.max(1, ymIdx(g.deadline) - todayIdx()), t = irRate(n);
+  const tt = g.type === 'reserva' ? (g.months || 0) * p.ess : (g.target || 0);
+  const Tn = tt * Math.pow(1 + ipca, n / 12), P = g.balance || 0, C = g.contrib || 0;
+  const gg = Math.pow(1 + i, n), A = (gg - 1) / i, kP = 1 + (1 - t) * (gg - 1), kC = n + (1 - t) * (A - n);
+  const net = P * kP + C * kC;
+  return { n, t, tt, Tn, reqC: Math.max(0, (Tn - P * kP) / kC), net, real: net / Math.pow(1 + ipca, n / 12),
+           prog: Tn > 0 ? Math.min(1, net / Tn) : 0, ok: net >= Tn - 0.005 };
+}
+const cellI = (c, v) => `<div class="arb-spotlight-item"><div class="caption">${c}</div><div class="val num">${v}</div></div>`;
+function invCard(g, a) {
+  const sel = t => g.type === t ? 'selected' : '';
+  const alvo = g.type === 'reserva'
+    ? `<label class="inv-field">Meses de cobertura<input class="app-input-field" type="number" min="1" step="1" data-f="months" value="${g.months || 0}"></label>`
+    : `<label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>`;
+  return `<section class="glass-card" data-id="${g.id}">
+    <div class="inv-goal-head"><input data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="badge-tag ${a.ok ? 'accent' : ''}">${a.ok ? 'No prazo' : 'Aporte insuficiente'}</span></div>
+    <div class="inv-grid" style="margin-top:0">
+      <label class="inv-field">Tipo<select class="app-input-field" data-f="type"><option value="reserva" ${sel('reserva')}>Reserva</option><option value="viagem" ${sel('viagem')}>Viagem / Objetivo</option></select></label>
+      ${alvo}
+      <label class="inv-field">Prazo (mês)<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
+      <label class="inv-field">Saldo atual (R$)<input class="app-input-field" type="number" step="0.01" data-f="balance" value="${g.balance || 0}"></label>
+      <label class="inv-field wide">Aporte mensal (R$)<input class="app-input-field" type="number" step="0.01" data-f="contrib" value="${g.contrib || 0}"></label>
+    </div>
+    <div class="budget-rail-track" style="margin-top:14px"><div class="budget-rail-fill" style="width:${(a.prog * 100).toFixed(1)}%"></div></div>
+    <div class="arb-spotlight-grid" style="margin:14px 0 0">${cellI('Alvo nominal no prazo', BRL(a.Tn))}${cellI('Aporte necessário/mês', BRL(a.reqC))}${cellI('Projeção líquida c/ aporte', BRL(a.net))}${cellI('Em valor de hoje', BRL(a.real))}</div>
+    <div class="inv-note">${a.n} meses até o prazo · IR ${(a.t * 100).toFixed(1)}% · alvo de ${BRL(a.tt)} em valores de hoje</div>
+    <div style="text-align:right;margin-top:10px"><button class="inv-danger" data-del="${g.id}">Remover meta</button></div>
+  </section>`;
+}
+function renderInvest() {
+  const rows = INV.goals.map(g => ({ g, a: invCalc(g) }));
+  const sum = f => rows.reduce((s, r) => s + f(r), 0);
+  gid('invSummary').innerHTML = cellI('Metas', INV.goals.length) + cellI('Saldo acumulado', BRL(sum(r => r.g.balance || 0)))
+    + cellI('Aporte informado/mês', BRL(sum(r => r.g.contrib || 0))) + cellI('Aporte necessário/mês', BRL(sum(r => r.a.reqC)));
+  gid('invGoals').innerHTML = rows.map(({ g, a }) => invCard(g, a)).join('');
+}
+function invSummaryText() {
+  return INV.goals.map(g => { const a = invCalc(g); return `${g.name}: alvo ${BRL(a.Tn)} até ${g.deadline}, saldo ${BRL(g.balance || 0)}, aporte ${BRL(g.contrib || 0)}/mês, projeção líquida ${BRL(a.net)}`; }).join('; ') || 'nenhuma meta cadastrada';
+}
+function avgEssentials() {
+  let sum = 0, cnt = 0;
+  for (let i = 0; i < 12; i++) {
+    const m = calculateSingleMonth(i, S.year);
+    if (m.isPending) continue;
+    cnt++;
+    for (const c in customCategories) if (customCategories[c].group !== 'NESS') sum += m.cats[c] || 0;
+  }
+  return cnt ? sum / cnt : 0;
+}
+['cdi', 'pct', 'ipca', 'ess'].forEach(k => gid('inv_' + k).value = INV.prem[k]);
+gid('view-invest').addEventListener('change', e => {
+  const k = e.target.dataset.k, f = e.target.dataset.f;
+  if (k) INV.prem[k] = k === 'ref' ? e.target.value : (parseFloat(e.target.value) || 0);
+  else if (f) {
+    const g = INV.goals.find(x => x.id === +e.target.closest('[data-id]').dataset.id);
+    g[f] = ['months', 'target', 'balance', 'contrib'].includes(f) ? (parseFloat(e.target.value) || 0) : e.target.value;
+  } else return;
+  invSave(); renderInvest();
+});
+gid('view-invest').addEventListener('click', e => {
+  const d = e.target.dataset.del;
+  if (!d) return;
+  INV.goals = INV.goals.filter(x => String(x.id) !== d); invSave(); renderInvest();
+});
+gid('invAdd').onclick = () => { INV.goals.push({ id: Date.now(), name: 'Nova meta', type: 'viagem', months: 0, target: 10000, deadline: '2028-12', balance: 0, contrib: 0 }); invSave(); renderInvest(); };
+gid('invUseApp').onclick = () => { INV.prem.ess = Math.round(avgEssentials() * 100) / 100; gid('inv_ess').value = INV.prem.ess; invSave(); renderInvest(); };
+
+/* ==================== PERSONALIZAÇÃO: COR DE DESTAQUE ==================== */
+const ACCENT_DEFAULT = '#9BB8D3';
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const ACC = () => cssVar('--accent-blue');
+const ACCS = () => cssVar('--accent-chart-soft');
+const normHex = h => {
+  let x = String(h || '').trim().replace(/^#/, '');
+  if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(x)) return null;
+  if (x.length === 3) x = x.split('').map(c => c + c).join('');
+  return '#' + x.toUpperCase();
+};
+const hexToRgb = h => [0, 2, 4].map(i => parseInt(h.slice(1 + i, 3 + i), 16));
+const rgbToHex = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+const mixC = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const lumC = c => { const [r, g, b] = c.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+const contrastC = (a, b) => { const x = lumC(a), y = lumC(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+function applyAccent(hex) {
+  const base = hexToRgb(hex), white = [255, 255, 255], ink = [14, 15, 18];
+  let txt = base, k = 0;
+  while (contrastC(txt, white) < 4.5 && k++ < 40) txt = mixC(txt, ink, 0.06);   // texto legível sobre branco
+  const light = mixC(base, white, 0.45);                                         // destaque sobre fundo escuro
+  const rgba = (c, a) => `rgba(${c.map(v => Math.round(v)).join(',')},${a})`;
+  const st = document.documentElement.style;
+  st.setProperty('--accent-blue', hex);
+  st.setProperty('--accent-text', rgbToHex(txt));
+  st.setProperty('--steel-soft', rgbToHex(light));
+  st.setProperty('--accent-blue-soft', rgba(base, 0.08));
+  st.setProperty('--accent-blue-line', rgba(base, 0.22));
+  st.setProperty('--accent-chart-soft', rgba(base, 0.35));
+  try {
+    if (typeof knotHero !== 'undefined' && knotHero) knotHero.material.color.set(hex);
+    if (typeof polyWealth !== 'undefined' && polyWealth) polyWealth.material.color.set(hex);
+  } catch (e) { console.warn(e); }
+  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[2].borderColor = hex; updateFlowChart(); }
+}
+const loadAccent = () => normHex(localStorage.getItem('cfo_accent_v4')) || ACCENT_DEFAULT;
+function openPersonal() {
+  const h = loadAccent();
+  gid('pmHex').value = h; gid('pmPicker').value = h.toLowerCase(); gid('pmErr').textContent = '';
+  gid('personalModal').classList.add('active');
+}
+function closePersonal() { gid('personalModal').classList.remove('active'); }
+function setAccentFromInput() {
+  const h = normHex(gid('pmHex').value);
+  if (!h) { gid('pmErr').textContent = 'Código inválido. Use o formato #RRGGBB ou #RGB.'; return; }
+  localStorage.setItem('cfo_accent_v4', h); applyAccent(h);
+  gid('pmHex').value = h; gid('pmPicker').value = h.toLowerCase(); gid('pmErr').textContent = 'Cor aplicada.';
+}
+function resetAccent() { localStorage.removeItem('cfo_accent_v4'); applyAccent(ACCENT_DEFAULT); openPersonal(); }
+
+/* ==================== GLOBAL ROUTER & CONTROLS ==================== */
+function goToTab(targetId) {
+  document.querySelectorAll('.dock-item-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.target === targetId);
+  });
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.toggle('active', v.id === targetId);
+  });
+  if (targetId === 'view-home') flowChart.update();
+}
+
+function toggleRingFencing() {
+  S.exFlash = !S.exFlash;
+  const bar = document.getElementById('flashCardBar');
+  bar.classList.toggle('active', S.exFlash);
+  document.getElementById('flashStatusText').textContent = S.exFlash
+    ? 'Ativo · Custos de Transporte e Alimentação expurgados do bolso'
+    : 'Inativo · Custos computados integralmente no caixa pessoal';
+  updateApplication();
+}
+
+function updateApplication() {
+  persist();
+  renderMonthForm();
+  renderDateTrack();
+  renderConsolidationHero();
+  renderStrategicInsights();
+  renderBudget();
+  renderExpensesLog();
+  renderDrainsDetective();
+  renderArbitrageScroller();
+  renderSimulator();
+  updateFlowChart();
+}
+
+function openCatModal() {
+  document.getElementById('catModal').classList.add('active');
+  renderModalCatsList();
+}
+function closeCatModal() {
+  document.getElementById('catModal').classList.remove('active');
+}
+function renderModalCatsList() {
+  const container = document.getElementById('modalCatsList');
+  container.innerHTML = Object.keys(customCategories).map(cat => {
+    const c = customCategories[cat];
+    const groupName = c.group === 'ESS' ? 'Essencial (80%)' : (c.group === 'NESS' ? 'Discricionária (20%)' : 'Fixa');
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:var(--bg-deep); border-radius:8px;">
+        <div>
+          <b style="font-size:12px; color:var(--ink);">${cat}</b>
+          <span style="font-size:10px; color:var(--muted); display:block;">${groupName}</span>
+        </div>
+        ${c.custom ? `<button onclick="deleteCustomCat('${cat}')" style="font-size:11px; color:var(--ink); text-decoration:underline; cursor:pointer;">Remover</button>` : `<span style="font-size:10px; color:var(--muted);">Padrão</span>`}
+      </div>
+    `;
+  }).join('');
+}
+
+function saveNewCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  const group = document.getElementById('newCatGroup').value;
+  if (!name) return;
+
+  customCategories[name] = {
+    group: group,
+    weight: group === 'ESS' ? 0.25 : 0.15,
+    custom: true
+  };
+
+  document.getElementById('newCatName').value = '';
+  renderModalCatsList();
+  renderMindfulCategories();
+  updateApplication();
+}
+
+function deleteCustomCat(name) {
+  delete customCategories[name];
+  renderModalCatsList();
+  renderMindfulCategories();
+  updateApplication();
+}
+
+// Event Listeners
+document.querySelectorAll('.dock-item-btn').forEach(btn => {
+  btn.addEventListener('click', () => goToTab(btn.dataset.target));
+});
+
+
+['sPreco', 'sN', 'sDesc'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderSimulator);
+});
+
+// Boot Sequence
+window.onload = function() {
+  initCharts();
+  init3DHero();
+  init3DWealthSphere();
+  initCardTilt();
+  initToday();
+  updateApplication();
+  renderInvest();
+  applyAccent(loadAccent());
+  setInterval(() => { renderStrategicInsights(); }, 60000);
+  setTimeout(scrollSelectedPills, 200);
+};
 </script>
 </body>
 </html>
