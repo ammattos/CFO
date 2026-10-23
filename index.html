@@ -1509,7 +1509,7 @@ button, input, select {
       </div>
       <div class="flash-text-lockup">
         <b>Neutralizar Benefícios Flash (VT/VR)</b>
-        <span id="flashStatusText">Ativo · VT/VR e despesas marcadas como flash fora do bolso</span>
+        <span id="flashStatusText">Ativo · VT/VR e despesas flash fora de todos os cálculos</span>
       </div>
     </div>
     <div class="switch-control"></div>
@@ -1660,19 +1660,6 @@ button, input, select {
       <button class="manage-cats-btn" onclick="openCatModal()">+ Gerenciar & Adicionar Categorias</button>
     </section>
 
-    <!-- Registro mensal -->
-    <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Registro do Mês</h2><div class="glass-card-sub" id="mLabel">Mês selecionado</div></div></div>
-      <div class="inv-grid" style="margin-top:0">
-        <label class="inv-field">Rendimento CDI (R$)<input class="app-input-field" id="mRend" type="number" step="0.01"></label>
-        <label class="inv-field">Vale-transporte (R$)<input class="app-input-field" id="mVt" type="number" step="0.01"></label>
-        <label class="inv-field">Vale-refeição (R$)<input class="app-input-field" id="mVr" type="number" step="0.01"></label>
-        <label class="inv-field wide">Aporte contratual (R$)<input class="app-input-field" id="mInv" type="number" step="0.01"></label>
-      </div>
-      <p class="inv-note">VT e VR entram aqui como benefícios, não no salário. Com o Flash ativo, são retirados do caixa pessoal.</p>
-      <button class="primary-submit-btn" style="margin-top:14px" onclick="saveMonthData()">Salvar mês</button>
-    </section>
-
     <!-- Histórico de Despesas Registradas -->
     <section class="glass-card">
       <div class="glass-card-header">
@@ -1696,6 +1683,31 @@ button, input, select {
         <h2 class="wealth-poly-title">Engenharia de Capital a 102% CDI</h2>
         <p class="wealth-poly-caption">Modelagem de arbitragem geográfica, VPL e custo de oportunidade composto.</p>
       </div>
+    </section>
+
+    <!-- CONSTRUÇÃO DE PATRIMÔNIO -->
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Construção de Patrimônio</h2><div class="glass-card-sub">Rendimento a 102% do CDI e aporte mensal entram automaticamente</div></div></div>
+      <div class="inv-grid" style="margin-top:0">
+        <label class="inv-field">Patrimônio informado (R$)<input class="app-input-field" id="patBase" data-p="base" type="number" step="0.01"></label>
+        <label class="inv-field">Data do valor<input class="app-input-field" id="patBaseYm" data-p="baseYm" type="month"></label>
+        <label class="inv-field wide">Aporte contratual mensal (R$)<input class="app-input-field" id="patAporte" data-p="aporte" type="number" step="0.01"></label>
+      </div>
+      <button class="manage-cats-btn" id="patUseRec">Usar o valor recomendado como aporte</button>
+      <p class="inv-note">Ao atualizar o patrimônio informado, ajuste também a data do valor. A partir dela, cada mês soma o rendimento sobre o saldo e o aporte contratual.</p>
+      <div class="arb-spotlight-grid" id="patSummary" style="margin:14px 0 0"></div>
+    </section>
+
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Recomendação de Aporte</h2><div class="glass-card-sub">Receita de caixa do mês atual, após as despesas essenciais, distribuída pelas metas</div></div></div>
+      <div id="patRec"></div>
+    </section>
+
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Horizontes e Efeito Bola de Neve</h2><div class="glass-card-sub">Valores líquidos de IR; o real desconta a inflação</div></div></div>
+      <div class="arb-spotlight-grid" id="patHorizons" style="margin:0"></div>
+      <div class="chart-container-box" style="height:220px"><canvas id="chartPatr"></canvas></div>
+      <button class="manage-cats-btn" onclick="goToTab('view-invest')">Editar metas de investimento</button>
     </section>
 
     <!-- Arbitragem Geográfica: Scroller de Cidades sem Cortes -->
@@ -1839,7 +1851,7 @@ button, input, select {
         <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="c6">C6 Carbon</option><option value="debit">Débito / Pix</option></select></label>
         <label class="lx-label">Parcelas<select class="app-input-field" id="lxParc" onchange="lxUpdate()"></select></label>
       </div>
-      <label class="lx-check"><input type="checkbox" id="lxFlash" onchange="lxUpdate()"><span><b>Despesa flash</b><small>Paga com VT/VR. Sai do bolso quando o Flash está ativo.</small></span></label>
+      <label class="lx-check"><input type="checkbox" id="lxFlash" onchange="lxUpdate()"><span><b>Despesa flash</b><small>Paga com VT/VR. Sai de todos os cálculos quando o Flash estiver ativo.</small></span></label>
     </div>
     <div class="lx-card" id="lxIncomeBox" hidden>
       <div class="lx-label">Fonte da receita</div>
@@ -1954,7 +1966,9 @@ function persist() {
     localStorage.setItem('cfo_data', JSON.stringify({ DATA_2026, DATA_2027 }));
   } catch (e) { console.warn('Falha ao salvar dados locais', e); }
 }
-const incomeTotal = (y, i) => (S.incomes || []).filter(x => x.year === y && x.i === i).reduce((s, x) => s + x.v, 0);
+const isFlashSrc = src => src === 'VT' || src === 'VR';
+// flash: undefined = todas; true = só VT/VR; false = só receitas comuns
+const incomeTotal = (y, i, flash) => (S.incomes || []).filter(x => x.year === y && x.i === i && (flash === undefined || isFlashSrc(x.src) === flash)).reduce((s, x) => s + x.v, 0);
 function monthHasData(D, year, idx) {
   return (D.rec[idx] || 0) > 0 || (D.rend[idx] || 0) > 0 || (D.inv[idx] || 0) > 0
     || incomeTotal(year, idx) > 0 || S.extras.some(e => e.year === year && e.i === idx);
@@ -1987,34 +2001,30 @@ function getExtrasAmount(cat, monthIdx, year) {
 function calculateSingleMonth(idx, year) {
   const D = year === 2025 ? DATA_2025 : (year === 2027 ? DATA_2027 : DATA_2026);
   const isPending = !monthHasData(D, year, idx);
-  const vt = D.vt[idx] || 0;
-  const vr = D.vr[idx] || 0;
-  const flashTotal = vt + vr;
+  const flashTotal = incomeTotal(year, idx, true);
 
   const rawCats = {};
   const cats = {};
   let totalDesp = 0;
 
   const flashByCat = {};
-  let flashSpent = 0;
   for (const c in customCategories) {
     const historical = (D.cats[c] && D.cats[c][idx]) ? D.cats[c][idx] : 0;
     rawCats[c] = historical + getExtrasAmount(c, idx, year);
     flashByCat[c] = S.extras.filter(e => e.year === year && e.i === idx && e.cat === c && e.flash).reduce((s, e) => s + e.v, 0);
-    flashSpent += flashByCat[c];
   }
-  // Benefícios cobrem apenas as despesas marcadas como flash, até o valor disponível
-  const coveredRatio = flashSpent > 0 ? Math.min(1, flashTotal / flashSpent) : 0;
   for (const c in customCategories) {
-    cats[c] = S.exFlash ? Math.max(0, rawCats[c] - flashByCat[c] * coveredRatio) : rawCats[c];
+    cats[c] = S.exFlash ? Math.max(0, rawCats[c] - flashByCat[c]) : rawCats[c];
     totalDesp += cats[c];
   }
-
-  const rawRec = (D.rec[idx] || 0) + incomeTotal(year, idx);
-  const recBase = rawRec + (S.exFlash ? 0 : flashTotal);   // com Flash, VT/VR saem do caixa
-  const rend = D.rend[idx] || 0;
-  const totalRec = recBase + rend;
-  const inv = D.inv[idx] || 0;
+  const regIncome = (D.rec[idx] || 0) + incomeTotal(year, idx, false);
+  const flashIncome = incomeTotal(year, idx, true);
+  const rawRec = regIncome + flashIncome;
+  const recBase = S.exFlash ? regIncome : rawRec;
+  const pat = patrimonyFor(year, idx);
+  const rend = pat.rend;            // rendimento reinvestido: patrimônio, não caixa
+  const totalRec = recBase;
+  const inv = pat.aporte;           // aporte contratual sai do caixa para o patrimônio
   const econ = totalRec - inv - totalDesp;
 
   const basePool = Math.max(0, recBase - inv);
@@ -2294,8 +2304,6 @@ function buildInsights() {
   if (p.totalEcon < 0) add(1, 'Resultado do período', 'Déficit', `Despesas e aportes superaram a receita em ${BRL(-p.totalEcon)} (taxa de ${PCT(rate)}).`, false);
   else add(rate >= 0.2 ? 4 : 1, 'Taxa de poupança', rate >= 0.2 ? 'Saudável' : 'Ajuste requerido',
     `Taxa de ${PCT(rate)} no período, com referência de 20%. ${rate >= 0.2 ? `Excedente de ${BRL(p.totalEcon)}.` : `Faltam ${BRL(0.2 * p.totalRec - p.totalEcon)} para a referência.`}`, rate >= 0.2);
-  if (p.totalRend > 0 && p.totalEcon > 0 && p.totalEcon - p.totalRend < 0)
-    add(1, 'Dependência de rendimento', 'Atenção', `A liquidez de ${BRL(p.totalEcon)} só é positiva pelo rendimento de ${BRL(p.totalRend)}. Sem ele, o resultado seria ${BRL(p.totalEcon - p.totalRend)}.`, false);
   const flex = Object.keys(customCategories).filter(c => customCategories[c].group !== 'FIX');
   const over = flex.filter(c => (p.budget[c] || 0) > 0)
     .map(c => ({ c, spent: p.cats[c] || 0, ceil: p.budget[c] }))
@@ -2334,11 +2342,6 @@ function buildInsights() {
     const a = avg(done.slice(-3)), b = avg(done.slice(-6, -3));
     add(4, 'Tendência de despesas', a > b ? 'Em alta' : 'Em queda',
       `Média dos últimos 3 meses de ${BRL(a)}, ${PCT(b > 0 ? a / b - 1 : 0)} frente aos 3 meses anteriores.`, a <= b);
-  }
-  if (S.exFlash) {
-    let fl = 0;
-    for (const i of S.selectedMonths) fl += (D.vt[i] || 0) + (D.vr[i] || 0);
-    if (fl > 0) add(6, 'Benefícios Flash', 'Isolados', `VT e VR de ${BRL(fl)} no período estão fora do caixa pessoal.`, true);
   }
   return out.sort((x, y) => x.prio - y.prio).slice(0, 6);
 }
@@ -2413,7 +2416,7 @@ function renderBudget() {
 
 function renderStackedBudgetCard(cat, spent, ceiling, gross) {
   const percent = ceiling > 0 ? Math.min((spent / ceiling) * 100, 100) : (spent > 0 ? 100 : 0);
-  const lanc = S.exFlash && gross > spent + 0.01 ? `<div class="budget-cat-ceiling" style="display:block;margin:2px 0 0">Lançado ${BRL(gross)} · coberto por VR/VT ${BRL(gross - spent)}</div>` : '';
+  const lanc = '';
   return `
     <div class="budget-stacked-card">
       <div class="budget-card-top-row">
@@ -2428,7 +2431,7 @@ function renderExpensesLog() {
   const exp = S.extras.filter(e => e.year === S.year && S.selectedMonths.includes(e.i))
     .map(e => ({ k: 'e', id: e.id, i: e.i, t: e.desc || 'Despesa', s: `${e.cat}${e.c6 ? ' · C6 Carbon' : ''}${e.flash ? ' · flash' : ''}`, v: e.v, sign: '−' }));
   const inc = S.incomes.filter(x => x.year === S.year && S.selectedMonths.includes(x.i))
-    .map(x => ({ k: 'r', id: x.id, i: x.i, t: x.desc, s: `Receita · ${x.src}`, v: x.v, sign: '+' }));
+    .map(x => ({ k: 'r', id: x.id, i: x.i, t: x.desc, s: `Receita · ${x.src}${isFlashSrc(x.src) ? ' · flash' : ''}`, v: x.v, sign: '+' }));
   const items = [...exp, ...inc].sort((a, b) => b.id - a.id);
   const c = gid('expenseLogList');
   if (!items.length) { c.innerHTML = '<div class="lx-empty">Nenhum lançamento no período selecionado.</div>'; return; }
@@ -2595,7 +2598,7 @@ function renderSimulator() {
 
 const gid = id => document.getElementById(id);
 /* ==================== LANÇAMENTOS: CRIAR E EDITAR ==================== */
-const LX_SOURCES = ['Salário', 'USP', 'Imprevisível'];
+const LX_SOURCES = ['Salário', 'USP', 'Imprevisível', 'VT', 'VR'];
 const LX_PARC = [1, 2, 3, 4, 5, 6, 8, 10, 12, 18, 24];
 let lxType = 'expense', lxCat = 'Alimentação', lxSrc = 'Salário', lxEdit = null;
 function renderMindfulCategories() {
@@ -2619,6 +2622,7 @@ function lxUpdate() {
        <div class="lx-sum-row"><span>Tipo</span><b>${gid('lxFlash').checked ? 'Despesa flash (VT/VR)' : 'Despesa do bolso'}</b></div>
        <div class="lx-sum-row"><span>Valor ${n > 1 ? 'por parcela' : ''}</span><b>${n > 1 ? `${n}x de ${BRL(v / n)}` : BRL(v)}</b></div>`
     : `<div class="lx-sum-row"><span>Fonte</span><b>${esc(lxSrc)}</b></div>
+       <div class="lx-sum-row"><span>Tipo</span><b>${isFlashSrc(lxSrc) ? 'Receita flash (sai com o Flash ativo)' : 'Receita'}</b></div>
        <div class="lx-sum-row"><span>Valor</span><b>${BRL(v)}</b></div>`;
 }
 function lxShow(title, submitLabel) {
@@ -2908,19 +2912,6 @@ function initCardTilt() {
 }
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-/* ==================== REGISTRO MENSAL ==================== */
-function renderMonthForm() {
-  const i = S.lastAnchorMonth, D = getActiveDataset();
-  gid('mLabel').textContent = `${MONTH_FULL[i]} ${S.year}`;
-  gid('mRend').value = D.rend[i] || '';
-  gid('mVt').value = D.vt[i] || ''; gid('mVr').value = D.vr[i] || ''; gid('mInv').value = D.inv[i] || '';
-}
-function saveMonthData() {
-  const i = S.lastAnchorMonth, D = getActiveDataset(), v = id => parseFloat(gid(id).value) || 0;
-  D.rend[i] = v('mRend'); D.vt[i] = v('mVt'); D.vr[i] = v('mVr'); D.inv[i] = v('mInv');
-  updateApplication();
-}
-
 /* ==================== PLANEJAMENTO DE INVESTIMENTOS ==================== */
 let INV = JSON.parse(localStorage.getItem('cfo_inv') || 'null') || {
   prem: { cdi: 14.40, pct: 102, ipca: 4.50, ess: 2000, ref: '2026-10' },
@@ -3051,6 +3042,108 @@ function setAccentFromInput() {
 }
 function resetAccent() { localStorage.removeItem('cfo_accent_v4'); applyAccent(ACCENT_DEFAULT); openPersonal(); }
 
+/* ==================== CONSTRUÇÃO DE PATRIMÔNIO ==================== */
+const monthStrNow = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; };
+let PAT = JSON.parse(localStorage.getItem('cfo_patr') || 'null') || { base: 0, baseYm: monthStrNow(), aporte: 0 };
+let patChart = null;
+const patSave = () => localStorage.setItem('cfo_patr', JSON.stringify(PAT));
+const monthlyRate = () => Math.pow(1 + INV.prem.cdi / 100 * INV.prem.pct / 100, 1 / 12) - 1;
+// Saldo e movimentos de um mês civil a partir do patrimônio informado
+function patrimonyFor(year, idx) {
+  const k = (year * 12 + idx) - ymIdx(PAT.baseYm);
+  if (k < 0) return { ini: 0, rend: 0, aporte: 0, end: 0 };
+  const i = monthlyRate(), A = PAT.aporte || 0;
+  let P = PAT.base || 0;
+  for (let j = 0; j < k; j++) P = P * (1 + i) + A;
+  const rend = P * i;
+  return { ini: P, rend, aporte: A, end: P + rend + A };
+}
+function patrimonyNow() {
+  const t = new Date();
+  if ((t.getFullYear() * 12 + t.getMonth()) < ymIdx(PAT.baseYm)) return PAT.base || 0;
+  return patrimonyFor(t.getFullYear(), t.getMonth()).end;
+}
+// Projeção de n meses: bruto, líquido de IR regressivo, real e parcela vinda de rendimento
+function projectPat(P0, A, n) {
+  const i = monthlyRate(), ipca = INV.prem.ipca / 100, g = Math.pow(1 + i, n);
+  const ann = i > 0 ? (g - 1) / i : n;
+  const gross = P0 * g + A * ann, principal = P0 + A * n, yieldG = gross - principal;
+  const t = irRate(n), yieldNet = yieldG * (1 - t), net = principal + yieldNet;
+  return { gross, net, real: net / Math.pow(1 + ipca, n / 12), yieldNet, share: net > 0 ? yieldNet / net : 0 };
+}
+function patSeries(P0, A, N) {
+  const i = monthlyRate(), labels = [], principal = [], yields = [];
+  for (let t = 0; t <= N; t++) {
+    const g = Math.pow(1 + i, t), ann = i > 0 ? (g - 1) / i : t;
+    const pr = P0 + A * t;
+    labels.push(t % 12 === 0 ? `${t / 12}a` : '');
+    principal.push(pr); yields.push(P0 * g + A * ann - pr);
+  }
+  return { labels, principal, yields };
+}
+// Recomendação: receita de caixa do mês − essenciais, distribuída às metas por prazo
+function patRecommendation() {
+  const t = new Date(), m = calculateSingleMonth(t.getMonth(), t.getFullYear());
+  const receita = m.isPending ? 0 : m.totalRec, ess = INV.prem.ess || 0;
+  const disp = Math.max(0, receita - ess);
+  let rem = disp;
+  const rows = INV.goals.map(g => ({ g, a: invCalc(g) }))
+    .sort((x, y) => ymIdx(x.g.deadline) - ymIdx(y.g.deadline))
+    .map(({ g, a }) => { const alloc = Math.min(a.reqC, rem); rem -= alloc; return { g, a, alloc }; });
+  return { receita, ess, disp, rows, total: disp - rem, excess: rem };
+}
+function renderPatrimony() {
+  const P = patrimonyNow(), i = monthlyRate(), A = PAT.aporte || 0, rec = patRecommendation();
+  const base = gid('patBase');
+  if (base && document.activeElement !== base) base.value = PAT.base || 0;
+  if (gid('patBaseYm') && document.activeElement !== gid('patBaseYm')) gid('patBaseYm').value = PAT.baseYm;
+  if (gid('patAporte') && document.activeElement !== gid('patAporte')) gid('patAporte').value = A;
+  gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês (est.)', BRL(P * i))
+    + cellI('Aporte contratual/mês', BRL(A)) + cellI('Recomendado p/ metas', BRL(rec.total));
+  const line = (l, v) => `<div class="lx-sum-row"><span>${l}</span><b>${v}</b></div>`;
+  gid('patRec').innerHTML = `<div class="lx-sum">${line('Receita do mês (caixa)', BRL(rec.receita))}${line('Despesas essenciais previstas', BRL(rec.ess))}`
+    + `${line('Disponível para investir', BRL(rec.disp))}`
+    + rec.rows.map(r => line(`${esc(r.g.name)} · ${r.a.ok ? 'no prazo' : 'necessário ' + BRL(r.a.reqC)}`, BRL(r.alloc))).join('')
+    + `${line('Excedente livre', BRL(rec.excess))}</div>`
+    + (A > rec.disp + 0.005 ? `<p class="inv-note">O aporte contratual de ${BRL(A)} excede o disponível para investir.</p>` : '');
+  gid('patHorizons').innerHTML = [[12, 'Curto prazo · 1 ano'], [36, 'Médio prazo · 3 anos'], [120, 'Longo prazo · 10 anos']].map(([n, l]) => {
+    const r = projectPat(P, A, n);
+    return `<div class="arb-spotlight-item"><div class="caption">${l}</div><div class="val num">${BRL(r.net)}</div><div class="inv-note" style="margin-top:4px">Real ${BRL(r.real)} · ${PCT(r.share)} vem de rendimento</div></div>`;
+  }).join('');
+  const s = patSeries(P, A, 120), ctx = document.getElementById('chartPatr');
+  if (!patChart && ctx) {
+    patChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: [], datasets: [
+        { label: 'Saldo e aportes', data: [], backgroundColor: 'rgba(14, 15, 18, 0.12)', stack: 'p', barPercentage: 1, categoryPercentage: 1 },
+        { label: 'Rendimento acumulado', data: [], backgroundColor: ACC(), stack: 'p', barPercentage: 1, categoryPercentage: 1 }
+      ] },
+      options: { responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: false, font: { size: 9 } } },
+                  y: { stacked: true, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } } } }
+    });
+  }
+  if (patChart) {
+    patChart.data.labels = s.labels;
+    patChart.data.datasets[0].data = s.principal;
+    patChart.data.datasets[1].data = s.yields;
+    patChart.data.datasets[1].backgroundColor = ACC();
+    patChart.update();
+  }
+}
+gid('view-strategy').addEventListener('change', e => {
+  const k = e.target.dataset.p;
+  if (!k) return;
+  if (k === 'baseYm') PAT.baseYm = e.target.value;
+  else PAT[k] = parseFloat(e.target.value) || 0;
+  patSave(); updateApplication();
+});
+gid('patUseRec').onclick = () => {
+  PAT.aporte = Math.round(patRecommendation().total * 100) / 100;
+  patSave(); updateApplication();
+};
+
 /* ==================== GLOBAL ROUTER & CONTROLS ==================== */
 function goToTab(targetId) {
   document.querySelectorAll('.dock-item-btn').forEach(b => {
@@ -3060,6 +3153,7 @@ function goToTab(targetId) {
     v.classList.toggle('active', v.id === targetId);
   });
   if (targetId === 'view-home') flowChart.update();
+  if (targetId === 'view-strategy' && patChart) patChart.resize();
 }
 
 function toggleRingFencing() {
@@ -3067,14 +3161,14 @@ function toggleRingFencing() {
   const bar = document.getElementById('flashCardBar');
   bar.classList.toggle('active', S.exFlash);
   document.getElementById('flashStatusText').textContent = S.exFlash
-    ? 'Ativo · VT/VR e despesas marcadas como flash fora do bolso'
-    : 'Inativo · Custos computados integralmente no caixa pessoal';
+    ? 'Ativo · VT/VR e despesas flash fora de todos os cálculos'
+    : 'Inativo · VT/VR e despesas flash entram nos cálculos';
   updateApplication();
 }
 
 function updateApplication() {
   persist();
-  renderMonthForm();
+  renderPatrimony();
   renderDateTrack();
   renderConsolidationHero();
   renderStrategicInsights();
