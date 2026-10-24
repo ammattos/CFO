@@ -1446,6 +1446,43 @@ button, input, select {
 .lx-item{cursor:pointer}
 .lx-item-val button{position:relative;z-index:1}
 .lx-seg button:disabled{opacity:.5;cursor:default}
+/* ===== v12 ===== */
+#app>.user-profile-header{margin:0 20px;padding:calc(30px + env(safe-area-inset-top)) 0 20px 0}
+#app>section.date-selector-panel{margin:14px 20px 0 20px}
+#app>section.flash-neutralizer-card{margin:14px 20px 0 20px}
+.chart-container-box{position:relative;height:260px}
+.cm-card{max-height:88vh;overflow-y:auto;padding:22px 20px;display:flex;flex-direction:column;gap:16px}
+.cm-head{display:flex;justify-content:space-between;align-items:center}
+.cm-head h3{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.cm-x{width:36px;height:36px;border-radius:50%;background:var(--bg-deep);font-size:20px;color:var(--ink);cursor:pointer;border:none}
+.cm-help{font-size:12px;line-height:1.6;color:var(--muted);background:var(--bg-deep);padding:12px 14px;border-radius:14px}
+.cm-list{display:flex;flex-direction:column;gap:20px}
+.cm-section{display:flex;flex-direction:column;gap:10px}
+.cm-section-title{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 2px}
+.cm-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;min-height:60px;background:var(--bg-card);border:.5px solid var(--hairline);border-radius:16px;box-shadow:var(--shadow-subtle)}
+.cm-item.editing{flex-direction:column;align-items:stretch;gap:12px;border-color:var(--accent-blue)}
+.cm-info b{display:block;font-size:14px;font-weight:600;color:var(--ink)}
+.cm-info span{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.cm-btn{min-height:40px;padding:0 16px;border-radius:999px;background:var(--bg-deep);color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;border:none;flex-shrink:0}
+.cm-btn.primary{background:var(--ink);color:#FFFFFF}
+.cm-btn.danger{background:none;border:.5px solid var(--hairline)}
+.cm-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.cm-new{display:flex;flex-direction:column;gap:12px;padding:18px;background:var(--bg-deep);border-radius:18px}
+.cm-new-title{font-size:13px;font-weight:700;color:var(--ink)}
+.cm-empty{font-size:12px;color:var(--muted);padding:6px 4px}
+.hz-list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.hz-card{padding:16px;border-radius:18px;background:var(--bg-deep);display:flex;flex-direction:column;gap:12px}
+.hz-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hz-name{font-weight:700;font-size:14px;background:none;border:none;color:var(--ink);padding:0;min-width:0;flex:1}
+.hz-period{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hz-period input{width:76px;padding:8px}
+.hz-period select{padding:8px;width:auto}
+.hz-values{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hz-values span{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.hz-values b{font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hz-bar{height:6px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
+.hz-bar i{display:block;height:100%;background:var(--accent-blue)}
+.hz-del{font-size:11px;color:var(--muted);text-decoration:underline;background:none;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1705,8 +1742,9 @@ button, input, select {
 
     <section class="glass-card">
       <div class="glass-card-header"><div><h2 class="glass-card-title">Horizontes e Efeito Bola de Neve</h2><div class="glass-card-sub">Valores líquidos de IR; o real desconta a inflação</div></div></div>
-      <div class="arb-spotlight-grid" id="patHorizons" style="margin:0"></div>
-      <div class="chart-container-box" style="height:220px"><canvas id="chartPatr"></canvas></div>
+      <div id="patHorizons" class="hz-list"></div>
+      <button class="manage-cats-btn" id="hzAdd">+ Nova simulação</button>
+      <div class="chart-container-box" style="height:200px"><canvas id="chartPatr"></canvas></div>
       <button class="manage-cats-btn" onclick="goToTab('view-invest')">Editar metas de investimento</button>
     </section>
 
@@ -1801,7 +1839,13 @@ button, input, select {
     </section>
     <section class="glass-card"><div class="arb-spotlight-grid" id="invSummary" style="margin:0"></div></section>
     <div id="invGoals"></div>
-    <button class="manage-cats-btn" id="invAdd">+ Nova meta</button>
+    <div class="inv-grid" style="margin-top:0">
+      <label class="inv-field wide">Nome da meta<input class="app-input-field" id="invNewName" placeholder="Ex.: Carro novo, Viagem Japão"></label>
+      <label class="inv-field">Tipo<select class="app-input-field" id="invNewType"><option value="viagem">Objetivo / Viagem</option><option value="reserva">Reserva</option></select></label>
+      <label class="inv-field">Prazo<input class="app-input-field" id="invNewDeadline" type="month"></label>
+    </div>
+    <button class="manage-cats-btn" id="invAdd">Criar meta</button>
+    <div class="lx-err" id="invMsg"></div>
   </main>
 
   <!-- ==================== FLOATING DOCK TRANSLÚCIDA ==================== -->
@@ -1848,8 +1892,8 @@ button, input, select {
       <div class="lx-label">Categoria</div>
       <div class="lx-cats" id="mindfulCatSelectorGrid"></div>
       <div class="lx-row">
-        <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="c6">C6 Carbon</option><option value="debit">Débito / Pix</option></select></label>
-        <label class="lx-label">Parcelas<select class="app-input-field" id="lxParc" onchange="lxUpdate()"></select></label>
+        <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="debit">Débito / Pix</option><option value="c6">C6 Carbon</option></select></label>
+        <label class="lx-label">Parcelas (quantidade)<input class="app-input-field" id="lxParc" type="number" inputmode="numeric" min="1" step="1" value="1" oninput="lxUpdate()"></label>
       </div>
       <label class="lx-check"><input type="checkbox" id="lxFlash" onchange="lxUpdate()"><span><b>Despesa flash</b><small>Paga com VT/VR. Sai de todos os cálculos quando o Flash estiver ativo.</small></span></label>
     </div>
@@ -1882,7 +1926,7 @@ button, input, select {
         <label class="lx-label">Nome<input class="app-input-field" id="cmName" placeholder="Ex.: Academia"></label>
         <label class="lx-label" id="cmGroupRow">Grupo no orçamento<select class="app-input-field" id="cmGroup">
           <option value="ESS">Essencial · 80% do saldo flexível</option>
-          <option value="NESS">Discricionária · 20% do saldo flexível</option>
+          <option value="NESS">Variável · 20% do saldo flexível</option>
           <option value="FIX">Fixa · fora do teto</option>
         </select></label>
         <label class="lx-check"><input type="checkbox" id="cmFlash"><span><b id="cmFlashLabel">Despesa flash</b><small>Paga com VT/VR. Sai de todos os cálculos quando o Flash estiver ativo.</small></span></label>
@@ -1995,6 +2039,18 @@ function fvAnnuity(pmt, n, rate) {
   return pmt * ((Math.pow(1 + rate, n) - 1) / rate);
 }
 
+// Média mensal histórica de uma categoria, considerando só meses anteriores com dados
+function histAvgCat(c, year, idx) {
+  const D = year === 2025 ? DATA_2025 : (year === 2027 ? DATA_2027 : DATA_2026);
+  let sum = 0, n = 0;
+  for (let j = 0; j < idx; j++) {
+    if (!monthHasData(D, year, j)) continue;
+    const flashJ = S.exFlash ? S.extras.filter(e => e.year === year && e.i === j && e.cat === c && (e.flash === undefined ? catFlash(c) : e.flash)).reduce((s, e) => s + e.v, 0) : 0;
+    sum += Math.max(0, ((D.cats[c] && D.cats[c][j]) || 0) + getExtrasAmount(c, j, year) - flashJ);
+    n++;
+  }
+  return n ? sum / n : 0;
+}
 function getExtrasAmount(cat, monthIdx, year) {
   return S.extras
     .filter(e => e.year === year && e.i === monthIdx && e.cat === cat)
@@ -2030,61 +2086,52 @@ function calculateSingleMonth(idx, year) {
   const inv = pat.aporte;           // aporte contratual sai do caixa para o patrimônio
   const econ = totalRec - inv - totalDesp;
 
-  const basePool = Math.max(0, recBase - inv);
+  // Grupo efetivo do mês: uma fixa só é fixa nos meses em que houve gasto; caso contrário vira variável
+  const eg = c => customCategories[c].group === 'FIX' ? ((cats[c] || 0) > 0 ? 'FIX' : 'NESS') : customCategories[c].group;
   let totalFix = 0;
-  for (const c in customCategories) {
-    if (customCategories[c].group === 'FIX') totalFix += (cats[c] || 0);
-  }
-  const postFixPool = Math.max(0, basePool - totalFix);
-
-  const budget = {};
+  for (const c in customCategories) if (eg(c) === 'FIX') totalFix += (cats[c] || 0);
+  // Base flexível = receitas − investimento − despesas fixas
+  const basePool = Math.max(0, recBase - inv - totalFix);
+  const budget = {}, overBy = {};
   let isSqueezed = false;
-
-  function allocateGroup(targetGroup, poolMultiplier) {
-    const groupCaps = {};
-    let totalWeight = 0;
-    for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup && inBudget(c)) {
-        totalWeight += (customCategories[c].weight || 0.1);
-      }
-    }
-    const availableGroupCap = isPending ? 0 : postFixPool * poolMultiplier;
-    let excess = 0;
-    let weightRemaining = 0;
-
-    for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup && inBudget(c)) {
-        const normWeight = totalWeight > 0 ? (customCategories[c].weight || 0.1) / totalWeight : 0.1;
-        groupCaps[c] = availableGroupCap * normWeight;
-        const spent = cats[c] || 0;
-        if (!isPending && spent > groupCaps[c]) {
-          excess += (spent - groupCaps[c]);
-        } else if (!isPending) {
-          weightRemaining += normWeight;
+  const allocate = (group, pool, revise) => {
+    const members = Object.keys(customCategories).filter(c => eg(c) === group && inBudget(c));
+    if (!members.length) return;
+    if (isPending) { members.forEach(c => { budget[c] = 0; }); return; }
+    const hist = {}, wt = {};
+    members.forEach(c => { hist[c] = histAvgCat(c, year, idx); wt[c] = customCategories[c].weight || 0.1; });
+    const histSum = members.reduce((s, c) => s + hist[c], 0);
+    const withHist = members.filter(c => hist[c] > 0).length;
+    const ref = withHist ? histSum / withHist : 0;
+    const raw = {};
+    members.forEach(c => { raw[c] = histSum > 0 ? (hist[c] > 0 ? hist[c] : 0.3 * ref) : wt[c]; });
+    const share = (set, c) => { const tot = set.reduce((s, k) => s + raw[k], 0); return tot > 0 ? raw[c] / tot : 0; };
+    const target0 = {};
+    members.forEach(c => { target0[c] = pool * share(members, c); });
+    let active = [...members], remaining = pool;
+    if (revise) {
+      // Estouro em variável: o gasto já consumido sai do saldo e o restante é redistribuído pelo histórico
+      let again = true, guard = 0;
+      while (again && guard++ < 20) {
+        again = false;
+        for (const c of active) {
+          const spent = cats[c] || 0, target = remaining * share(active, c);
+          if (spent > target + 0.005) {
+            budget[c] = spent; overBy[c] = spent - target0[c];
+            remaining -= spent; active = active.filter(k => k !== c);
+            isSqueezed = true; again = true; break;
+          }
         }
       }
     }
-
-    for (const c in customCategories) {
-      if (customCategories[c].group === targetGroup && inBudget(c)) {
-        const spent = cats[c] || 0;
-        const cap = groupCaps[c];
-        if (isPending) {
-          budget[c] = 0;
-        } else if (spent > cap) {
-          budget[c] = cap;
-          isSqueezed = true;
-        } else {
-          const normWeight = totalWeight > 0 ? (customCategories[c].weight || 0.1) / totalWeight : 0.1;
-          const penalty = weightRemaining > 0 ? excess * (normWeight / weightRemaining) : 0;
-          budget[c] = Math.max(0, cap - penalty);
-        }
-      }
-    }
-  }
-
-  allocateGroup('ESS', 0.8);
-  allocateGroup('NESS', 0.2);
+    remaining = Math.max(0, remaining);
+    active.forEach(c => { budget[c] = remaining * share(active, c); });
+    if (!revise) members.forEach(c => {
+      if ((cats[c] || 0) > budget[c] + 0.005) { overBy[c] = (cats[c] || 0) - budget[c]; isSqueezed = true; }
+    });
+  };
+  allocate('ESS', basePool * 0.8, false);
+  allocate('NESS', basePool * 0.2, true);
 
   const c6Accumulated = S.extras
     .filter(e => e.year === year && e.i === idx && e.c6)
@@ -2103,6 +2150,7 @@ function calculateSingleMonth(idx, year) {
     econ,
     basePool,
     budget,
+    overBy,
     c6Accumulated,
     isSqueezed,
     flashTotal
@@ -2130,6 +2178,8 @@ function calculateConsolidatedPeriod(monthsArray, year) {
 
   const raw = {};
   for (const c in customCategories) raw[c] = monthlyData.reduce((sum, m) => sum + (m.rawCats[c] || 0), 0);
+  const over = {};
+  for (const c in customCategories) over[c] = monthlyData.reduce((sum, m) => sum + (m.overBy[c] || 0), 0);
   const isAnySqueezed = monthlyData.some(m => m.isSqueezed);
   const validMonthsCount = monthlyData.filter(m => !m.isPending).length || 1;
 
@@ -2148,6 +2198,7 @@ function calculateConsolidatedPeriod(monthsArray, year) {
     cats,
     budget,
     raw,
+    over,
     isAnySqueezed
   };
 }
@@ -2362,12 +2413,13 @@ function openCardView() {
 /* ==================== BUDGET EMPILHADO (MICRO-RAILS) ==================== */
 function renderBudget() {
   const p = calculateConsolidatedPeriod(S.selectedMonths, S.year);
+  const eg = c => customCategories[c].group === 'FIX' ? ((p.cats[c] || 0) > 0 ? 'FIX' : 'NESS') : customCategories[c].group;
   document.getElementById('budBaseSub').textContent = `Base Flexível Consolidada: ${BRL(p.basePool)}`;
 
   const notice = document.getElementById('rebalanceNotice');
   if (p.isAnySqueezed) {
     notice.className = 'budget-status-banner alert-dark';
-    notice.textContent = 'Alerta CFO: Teto ultrapassado em categorias flexíveis. Limites rebalanceados proporcionalmente.';
+    notice.textContent = 'Alerta CFO: teto ultrapassado em categoria variável. Orçamento revisado com base no histórico.';
   } else {
     notice.className = 'budget-status-banner';
     notice.textContent = 'Alocação equilibrada. Regra 80/20 respeitada sem estresse de caixa.';
@@ -2379,7 +2431,7 @@ function renderBudget() {
   // 1. Inelásticas (Fixas)
   html += `<div class="budget-category-group"><div class="group-title-label"><span>Despesas Inelásticas (Fixas)</span><span>Contratual</span></div>`;
   for (const c in customCategories) {
-    if (customCategories[c].group === 'FIX') {
+    if (eg(c) === 'FIX') {
       const spent = p.cats[c] || 0;
       html += `
         <div class="budget-stacked-card">
@@ -2399,17 +2451,17 @@ function renderBudget() {
   // 2. Essenciais (Teto 80%)
   html += `<div class="budget-category-group"><div class="group-title-label"><span>Essenciais (Teto 80% Líquido)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
   for (const c in customCategories) {
-    if (customCategories[c].group === 'ESS') {
-      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0);
+    if (eg(c) === 'ESS') {
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0, p.over[c] || 0);
     }
   }
   html += `</div>`;
 
-  // 3. Discricionárias (Teto 20%)
-  html += `<div class="budget-category-group"><div class="group-title-label"><span>Discricionárias (Teto 20% Flexível)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
+  // 3. Variáveis (Teto 20%)
+  html += `<div class="budget-category-group"><div class="group-title-label"><span>Variáveis (Teto 20%)</span><span>${S.exFlash ? 'Do Bolso' : 'Total'}</span></div>`;
   for (const c in customCategories) {
-    if (customCategories[c].group === 'NESS') {
-      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0);
+    if (eg(c) === 'NESS') {
+      html += renderStackedBudgetCard(c, p.cats[c] || 0, p.budget[c] || 0, p.raw[c] || 0, p.over[c] || 0);
     }
   }
   html += `</div>`;
@@ -2417,9 +2469,9 @@ function renderBudget() {
   container.innerHTML = html;
 }
 
-function renderStackedBudgetCard(cat, spent, ceiling, gross) {
+function renderStackedBudgetCard(cat, spent, ceiling, gross, over) {
   const percent = ceiling > 0 ? Math.min((spent / ceiling) * 100, 100) : (spent > 0 ? 100 : 0);
-  const lanc = '';
+  const lanc = over > 0.005 ? `<div class="budget-cat-ceiling" style="display:block;margin:2px 0 0">Acima do teto original em ${BRL(over)} · teto revisado</div>` : '';
   return `
     <div class="budget-stacked-card">
       <div class="budget-card-top-row">
@@ -2637,8 +2689,7 @@ function lxShow(title, submitLabel) {
 function openMindfulExpenseModal() {
   lxEdit = null;
   gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
-  gid('lxFlash').checked = catFlash(lxCat); gid('lxPay').value = 'c6';
-  gid('lxParc').innerHTML = LX_PARC.map(n => `<option value="${n}">${n === 1 ? 'À vista' : n + 'x'}</option>`).join('');
+  gid('lxFlash').checked = catFlash(lxCat); gid('lxPay').value = 'debit';
   gid('lxParc').value = '1'; gid('lxParc').disabled = false;
   gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
   gid('lxMonth').value = S.lastAnchorMonth; gid('lxMonth').disabled = false;
@@ -2702,7 +2753,7 @@ function lxSubmit() {
     S.incomes.push({ id: Date.now(), year: S.year, i: mi, src: lxSrc, desc: gid('lxIncDesc').value.trim() || lxSrc, v });
   } else {
     if (!lxCat) { err.textContent = 'Escolha uma categoria.'; return; }
-    const desc = gid('lxDesc').value.trim() || lxCat, n = +gid('lxParc').value || 1;
+    const desc = gid('lxDesc').value.trim() || lxCat, n = Math.max(1, Math.floor(+gid('lxParc').value || 1));
     const c6 = gid('lxPay').value === 'c6', flash = gid('lxFlash').checked, sid = 'série' + Date.now();
     for (let k = 0; k < n; k++) {
       const t = mi + k;
@@ -2747,40 +2798,38 @@ function initCharts() {
   Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
   Chart.defaults.color = '#868993';
   Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
-
   const ctx = document.getElementById('chartFlow').getContext('2d');
   flowChart = new Chart(ctx, {
     data: {
       labels: M,
       datasets: [
-        { type: 'bar', label: 'Receitas', backgroundColor: '#B5CBDD', borderRadius: 4, data: [] },
-        { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.08)', borderRadius: 4, data: [] },
-        { type: 'line', label: 'Liquidez Livre', borderColor: '#225C8A', borderWidth: 2, pointRadius: 0, tension: 0.35, data: [] }
+        { type: 'bar', label: 'Receitas', backgroundColor: '#0E0F12', stack: 'r', borderRadius: 3, data: [] },
+        { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.16)', stack: 's', borderRadius: 3, data: [] },
+        { type: 'bar', label: 'Economia', backgroundColor: ACC(), stack: 's', borderRadius: 3, data: [] },
+        { type: 'bar', label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.42)', stack: 's', borderRadius: 3, data: [] }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } }
-      },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#868993' } },
-        y: { display: false }
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#868993', font: { size: 10 } } },
+        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } }
       }
     }
   });
 }
-
 function updateFlowChart() {
-  const metrics = [0,1,2,3,4,5,6,7,8,9,10,11].map(i => calculateSingleMonth(i, S.year));
-  flowChart.data.datasets[0].data = metrics.map(m => m.isPending ? null : m.totalRec);
-  flowChart.data.datasets[1].data = metrics.map(m => m.isPending ? null : m.totalDesp);
-  flowChart.data.datasets[2].data = metrics.map(m => m.isPending ? null : m.econ);
-  
-  flowChart.data.datasets[0].backgroundColor = metrics.map((m, idx) => 
-    S.selectedMonths.includes(idx) ? ACC() : ACCS()
-  );
+  if (!flowChart) return;
+  const ms = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => calculateSingleMonth(i, S.year));
+  const v = (m, f) => m.isPending ? 0 : f(m);
+  flowChart.data.datasets[0].data = ms.map(m => v(m, x => x.totalRec));
+  flowChart.data.datasets[1].data = ms.map(m => v(m, x => x.totalDesp));
+  flowChart.data.datasets[2].data = ms.map(m => v(m, x => x.econ));
+  flowChart.data.datasets[3].data = ms.map(m => v(m, x => x.inv));
+  flowChart.data.datasets[2].backgroundColor = ACC();
   flowChart.update();
 }
 
@@ -2991,7 +3040,14 @@ gid('view-invest').addEventListener('click', e => {
   if (!d) return;
   INV.goals = INV.goals.filter(x => String(x.id) !== d); invSave(); renderInvest();
 });
-gid('invAdd').onclick = () => { INV.goals.push({ id: Date.now(), name: 'Nova meta', type: 'viagem', months: 0, target: 10000, deadline: '2028-12', balance: 0, contrib: 0 }); invSave(); renderInvest(); };
+gid('invAdd').onclick = () => {
+  const name = gid('invNewName').value.trim(), type = gid('invNewType').value, dl = gid('invNewDeadline').value;
+  if (!name) { gid('invMsg').textContent = 'Dê um nome para a meta.'; return; }
+  if (!dl) { gid('invMsg').textContent = 'Informe o prazo.'; return; }
+  INV.goals.push({ id: Date.now(), name, type, months: type === 'reserva' ? 6 : 0, target: type === 'reserva' ? 0 : 10000, deadline: dl, balance: 0, contrib: 0 });
+  gid('invNewName').value = ''; gid('invMsg').textContent = '';
+  invSave(); renderInvest();
+};
 gid('invUseApp').onclick = () => { INV.prem.ess = Math.round(avgEssentials() * 100) / 100; gid('inv_ess').value = INV.prem.ess; invSave(); renderInvest(); };
 
 /* ==================== PERSONALIZAÇÃO: COR DE DESTAQUE ==================== */
@@ -3027,7 +3083,7 @@ function applyAccent(hex) {
     if (typeof knotHero !== 'undefined' && knotHero) knotHero.material.color.set(hex);
     if (typeof polyWealth !== 'undefined' && polyWealth) polyWealth.material.color.set(hex);
   } catch (e) { console.warn(e); }
-  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[2].borderColor = hex; updateFlowChart(); }
+  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[2].backgroundColor = hex; updateFlowChart(); }
 }
 const loadAccent = () => normHex(localStorage.getItem('cfo_accent_v4')) || ACCENT_DEFAULT;
 function openPersonal() {
@@ -3085,34 +3141,90 @@ function patSeries(P0, A, N) {
 }
 // Recomendação: receita de caixa do mês − essenciais, distribuída às metas por prazo
 function patRecommendation() {
-  const t = new Date(), m = calculateSingleMonth(t.getMonth(), t.getFullYear());
-  const receita = m.isPending ? 0 : m.totalRec, ess = INV.prem.ess || 0;
-  const disp = Math.max(0, receita - ess);
+  const t = new Date(), year = t.getFullYear(), idx = t.getMonth(), m = calculateSingleMonth(idx, year);
+  const receita = m.isPending ? 0 : m.totalRec;
+  const prev = { FIX: 0, ESS: 0, NESS: 0 }, lines = { FIX: [], ESS: [], NESS: [] };
+  for (const c in customCategories) {
+    if (!inBudget(c)) continue;
+    const g = customCategories[c].group === 'FIX' ? ((m.cats[c] || 0) > 0 ? 'FIX' : 'NESS') : customCategories[c].group;
+    const v = g === 'FIX' ? (m.cats[c] || 0) : Math.max(m.cats[c] || 0, histAvgCat(c, year, idx));
+    if (v > 0) { prev[g] += v; lines[g].push([c, v]); }
+  }
+  const despPrev = prev.FIX + prev.ESS + prev.NESS;
+  const disp = Math.max(0, receita - despPrev);
   let rem = disp;
   const rows = INV.goals.map(g => ({ g, a: invCalc(g) }))
     .sort((x, y) => ymIdx(x.g.deadline) - ymIdx(y.g.deadline))
     .map(({ g, a }) => { const alloc = Math.min(a.reqC, rem); rem -= alloc; return { g, a, alloc }; });
-  return { receita, ess, disp, rows, total: disp - rem, excess: rem };
+  return { receita, prev, lines, despPrev, disp, rows, total: disp - rem, excess: rem };
 }
+// Simulações de horizonte: cada uma com nome, período livre (meses ou anos)
+let HZ = JSON.parse(localStorage.getItem('cfo_hz') || 'null') || [
+  { label: 'Curto prazo', v: 12, u: 'm' }, { label: 'Médio prazo', v: 3, u: 'a' }, { label: 'Longo prazo', v: 10, u: 'a' }
+];
+const hzSave = () => localStorage.setItem('cfo_hz', JSON.stringify(HZ));
+const hzMonths = h => Math.min(480, Math.max(1, Math.floor(h.u === 'a' ? h.v * 12 : h.v)));
+function renderHorizons(P, A) {
+  gid('patHorizons').innerHTML = HZ.map((h, k) => {
+    const n = hzMonths(h), r = projectPat(P, A, n);
+    return `<div class="hz-card">
+      <div class="hz-top">
+        <input class="hz-name" data-hz="${k}" data-hf="label" value="${esc(h.label)}" aria-label="Nome da simulação">
+        <div class="hz-period">
+          <input class="app-input-field" data-hz="${k}" data-hf="v" type="number" min="1" step="1" value="${h.v}" aria-label="Quantidade">
+          <select class="app-input-field" data-hz="${k}" data-hf="u" aria-label="Unidade">
+            <option value="m" ${h.u === 'm' ? 'selected' : ''}>meses</option>
+            <option value="a" ${h.u === 'a' ? 'selected' : ''}>anos</option>
+          </select>
+          ${HZ.length > 1 ? `<button class="hz-del" data-hz-del="${k}">remover</button>` : ''}
+        </div>
+      </div>
+      <div class="hz-values">
+        <div><span>Líquido</span><b>${BRL(r.net)}</b></div>
+        <div><span>Real (IPCA)</span><b>${BRL(r.real)}</b></div>
+        <div><span>Rendimento</span><b>${BRL(r.yieldNet)}</b></div>
+      </div>
+      <div class="hz-bar"><i style="width:${(r.share * 100).toFixed(1)}%"></i></div>
+      <div class="inv-note">${PCT(r.share)} do valor final vem de rendimento · ${n} meses</div>
+    </div>`;
+  }).join('');
+}
+gid('patHorizons').addEventListener('change', e => {
+  const k = +e.target.dataset.hz, f = e.target.dataset.hf;
+  if (isNaN(k) || !f || !HZ[k]) return;
+  HZ[k][f] = f === 'v' ? Math.max(1, Math.floor(parseFloat(e.target.value) || 1)) : e.target.value;
+  hzSave(); renderPatrimony();
+});
+gid('patHorizons').addEventListener('click', e => {
+  const k = e.target.dataset.hzDel;
+  if (k === undefined) return;
+  HZ.splice(+k, 1); hzSave(); renderPatrimony();
+});
+gid('hzAdd').onclick = () => { HZ.push({ label: `Simulação ${HZ.length + 1}`, v: 5, u: 'a' }); hzSave(); renderPatrimony(); };
+
 function renderPatrimony() {
   const P = patrimonyNow(), i = monthlyRate(), A = PAT.aporte || 0, rec = patRecommendation();
-  const base = gid('patBase');
-  if (base && document.activeElement !== base) base.value = PAT.base || 0;
-  if (gid('patBaseYm') && document.activeElement !== gid('patBaseYm')) gid('patBaseYm').value = PAT.baseYm;
-  if (gid('patAporte') && document.activeElement !== gid('patAporte')) gid('patAporte').value = A;
+  const set = (id, v) => { const el = gid(id); if (el && document.activeElement !== el) el.value = v; };
+  set('patBase', PAT.base || 0); set('patBaseYm', PAT.baseYm); set('patAporte', A);
   gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês (est.)', BRL(P * i))
-    + cellI('Aporte contratual/mês', BRL(A)) + cellI('Recomendado p/ metas', BRL(rec.total));
-  const line = (l, v) => `<div class="lx-sum-row"><span>${l}</span><b>${v}</b></div>`;
-  gid('patRec').innerHTML = `<div class="lx-sum">${line('Receita do mês (caixa)', BRL(rec.receita))}${line('Despesas essenciais previstas', BRL(rec.ess))}`
-    + `${line('Disponível para investir', BRL(rec.disp))}`
-    + rec.rows.map(r => line(`${esc(r.g.name)} · ${r.a.ok ? 'no prazo' : 'necessário ' + BRL(r.a.reqC)}`, BRL(r.alloc))).join('')
-    + `${line('Excedente livre', BRL(rec.excess))}</div>`
-    + (A > rec.disp + 0.005 ? `<p class="inv-note">O aporte contratual de ${BRL(A)} excede o disponível para investir.</p>` : '');
-  gid('patHorizons').innerHTML = [[12, 'Curto prazo · 1 ano'], [36, 'Médio prazo · 3 anos'], [120, 'Longo prazo · 10 anos']].map(([n, l]) => {
-    const r = projectPat(P, A, n);
-    return `<div class="arb-spotlight-item"><div class="caption">${l}</div><div class="val num">${BRL(r.net)}</div><div class="inv-note" style="margin-top:4px">Real ${BRL(r.real)} · ${PCT(r.share)} vem de rendimento</div></div>`;
-  }).join('');
-  const s = patSeries(P, A, 120), ctx = document.getElementById('chartPatr');
+    + cellI('Aporte contratual/mês', BRL(A)) + cellI('Investimento sugerido', BRL(rec.total));
+  const row = (l, v) => `<div class="lx-sum-row"><span>${l}</span><b>${v}</b></div>`;
+  const grp = (title, key) => `<div class="cm-section-title" style="margin-top:12px"><span>${title}</span><span>${BRL(rec.prev[key])}</span></div>`
+    + (rec.lines[key].length ? rec.lines[key].map(([c, v]) => row(esc(c), BRL(v))).join('') : row('Nenhuma prevista', BRL(0)));
+  gid('patRec').innerHTML = `
+    <div class="lx-sum">${row('Receita do mês (caixa)', BRL(rec.receita))}</div>
+    <div class="lx-sum" style="margin-top:8px">
+      <div class="cm-section-title" style="margin:0"><span>Despesas previstas</span><span>${BRL(rec.despPrev)}</span></div>
+      ${grp('Fixas', 'FIX')}${grp('Essenciais', 'ESS')}${grp('Variáveis', 'NESS')}
+    </div>
+    <div class="lx-sum" style="margin-top:8px">
+      ${row('Disponível para investir', BRL(rec.disp))}
+      ${rec.rows.map(r => row(esc(r.g.name) + ' · ' + (r.a.ok ? 'no prazo' : 'necessário ' + BRL(r.a.reqC)), BRL(r.alloc))).join('')}
+      ${row('Excedente livre', BRL(rec.excess))}
+    </div>
+    ${A > rec.disp + 0.005 ? `<p class="inv-note">O aporte contratual de ${BRL(A)} excede o disponível para investir.</p>` : ''}`;
+  renderHorizons(P, A);
+  const maxN = Math.min(480, Math.max(12, ...HZ.map(hzMonths))), s = patSeries(P, A, maxN), ctx = document.getElementById('chartPatr');
   if (!patChart && ctx) {
     patChart = new Chart(ctx, {
       type: 'bar',
@@ -3122,7 +3234,7 @@ function renderPatrimony() {
       ] },
       options: { responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
         plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
-        scales: { x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: false, font: { size: 9 } } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12, font: { size: 9 } } },
                   y: { stacked: true, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } } } }
     });
   }
@@ -3155,7 +3267,7 @@ const INCOME_DEFAULT = [
 ];
 let INCOME_SOURCES = JSON.parse(localStorage.getItem('cfo_isrc') || 'null') || INCOME_DEFAULT.map(x => ({ ...x }));
 const isrcSave = () => localStorage.setItem('cfo_isrc', JSON.stringify(INCOME_SOURCES));
-const GROUP_LABEL = { ESS: 'Essencial · 80%', NESS: 'Discricionária · 20%', FIX: 'Fixa' };
+const GROUP_LABEL = { ESS: 'Essencial · 80%', NESS: 'Variável · 20%', FIX: 'Fixa' };
 const catFlash = c => (customCategories[c] && customCategories[c].flash !== undefined) ? !!customCategories[c].flash : FLASH_CAT_DEFAULT.includes(c);
 // Com o Flash ativo, categorias flash saem do orçamento (teto zero e sem consumir o saldo flexível)
 const inBudget = c => !(S.exFlash && catFlash(c));
@@ -3182,7 +3294,7 @@ function cmTab(t) {
   document.querySelectorAll('#cmTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const exp = t === 'exp';
   gid('cmHelp').textContent = exp
-    ? 'Categorias organizam o orçamento. Essenciais dividem 80% do saldo flexível, discricionárias, 20%, e fixas ficam fora do teto. Categorias marcadas como flash saem dos cálculos quando o Flash está ativo.'
+    ? 'Toque em Editar para mudar nome, grupo ou a marcação flash. Essenciais recebem 80% do saldo flexível e variáveis, 20%. Fixas são gastos que aconteceram no mês: quando deixam de acontecer, viram variáveis, sem apagar a categoria.'
     : 'Fontes de receita usadas nos lançamentos. Receitas flash (VT e VR) saem de todos os cálculos quando o Flash está ativo.';
   gid('cmNewTitle').textContent = exp ? 'Nova categoria de despesa' : 'Nova fonte de receita';
   gid('cmGroupRow').hidden = !exp;
@@ -3195,9 +3307,21 @@ function cmRows() {
   return INCOME_SOURCES.map(x => ({ key: x.name, name: x.name, flash: !!x.flash, custom: !INCOME_PROTECTED.includes(x.name) }));
 }
 function renderCm() {
-  const exp = cmTabSel === 'exp';
-  gid('cmList').innerHTML = cmRows().map(r => r.key === cmEditKey ? cmEditRow(r, exp) : cmRow(r, exp)).join('')
-    || '<div class="lx-empty">Nenhuma categoria.</div>';
+  const exp = cmTabSel === 'exp', rows = cmRows();
+  const item = r => r.key === cmEditKey ? cmEditRow(r, exp) : cmRow(r, exp);
+  let html = '';
+  if (exp) {
+    [['ESS', 'Essenciais · 80% do saldo flexível'], ['NESS', 'Variáveis · 20% do saldo flexível'], ['FIX', 'Fixas · fora do teto']].forEach(([g, title]) => {
+      const items = rows.filter(r => r.group === g);
+      html += `<div class="cm-section">
+        <div class="cm-section-title"><span>${title}</span><span>${items.length}</span></div>
+        ${items.map(item).join('') || '<div class="cm-empty">Nenhuma categoria aqui ainda.</div>'}
+      </div>`;
+    });
+  } else {
+    html = rows.map(item).join('');
+  }
+  gid('cmList').innerHTML = html || '<div class="lx-empty">Nenhuma fonte cadastrada.</div>';
 }
 function cmRow(r, exp) {
   const meta = exp ? GROUP_LABEL[r.group] : (r.flash ? 'Receita flash' : 'Receita comum');
@@ -3305,7 +3429,7 @@ function goToTab(targetId) {
   document.querySelectorAll('.view').forEach(v => {
     v.classList.toggle('active', v.id === targetId);
   });
-  if (targetId === 'view-home') flowChart.update();
+  if (targetId === 'view-home' && flowChart) flowChart.update();
   if (targetId === 'view-strategy' && patChart) patChart.resize();
 }
 
