@@ -1483,6 +1483,20 @@ button, input, select {
 .hz-bar{height:6px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
 .hz-bar i{display:block;height:100%;background:var(--accent-blue)}
 .hz-del{font-size:11px;color:var(--muted);text-decoration:underline;background:none;cursor:pointer}
+/* ===== v14 ===== */
+.jar{position:relative;height:150px;border-radius:22px;background:var(--bg-deep);overflow:hidden;border:.5px solid var(--hairline)}
+.jar-fill{position:absolute;left:0;right:0;bottom:0;background:var(--accent-blue);transition:height .6s ease}
+.jar-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink)}
+.jar-label b{font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.jar-label span{font-size:12px;color:var(--muted)}
+.rec-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:.5px solid var(--hairline);font-size:13px;color:var(--muted)}
+.rec-row b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rec-row.strong{color:var(--ink);font-weight:600}
+.rec-h{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:16px 0 2px}
+.cc-card{padding:18px;border-radius:18px;background:var(--bg-deep);display:flex;flex-direction:column;gap:6px}
+.cc-big{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.cc-big.accent{color:var(--accent-text)}
+.cc-sub{font-size:12px;color:var(--muted);line-height:1.5}
 </style>
 </head>
 <body>
@@ -1721,26 +1735,32 @@ button, input, select {
       </div>
     </section>
 
-    <!-- CONSTRUÇÃO DE PATRIMÔNIO -->
+    <!-- CONSTRUÇÃO DE PATRIMÔNIO (ledger mensal) -->
     <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Construção de Patrimônio</h2><div class="glass-card-sub">Rendimento a 102% do CDI e aporte mensal entram automaticamente</div></div></div>
-      <div class="inv-grid" style="margin-top:0">
-        <label class="inv-field">Patrimônio informado (R$)<input class="app-input-field" id="patBase" data-p="base" type="number" step="0.01"></label>
-        <label class="inv-field">Data do valor<input class="app-input-field" id="patBaseYm" data-p="baseYm" type="month"></label>
-        <label class="inv-field wide">Aporte contratual mensal (R$)<input class="app-input-field" id="patAporte" data-p="aporte" type="number" step="0.01"></label>
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Construção de Patrimônio</h2><div class="glass-card-sub" id="patMonthLabel">Mês selecionado</div></div></div>
+      <div class="arb-spotlight-grid" id="patSummary" style="margin:0"></div>
+      <div class="inv-grid" style="margin-top:14px">
+        <label class="inv-field">Investido neste mês (R$)<input class="app-input-field" id="patNewVal" type="number" step="0.01" placeholder="0,00"></label>
+        <label class="inv-field">Destino<select class="app-input-field" id="patNewGoal"></select></label>
       </div>
-      <button class="manage-cats-btn" id="patUseRec">Usar o valor recomendado como aporte</button>
-      <p class="inv-note">Ao atualizar o patrimônio informado, ajuste também a data do valor. A partir dela, cada mês soma o rendimento sobre o saldo e o aporte contratual.</p>
-      <div class="arb-spotlight-grid" id="patSummary" style="margin:14px 0 0"></div>
+      <button class="manage-cats-btn" id="patAdd">Registrar investimento</button>
+      <div class="lx-err" id="patMsg"></div>
+      <div class="cm-section-title" style="margin-top:14px"><span>Investimentos do mês</span><span id="patMonthTotal"></span></div>
+      <div id="patList"></div>
     </section>
 
     <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Recomendação de Aporte</h2><div class="glass-card-sub">Receita de caixa do mês atual, após as despesas essenciais, distribuída pelas metas</div></div></div>
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Recomendação de Aporte</h2><div class="glass-card-sub" id="recMonthLabel">Mês selecionado</div></div></div>
       <div id="patRec"></div>
     </section>
 
     <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Horizontes e Efeito Bola de Neve</h2><div class="glass-card-sub">Valores líquidos de IR; o real desconta a inflação</div></div></div>
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Efeito Bola de Neve</h2><div class="glass-card-sub">O que um gasto de hoje custa no seu futuro</div></div></div>
+      <div class="inv-grid" style="margin-top:0">
+        <label class="inv-field">Compra considerada (R$)<input class="app-input-field" id="ccVal" type="number" step="0.01" value="300"></label>
+        <label class="inv-field">Em quantos anos<input class="app-input-field" id="ccYears" type="number" min="1" step="1" value="10"></label>
+      </div>
+      <div id="ccOut" style="margin-top:14px"></div>
       <div id="patHorizons" class="hz-list"></div>
       <button class="manage-cats-btn" id="hzAdd">+ Nova simulação</button>
       <div class="chart-container-box" style="height:200px"><canvas id="chartPatr"></canvas></div>
@@ -1831,16 +1851,16 @@ button, input, select {
         <label class="inv-field">CDI (% a.a.)<input class="app-input-field" id="inv_cdi" data-k="cdi" type="number" step="0.01"></label>
         <label class="inv-field">% do CDI<input class="app-input-field" id="inv_pct" data-k="pct" type="number" step="0.5"></label>
         <label class="inv-field">IPCA (% a.a.)<input class="app-input-field" id="inv_ipca" data-k="ipca" type="number" step="0.01"></label>
-        <label class="inv-field wide">Despesas essenciais (R$/mês)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
+        <label class="inv-field wide">Média de custos mensais (R$)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
       </div>
-      <button class="manage-cats-btn" id="invUseApp">Usar média de despesas essenciais do app</button>
+      <button class="manage-cats-btn" id="invUseApp">Usar média de todos os custos do app</button>
       <p class="inv-note">Revise CDI e IPCA conforme as taxas vigentes. IR de renda fixa pela tabela regressiva, aplicada pelo prazo total. IOF e corretagem não considerados.</p>
     </section>
     <section class="glass-card"><div class="arb-spotlight-grid" id="invSummary" style="margin:0"></div></section>
     <div id="invGoals"></div>
     <div class="inv-grid" style="margin-top:0">
       <label class="inv-field wide">Nome da meta<input class="app-input-field" id="invNewName" placeholder="Ex.: Carro novo, Viagem Japão"></label>
-      <label class="inv-field">Tipo<select class="app-input-field" id="invNewType"><option value="viagem">Objetivo / Viagem</option><option value="reserva">Reserva</option></select></label>
+      <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" id="invNewTarget" type="number" step="0.01"></label>
       <label class="inv-field">Prazo<input class="app-input-field" id="invNewDeadline" type="month"></label>
     </div>
     <button class="manage-cats-btn" id="invAdd">Criar meta</button>
@@ -1992,6 +2012,7 @@ const S = {
 
 /* Persistência local (v6) */
 S.incomes = [];
+S.invest = [];
 try {
   if (!localStorage.getItem('cfo_v3_clean')) {
     ['cfo_extras', 'cfo_cats', 'cfo_data'].forEach(k => localStorage.removeItem(k));
@@ -1999,6 +2020,7 @@ try {
   }
   const _ex = localStorage.getItem('cfo_extras'); if (_ex) S.extras = JSON.parse(_ex);
   const _in = localStorage.getItem('cfo_incomes'); if (_in) S.incomes = JSON.parse(_in);
+  const _iv = localStorage.getItem('cfo_invest'); if (_iv) S.invest = JSON.parse(_iv);
   const _cc = localStorage.getItem('cfo_cats'); if (_cc) customCategories = JSON.parse(_cc);
   const _dd = localStorage.getItem('cfo_data');
   if (_dd) { const d = JSON.parse(_dd); Object.assign(DATA_2026, d.DATA_2026 || {}); Object.assign(DATA_2027, d.DATA_2027 || {}); }
@@ -2007,6 +2029,7 @@ function persist() {
   try {
     localStorage.setItem('cfo_extras', JSON.stringify(S.extras));
     localStorage.setItem('cfo_incomes', JSON.stringify(S.incomes));
+    localStorage.setItem('cfo_invest', JSON.stringify(S.invest));
     localStorage.setItem('cfo_isrc', JSON.stringify(INCOME_SOURCES));
     localStorage.setItem('cfo_cats', JSON.stringify(customCategories));
     localStorage.setItem('cfo_data', JSON.stringify({ DATA_2026, DATA_2027 }));
@@ -2079,10 +2102,9 @@ function calculateSingleMonth(idx, year) {
   const flashIncome = incomeTotal(year, idx, true);
   const rawRec = regIncome + flashIncome;
   const recBase = S.exFlash ? regIncome : rawRec;
-  const pat = patrimonyFor(year, idx);
-  const rend = pat.rend;            // rendimento reinvestido: patrimônio, não caixa
+  const rend = incomeSrcTotal(year, idx, 'Rendimento CDI');   // rendimento real lançado (receita)
   const totalRec = recBase;
-  const inv = pat.aporte;           // aporte contratual sai do caixa para o patrimônio
+  const inv = investTotal(year, idx);                          // investimentos registrados no mês
   const econ = totalRec - inv - totalDesp;
 
   // Grupo efetivo do mês: uma fixa só é fixa nos meses em que houve gasto; caso contrário vira variável
@@ -2380,11 +2402,11 @@ function buildInsights() {
   INV.goals.slice(0, 2).forEach(g => {
     const a = invCalc(g);
     add(3, esc(g.name), a.ok ? 'No prazo' : 'Aporte insuficiente',
-      `Projeção de ${PCT(a.prog)} da meta em ${a.n} ${a.n === 1 ? 'mês' : 'meses'}. ${a.ok ? `Aporte atual de ${BRL(g.contrib || 0)}/mês é suficiente.` : `Aporte necessário: ${BRL(a.reqC)}/mês (informado: ${BRL(g.contrib || 0)}).`}`, a.ok);
+      `Projeção de ${PCT(a.prog)} da meta em ${a.n} ${a.n === 1 ? 'mês' : 'meses'}. ${a.ok ? `Ritmo atual de ${BRL(a.C)}/mês é suficiente.` : `Aporte necessário: ${BRL(a.reqC)}/mês (ritmo atual: ${BRL(a.C)}).`}`, a.ok);
   });
-  const res = INV.goals.find(g => g.type === 'reserva'), cota = res ? (res.contrib || 0) * p.validMonthsCount : 0;
+  const cota = INV.goals.reduce((s, g) => s + invCalc(g).reqC, 0) * p.validMonthsCount;
   if (cota > 0 && p.totalRec > 0) add(4, 'Aportes contratuais', p.totalInv >= cota ? 'Cota cumprida' : 'Abaixo da cota',
-    `Aportes de ${BRL(p.totalInv)} no período frente à cota de reserva de ${BRL(cota)}.`, p.totalInv >= cota);
+    `Aportes de ${BRL(p.totalInv)} no período frente a ${BRL(cota)} necessários para as metas.`, p.totalInv >= cota);
   const done = [];
   for (let i = 0; i < 12; i++) {
     if (S.year === t.getFullYear() && i > t.getMonth()) break;
@@ -2797,38 +2819,40 @@ function initCharts() {
   Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
   Chart.defaults.color = '#868993';
   Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
-  const ctx = document.getElementById('chartFlow').getContext('2d');
-  flowChart = new Chart(ctx, {
-    data: {
-      labels: M,
-      datasets: [
-        { type: 'bar', label: 'Receitas', backgroundColor: '#0E0F12', stack: 'r', borderRadius: 3, data: [] },
-        { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.16)', stack: 's', borderRadius: 3, data: [] },
-        { type: 'bar', label: 'Economia', backgroundColor: ACC(), stack: 's', borderRadius: 3, data: [] },
-        { type: 'bar', label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.42)', stack: 's', borderRadius: 3, data: [] }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+  flowChart = new Chart(document.getElementById('chartFlow').getContext('2d'), {
+    data: { labels: M, datasets: [
+      { type: 'bar', label: 'Receita', backgroundColor: '#0E0F12', borderRadius: 3, data: [] },
+      { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.22)', borderRadius: 3, data: [] },
+      { type: 'bar', label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.45)', borderRadius: 3, data: [] },
+      { type: 'bar', label: 'Rendimento real', backgroundColor: ACC(), borderRadius: 3, data: [] },
+      { type: 'line', label: 'Rendimento esperado', borderColor: '#868993', borderDash: [5, 4], borderWidth: 2, pointRadius: 3, tension: .3, data: [] }
+    ] },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { color: '#868993', font: { size: 10 } } },
-        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } }
-      }
-    }
+      scales: { x: { grid: { display: false }, ticks: { color: '#868993', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } } } }
   });
 }
 function updateFlowChart() {
   if (!flowChart) return;
-  const ms = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => calculateSingleMonth(i, S.year));
-  const v = (m, f) => m.isPending ? 0 : f(m);
-  flowChart.data.datasets[0].data = ms.map(m => v(m, x => x.totalRec));
-  flowChart.data.datasets[1].data = ms.map(m => v(m, x => x.totalDesp));
-  flowChart.data.datasets[2].data = ms.map(m => v(m, x => x.econ));
-  flowChart.data.datasets[3].data = ms.map(m => v(m, x => x.inv));
-  flowChart.data.datasets[2].backgroundColor = ACC();
+  const t = new Date(), y = S.year, nowIdx = t.getFullYear() * 12 + t.getMonth();
+  const ms = [...Array(12).keys()].map(m => calculateSingleMonth(m, y));
+  const fut = m => y * 12 + m > nowIdx;
+  const done = ms.filter((x, m) => !fut(m) && !x.isPending);
+  const avg = k => done.length ? done.reduce((s, x) => s + x[k], 0) / done.length : 0;
+  const base = { rec: avg('totalRec'), des: avg('totalDesp'), inv: avg('inv') };
+  const pick = (m, k, bk) => fut(m) ? base[bk] : (ms[m].isPending ? 0 : ms[m][k]);
+  const ds = flowChart.data.datasets;
+  ds[0].data = ms.map((x, m) => pick(m, 'totalRec', 'rec'));
+  ds[1].data = ms.map((x, m) => pick(m, 'totalDesp', 'des'));
+  ds[2].data = ms.map((x, m) => pick(m, 'inv', 'inv'));
+  ds[3].data = ms.map((x, m) => (fut(m) || ms[m].isPending) ? 0 : ms[m].rend);
+  ds[4].data = ms.map((x, m) => patrimonyFor(y, m).ini * monthlyRate());
+  ds[0].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.28)' : '#0E0F12');
+  ds[1].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.10)' : 'rgba(14, 15, 18, 0.22)');
+  ds[2].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.18)' : 'rgba(14, 15, 18, 0.45)');
+  ds[3].backgroundColor = ACC();
+  gid('chartSubLabel').textContent = 'Real até o mês atual · meses futuros projetados com as médias realizadas';
   flowChart.update();
 }
 
@@ -2966,8 +2990,8 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 let INV = JSON.parse(localStorage.getItem('cfo_inv') || 'null') || {
   prem: { cdi: 14.40, pct: 102, ipca: 4.50, ess: 2000, ref: '2026-10' },
   goals: [
-    { id: 1, name: 'Reserva de Emergência', type: 'reserva', months: 6, target: 0, deadline: '2027-12', balance: 0, contrib: 1186.52 },
-    { id: 2, name: 'Eurotrip 2027', type: 'viagem', months: 0, target: 20000, deadline: '2027-06', balance: 0, contrib: 0 }
+    { id: 1, name: 'Reserva de Emergência', target: 12000, deadline: '2027-12' },
+    { id: 2, name: 'Eurotrip 2027', target: 20000, deadline: '2027-06' }
   ]
 };
 const invSave = () => localStorage.setItem('cfo_inv', JSON.stringify(INV));
@@ -2976,43 +3000,40 @@ const irRate = n => n <= 6 ? 0.225 : n <= 12 ? 0.20 : n <= 24 ? 0.175 : 0.15;
 function invCalc(g) {
   const p = INV.prem, i = Math.pow(1 + p.cdi / 100 * p.pct / 100, 1 / 12) - 1, ipca = p.ipca / 100;
   const n = Math.max(1, ymIdx(g.deadline) - todayIdx()), t = irRate(n);
-  const tt = g.type === 'reserva' ? (g.months || 0) * p.ess : (g.target || 0);
-  const Tn = tt * Math.pow(1 + ipca, n / 12), P = g.balance || 0, C = g.contrib || 0;
+  const tt = g.target || 0, Tn = tt * Math.pow(1 + ipca, n / 12);
+  const P = goalBal(g), C = goalAvg(g);
   const gg = Math.pow(1 + i, n), A = (gg - 1) / i, kP = 1 + (1 - t) * (gg - 1), kC = n + (1 - t) * (A - n);
   const net = P * kP + C * kC;
-  return { n, t, tt, Tn, reqC: Math.max(0, (Tn - P * kP) / kC), net, real: net / Math.pow(1 + ipca, n / 12),
-           prog: Tn > 0 ? Math.min(1, net / Tn) : 0, ok: net >= Tn - 0.005 };
+  return { n, t, tt, Tn, C, reqC: Math.max(0, (Tn - P * kP) / kC), net, real: net / Math.pow(1 + ipca, n / 12),
+           prog: tt > 0 ? Math.min(1, P / tt) : 0, ok: net >= Tn - 0.005 };
 }
 const cellI = (c, v) => `<div class="arb-spotlight-item"><div class="caption">${c}</div><div class="val num">${v}</div></div>`;
 function invCard(g, a) {
-  const sel = t => g.type === t ? 'selected' : '';
-  const alvo = g.type === 'reserva'
-    ? `<label class="inv-field">Meses de cobertura<input class="app-input-field" type="number" min="1" step="1" data-f="months" value="${g.months || 0}"></label>`
-    : `<label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>`;
+  const bal = goalBal(g), done = a.tt > 0 && bal >= a.tt;
+  const falta = Math.max(0, a.tt - bal);
+  const prev = done ? 'concluída' : (a.C > 0 ? Math.ceil(falta / a.C) + ' meses' : 'sem aportes ainda');
   return `<section class="glass-card" data-id="${g.id}">
-    <div class="inv-goal-head"><input data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="badge-tag ${a.ok ? 'accent' : ''}">${a.ok ? 'No prazo' : 'Aporte insuficiente'}</span></div>
-    <div class="inv-grid" style="margin-top:0">
-      <label class="inv-field">Tipo<select class="app-input-field" data-f="type"><option value="reserva" ${sel('reserva')}>Reserva</option><option value="viagem" ${sel('viagem')}>Viagem / Objetivo</option></select></label>
-      ${alvo}
-      <label class="inv-field">Prazo (mês)<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
-      <label class="inv-field">Saldo atual (R$)<input class="app-input-field" type="number" step="0.01" data-f="balance" value="${g.balance || 0}"></label>
-      <label class="inv-field wide">Aporte mensal (R$)<input class="app-input-field" type="number" step="0.01" data-f="contrib" value="${g.contrib || 0}"></label>
+    <div class="inv-goal-head"><input data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="badge-tag ${done ? 'accent' : ''}">${done ? 'Concluída' : (a.ok ? 'No prazo' : 'Aporte insuficiente')}</span></div>
+    <div class="jar"><div class="jar-fill" style="height:${(a.prog * 100).toFixed(1)}%"></div>
+      <div class="jar-label"><b>${BRL(bal)}</b><span>de ${BRL(a.tt)} (valor de hoje)</span></div></div>
+    <div class="inv-grid" style="margin-top:14px">
+      <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
+      <label class="inv-field">Prazo<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
     </div>
-    <div class="budget-rail-track" style="margin-top:14px"><div class="budget-rail-fill" style="width:${(a.prog * 100).toFixed(1)}%"></div></div>
-    <div class="arb-spotlight-grid" style="margin:14px 0 0">${cellI('Alvo nominal no prazo', BRL(a.Tn))}${cellI('Aporte necessário/mês', BRL(a.reqC))}${cellI('Projeção líquida c/ aporte', BRL(a.net))}${cellI('Valor Alvo da Meta', BRL(a.real))}</div>
-    <div class="inv-note">${a.n} meses até o prazo · IR ${(a.t * 100).toFixed(1)}% · alvo de ${BRL(a.tt)} em valores de hoje</div>
-    <div style="text-align:right;margin-top:10px"><button class="inv-danger" data-del="${g.id}">Remover meta</button></div>
+    <div class="arb-spotlight-grid" style="margin:14px 0 0">${cellI('Ritmo médio/mês', BRL(a.C))}${cellI('Falta guardar', BRL(falta))}${cellI('Necessário/mês', BRL(a.reqC))}${cellI('Valor Alvo da Meta', BRL(a.tt))}</div>
+    <p class="inv-note">Previsão: ${prev}. Para guardar dinheiro nesta meta, registre em Construção de Patrimônio escolhendo a meta como destino.</p>
+    <div style="text-align:right;margin-top:8px"><button class="inv-danger" data-del="${g.id}">Remover meta</button></div>
   </section>`;
 }
 function renderInvest() {
   const rows = INV.goals.map(g => ({ g, a: invCalc(g) }));
   const sum = f => rows.reduce((s, r) => s + f(r), 0);
-  gid('invSummary').innerHTML = cellI('Metas', INV.goals.length) + cellI('Saldo acumulado', BRL(sum(r => r.g.balance || 0)))
-    + cellI('Aporte informado/mês', BRL(sum(r => r.g.contrib || 0))) + cellI('Aporte necessário/mês', BRL(sum(r => r.a.reqC)));
+  gid('invSummary').innerHTML = cellI('Metas', INV.goals.length) + cellI('Total guardado', BRL(sum(r => goalBal(r.g))))
+    + cellI('Ritmo médio/mês', BRL(sum(r => r.a.C))) + cellI('Necessário/mês', BRL(sum(r => r.a.reqC)));
   gid('invGoals').innerHTML = rows.map(({ g, a }) => invCard(g, a)).join('');
 }
 function invSummaryText() {
-  return INV.goals.map(g => { const a = invCalc(g); return `${g.name}: alvo ${BRL(a.Tn)} até ${g.deadline}, saldo ${BRL(g.balance || 0)}, aporte ${BRL(g.contrib || 0)}/mês, projeção líquida ${BRL(a.net)}`; }).join('; ') || 'nenhuma meta cadastrada';
+  return INV.goals.map(g => { const a = invCalc(g); return `${g.name}: alvo ${BRL(a.tt)} (hoje) até ${g.deadline}, guardado ${BRL(goalBal(g))}, ritmo ${BRL(a.C)}/mês`; }).join('; ') || 'nenhuma meta cadastrada';
 }
 function avgEssentials() {
   let sum = 0, cnt = 0;
@@ -3020,7 +3041,7 @@ function avgEssentials() {
     const m = calculateSingleMonth(i, S.year);
     if (m.isPending) continue;
     cnt++;
-    for (const c in customCategories) if (customCategories[c].group !== 'NESS') sum += m.cats[c] || 0;
+    for (const c in customCategories) sum += m.cats[c] || 0;
   }
   return cnt ? sum / cnt : 0;
 }
@@ -3040,12 +3061,13 @@ gid('view-invest').addEventListener('click', e => {
   INV.goals = INV.goals.filter(x => String(x.id) !== d); invSave(); renderInvest();
 });
 gid('invAdd').onclick = () => {
-  const name = gid('invNewName').value.trim(), type = gid('invNewType').value, dl = gid('invNewDeadline').value;
+  const name = gid('invNewName').value.trim(), dl = gid('invNewDeadline').value, tv = parseFloat(gid('invNewTarget').value) || 0;
   if (!name) { gid('invMsg').textContent = 'Dê um nome para a meta.'; return; }
+  if (tv <= 0) { gid('invMsg').textContent = 'Informe o valor-alvo.'; return; }
   if (!dl) { gid('invMsg').textContent = 'Informe o prazo.'; return; }
-  INV.goals.push({ id: Date.now(), name, type, months: type === 'reserva' ? 6 : 0, target: type === 'reserva' ? 0 : 10000, deadline: dl, balance: 0, contrib: 0 });
-  gid('invNewName').value = ''; gid('invMsg').textContent = '';
-  invSave(); renderInvest();
+  INV.goals.push({ id: Date.now(), name, target: tv, deadline: dl });
+  gid('invNewName').value = ''; gid('invNewTarget').value = ''; gid('invMsg').textContent = '';
+  invSave(); renderInvest(); updateApplication();
 };
 gid('invUseApp').onclick = () => { INV.prem.ess = Math.round(avgEssentials() * 100) / 100; gid('inv_ess').value = INV.prem.ess; invSave(); renderInvest(); };
 
@@ -3082,7 +3104,7 @@ function applyAccent(hex) {
     if (typeof knotHero !== 'undefined' && knotHero) knotHero.material.color.set(hex);
     if (typeof polyWealth !== 'undefined' && polyWealth) polyWealth.material.color.set(hex);
   } catch (e) { console.warn(e); }
-  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[2].backgroundColor = hex; updateFlowChart(); }
+  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[3].backgroundColor = hex; updateFlowChart(); }
 }
 const loadAccent = () => normHex(localStorage.getItem('cfo_accent_v4')) || ACCENT_DEFAULT;
 function openPersonal() {
@@ -3107,17 +3129,22 @@ const patSave = () => localStorage.setItem('cfo_patr', JSON.stringify(PAT));
 const monthlyRate = () => Math.pow(1 + INV.prem.cdi / 100 * INV.prem.pct / 100, 1 / 12) - 1;
 // Saldo e movimentos de um mês civil a partir do patrimônio informado
 function patrimonyFor(year, idx) {
-  const k = (year * 12 + idx) - ymIdx(PAT.baseYm);
-  if (k < 0) return { ini: 0, rend: 0, aporte: 0, end: 0 };
-  const i = monthlyRate(), A = PAT.aporte || 0;
-  let P = PAT.base || 0;
-  for (let j = 0; j < k; j++) P = P * (1 + i) + A;
-  const rend = P * i;
-  return { ini: P, rend, aporte: A, end: P + rend + A };
+  const k = year * 12 + idx, i = monthlyRate();
+  const first = (S.invest || []).length ? Math.min(...S.invest.map(e => e.year * 12 + e.i)) : k + 1;
+  let P = 0;
+  for (let t = first; t <= k; t++) {
+    const y = Math.floor(t / 12), m = t % 12;
+    const real = incomeSrcTotal(y, m, 'Rendimento CDI');
+    const rend = real > 0 ? real : P * i;
+    const inv = investTotal(y, m);
+    const ini = P;
+    P = P + rend + inv;
+    if (t === k) return { ini, rend, aporte: inv, end: P };
+  }
+  return { ini: 0, rend: 0, aporte: 0, end: 0 };
 }
 function patrimonyNow() {
   const t = new Date();
-  if ((t.getFullYear() * 12 + t.getMonth()) < ymIdx(PAT.baseYm)) return PAT.base || 0;
   return patrimonyFor(t.getFullYear(), t.getMonth()).end;
 }
 // Projeção de n meses: bruto, líquido de IR regressivo, real e parcela vinda de rendimento
@@ -3139,8 +3166,8 @@ function patSeries(P0, A, N) {
   return { labels, principal, yields };
 }
 // Recomendação: receita de caixa do mês − essenciais, distribuída às metas por prazo
-function patRecommendation() {
-  const t = new Date(), year = t.getFullYear(), idx = t.getMonth(), m = calculateSingleMonth(idx, year);
+function patRecommendation(year, idx) {
+  const m = calculateSingleMonth(idx, year);
   const receita = m.isPending ? 0 : m.totalRec;
   const prev = { FIX: 0, ESS: 0, NESS: 0 }, lines = { FIX: [], ESS: [], NESS: [] };
   for (const c in customCategories) {
@@ -3151,11 +3178,11 @@ function patRecommendation() {
   }
   const despPrev = prev.FIX + prev.ESS + prev.NESS;
   const disp = Math.max(0, receita - despPrev);
-  let rem = disp;
-  const rows = INV.goals.map(g => ({ g, a: invCalc(g) }))
-    .sort((x, y) => ymIdx(x.g.deadline) - ymIdx(y.g.deadline))
-    .map(({ g, a }) => { const alloc = Math.min(a.reqC, rem); rem -= alloc; return { g, a, alloc }; });
-  return { receita, prev, lines, despPrev, disp, rows, total: disp - rem, excess: rem };
+  const need = INV.goals.map(g => ({ g, a: invCalc(g) })).sort((x, y) => ymIdx(x.g.deadline) - ymIdx(y.g.deadline));
+  const total = Math.min(disp, need.reduce((s, x) => s + x.a.reqC, 0));
+  let rem = total;
+  const rows = need.map(({ g, a }) => { const alloc = Math.min(a.reqC, rem); rem -= alloc; return { g, a, alloc }; });
+  return { receita, prev, lines, despPrev, disp, rows, total, excess: disp - total };
 }
 // Simulações de horizonte: cada uma com nome, período livre (meses ou anos)
 let HZ = JSON.parse(localStorage.getItem('cfo_hz') || 'null') || [
@@ -3165,7 +3192,7 @@ const hzSave = () => localStorage.setItem('cfo_hz', JSON.stringify(HZ));
 const hzMonths = h => Math.min(480, Math.max(1, Math.floor(h.u === 'a' ? h.v * 12 : h.v)));
 function renderHorizons(P, A) {
   gid('patHorizons').innerHTML = HZ.map((h, k) => {
-    const n = hzMonths(h), r = projectPat(P, A, n);
+    const n = hzMonths(h), r = projectPat(P, A, n), put = P + A * n, mult = put > 0 ? r.net / put : 0;
     return `<div class="hz-card">
       <div class="hz-top">
         <input class="hz-name" data-hz="${k}" data-hf="label" value="${esc(h.label)}" aria-label="Nome da simulação">
@@ -3179,14 +3206,23 @@ function renderHorizons(P, A) {
         </div>
       </div>
       <div class="hz-values">
-        <div><span>Líquido</span><b>${BRL(r.net)}</b></div>
+        <div><span>Você põe</span><b>${BRL(put)}</b></div>
+        <div><span>Vira (líquido)</span><b>${BRL(r.net)}</b></div>
         <div><span>Real (IPCA)</span><b>${BRL(r.real)}</b></div>
-        <div><span>Rendimento</span><b>${BRL(r.yieldNet)}</b></div>
       </div>
       <div class="hz-bar"><i style="width:${(r.share * 100).toFixed(1)}%"></i></div>
-      <div class="inv-note">${PCT(r.share)} do valor final vem de rendimento · ${n} meses</div>
+      <div class="inv-note">${PCT(r.share)} do valor final vem de rendimento · ${mult.toFixed(1)}x o que foi investido · ${n} meses</div>
     </div>`;
   }).join('');
+}
+function renderCC() {
+  const V = parseFloat(gid('ccVal').value) || 0, Y = Math.max(1, Math.floor(parseFloat(gid('ccYears').value) || 1));
+  const r = projectPat(V, 0, Y * 12);
+  gid('ccOut').innerHTML = `<div class="cc-card">
+    <div class="cc-sub">${BRL(V)} hoje, se fossem investidos a ${INV.prem.pct}% do CDI, em ${Y} ${Y === 1 ? 'ano' : 'anos'} viram</div>
+    <div class="cc-big accent">${BRL(r.net)}</div>
+    <div class="cc-sub">líquidos de IR (${BRL(r.real)} em valor de hoje). Gastar agora custa ${BRL(r.net - V)} do seu patrimônio futuro.</div>
+  </div>`;
 }
 gid('patHorizons').addEventListener('change', e => {
   const k = +e.target.dataset.hz, f = e.target.dataset.hf;
@@ -3202,27 +3238,33 @@ gid('patHorizons').addEventListener('click', e => {
 gid('hzAdd').onclick = () => { HZ.push({ label: `Simulação ${HZ.length + 1}`, v: 5, u: 'a' }); hzSave(); renderPatrimony(); };
 
 function renderPatrimony() {
-  const P = patrimonyNow(), i = monthlyRate(), A = PAT.aporte || 0, rec = patRecommendation();
-  const set = (id, v) => { const el = gid(id); if (el && document.activeElement !== el) el.value = v; };
-  set('patBase', PAT.base || 0); set('patBaseYm', PAT.baseYm); set('patAporte', A);
-  gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês (est.)', BRL(P * i))
-    + cellI('Aporte contratual/mês', BRL(A)) + cellI('Investimento sugerido', BRL(rec.total));
-  const row = (l, v) => `<div class="lx-sum-row"><span>${l}</span><b>${v}</b></div>`;
-  const grp = (title, key) => `<div class="cm-section-title" style="margin-top:12px"><span>${title}</span><span>${BRL(rec.prev[key])}</span></div>`
-    + (rec.lines[key].length ? rec.lines[key].map(([c, v]) => row(esc(c), BRL(v))).join('') : row('Nenhuma prevista', BRL(0)));
-  gid('patRec').innerHTML = `
-    <div class="lx-sum">${row('Receita do mês (caixa)', BRL(rec.receita))}</div>
-    <div class="lx-sum" style="margin-top:8px">
-      <div class="cm-section-title" style="margin:0"><span>Despesas previstas</span><span>${BRL(rec.despPrev)}</span></div>
-      ${grp('Fixas', 'FIX')}${grp('Essenciais', 'ESS')}${grp('Variáveis', 'NESS')}
-    </div>
-    <div class="lx-sum" style="margin-top:8px">
-      ${row('Disponível para investir', BRL(rec.disp))}
-      ${rec.rows.map(r => row(esc(r.g.name) + ' · ' + (r.a.ok ? 'no prazo' : 'necessário ' + BRL(r.a.reqC)), BRL(r.alloc))).join('')}
-      ${row('Excedente livre', BRL(rec.excess))}
-    </div>
-    ${A > rec.disp + 0.005 ? `<p class="inv-note">O aporte contratual de ${BRL(A)} excede o disponível para investir.</p>` : ''}`;
+  const y = S.year, i = S.lastAnchorMonth, pm = patrimonyFor(y, i), P = patrimonyNow(), A = investAvg();
+  const rec = patRecommendation(y, i), already = investTotal(y, i);
+  gid('patMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
+  gid('recMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
+  gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês', BRL(pm.rend))
+    + cellI('Investido no mês', BRL(already)) + cellI('Média mensal investida', BRL(A));
+  const sel = gid('patNewGoal'), cur = sel.value;
+  sel.innerHTML = '<option value="">Patrimônio geral</option>' + INV.goals.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  sel.value = cur;
+  const list = (S.invest || []).filter(e => e.year === y && e.i === i);
+  gid('patMonthTotal').textContent = BRL(already);
+  gid('patList').innerHTML = list.map(e => `<div class="lx-item"><div class="lx-item-info"><b>${BRL(e.v)}</b><span>${e.goal ? esc(goalName(e.goal)) : 'Patrimônio geral'}</span></div><button class="lx-del" data-pat-del="${e.id}">Excluir</button></div>`).join('')
+    || '<div class="lx-empty">Nenhum investimento registrado neste mês.</div>';
+  const row = (l, v, strong) => `<div class="rec-row${strong ? ' strong' : ''}"><span>${l}</span><b>${v}</b></div>`;
+  const grp = (title, key) => `<div class="rec-h"><span>${title}</span><span>${BRL(rec.prev[key])}</span></div>`
+    + (rec.lines[key].map(([c, v]) => row(esc(c), BRL(v))).join('') || row('Nenhuma prevista', BRL(0)));
+  gid('patRec').innerHTML = row('Receita do mês (inclui rendimento real)', BRL(rec.receita), true)
+    + row('Despesas previstas', BRL(rec.despPrev), true)
+    + grp('Fixas', 'FIX') + grp('Essenciais', 'ESS') + grp('Variáveis', 'NESS')
+    + row('Disponível para investir', BRL(rec.disp), true)
+    + row('Investimento sugerido', BRL(rec.total), true)
+    + row('Já investido neste mês', BRL(already))
+    + row('Falta investir', BRL(Math.max(0, rec.total - already)), true)
+    + '<div class="rec-h"><span>Metas</span></div>'
+    + (rec.rows.length ? rec.rows.map(r => row(esc(r.g.name), BRL(r.alloc))).join('') : row('Nenhuma meta cadastrada', BRL(0)));
   renderHorizons(P, A);
+  renderCC();
   const maxN = Math.min(480, Math.max(12, ...HZ.map(hzMonths))), s = patSeries(P, A, maxN), ctx = document.getElementById('chartPatr');
   if (!patChart && ctx) {
     patChart = new Chart(ctx, {
@@ -3252,19 +3294,16 @@ gid('view-strategy').addEventListener('change', e => {
   else PAT[k] = parseFloat(e.target.value) || 0;
   patSave(); updateApplication();
 });
-gid('patUseRec').onclick = () => {
-  PAT.aporte = Math.round(patRecommendation().total * 100) / 100;
-  patSave(); updateApplication();
-};
 
 /* ==================== CATEGORIAS E FONTES DE RECEITA ==================== */
 const FLASH_CAT_DEFAULT = ['Alimentação', 'Carro de Aplicativo'];
-const INCOME_PROTECTED = ['Salário', 'USP', 'Imprevisível', 'VT', 'VR'];
+const INCOME_PROTECTED = ['Salário', 'USP', 'Imprevisível', 'VT', 'VR', 'Rendimento CDI'];
 const INCOME_DEFAULT = [
   { name: 'Salário', flash: false }, { name: 'USP', flash: false }, { name: 'Imprevisível', flash: false },
   { name: 'VT', flash: true }, { name: 'VR', flash: true }
 ];
 let INCOME_SOURCES = JSON.parse(localStorage.getItem('cfo_isrc') || 'null') || INCOME_DEFAULT.map(x => ({ ...x }));
+if (!INCOME_SOURCES.some(x => x.name === 'Rendimento CDI')) INCOME_SOURCES.push({ name: 'Rendimento CDI', flash: false });
 const isrcSave = () => localStorage.setItem('cfo_isrc', JSON.stringify(INCOME_SOURCES));
 const GROUP_LABEL = { ESS: 'Essencial · 80%', NESS: 'Variável · 20%', FIX: 'Fixa' };
 const catFlash = c => (customCategories[c] && customCategories[c].flash !== undefined) ? !!customCategories[c].flash : FLASH_CAT_DEFAULT.includes(c);
@@ -3419,6 +3458,34 @@ gid('cmList').addEventListener('click', e => {
   else if (t.cmSave !== undefined) cmSave(t.cmSave);
   else if (t.cmDel !== undefined) cmDelete(t.cmDel);
 });
+
+/* ==================== LEDGER DE INVESTIMENTOS (v14) ==================== */
+const investTotal = (y, i, goalId) => (S.invest || []).filter(e => e.year === y && e.i === i && (goalId === undefined || e.goal === goalId)).reduce((s, e) => s + e.v, 0);
+const incomeSrcTotal = (y, i, src) => (S.incomes || []).filter(x => x.year === y && x.i === i && x.src === src).reduce((s, x) => s + x.v, 0);
+function goalBal(g) { return (S.invest || []).filter(e => e.goal === g.id).reduce((s, e) => s + e.v, 0); }
+function avgOverSixMonths(filterFn) {
+  const b = S.year * 12 + S.lastAnchorMonth; let s = 0;
+  for (let k = 0; k < 6; k++) { const x = b - k; s += (S.invest || []).filter(e => e.year * 12 + e.i === x && filterFn(e)).reduce((a, e) => a + e.v, 0); }
+  return s / 6;
+}
+const goalAvg = g => avgOverSixMonths(e => e.goal === g.id);
+const investAvg = () => avgOverSixMonths(() => true);
+function goalName(id) { const g = INV.goals.find(x => x.id === id); return g ? g.name : 'Meta removida'; }
+gid('patAdd').onclick = () => {
+  const v = parseFloat(gid('patNewVal').value) || 0, msg = gid('patMsg'), gv = gid('patNewGoal').value;
+  if (v <= 0) { msg.textContent = 'Informe um valor maior que zero.'; return; }
+  S.invest.push({ id: Date.now(), year: S.year, i: S.lastAnchorMonth, v, goal: gv ? +gv : null });
+  gid('patNewVal').value = ''; msg.textContent = '';
+  updateApplication();
+};
+gid('patList').addEventListener('click', e => {
+  const id = e.target.dataset.patDel;
+  if (!id) return;
+  S.invest = S.invest.filter(x => String(x.id) !== id);
+  updateApplication();
+});
+gid('ccVal').addEventListener('input', renderCC);
+gid('ccYears').addEventListener('input', renderCC);
 
 /* ==================== GLOBAL ROUTER & CONTROLS ==================== */
 function goToTab(targetId) {
