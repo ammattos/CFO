@@ -1738,7 +1738,8 @@ button, input, select {
     <!-- CONSTRUÇÃO DE PATRIMÔNIO (ledger mensal) -->
     <section class="glass-card">
       <div class="glass-card-header"><div><h2 class="glass-card-title">Construção de Patrimônio</h2><div class="glass-card-sub" id="patMonthLabel">Mês selecionado</div></div></div>
-      <div class="arb-spotlight-grid" id="patSummary" style="margin:0"></div>
+      <div class="inv-grid" style="margin-top:0"><label class="inv-field wide">Já tenho guardado (saldo atual, R$)<input class="app-input-field" id="patOpen" data-p="open" type="number" step="0.01"></label></div>
+      <div class="arb-spotlight-grid" id="patSummary" style="margin:14px 0 0"></div>
       <div class="inv-grid" style="margin-top:14px">
         <label class="inv-field">Investido neste mês (R$)<input class="app-input-field" id="patNewVal" type="number" step="0.01" placeholder="0,00"></label>
         <label class="inv-field">Destino<select class="app-input-field" id="patNewGoal"></select></label>
@@ -1861,6 +1862,7 @@ button, input, select {
     <div class="inv-grid" style="margin-top:0">
       <label class="inv-field wide">Nome da meta<input class="app-input-field" id="invNewName" placeholder="Ex.: Carro novo, Viagem Japão"></label>
       <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" id="invNewTarget" type="number" step="0.01"></label>
+      <label class="inv-field">Já guardado (R$)<input class="app-input-field" id="invNewOpen" type="number" step="0.01"></label>
       <label class="inv-field">Prazo<input class="app-input-field" id="invNewDeadline" type="month"></label>
     </div>
     <button class="manage-cats-btn" id="invAdd">Criar meta</button>
@@ -2820,12 +2822,12 @@ function initCharts() {
   Chart.defaults.color = '#868993';
   Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
   flowChart = new Chart(document.getElementById('chartFlow').getContext('2d'), {
+    type: 'bar',
     data: { labels: M, datasets: [
-      { type: 'bar', label: 'Receita', backgroundColor: '#0E0F12', borderRadius: 3, data: [] },
-      { type: 'bar', label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.22)', borderRadius: 3, data: [] },
-      { type: 'bar', label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.45)', borderRadius: 3, data: [] },
-      { type: 'bar', label: 'Rendimento real', backgroundColor: ACC(), borderRadius: 3, data: [] },
-      { type: 'line', label: 'Rendimento esperado', borderColor: '#868993', borderDash: [5, 4], borderWidth: 2, pointRadius: 3, tension: .3, data: [] }
+      { label: 'Receita', backgroundColor: '#0E0F12', borderRadius: 3, data: [] },
+      { label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.22)', borderRadius: 3, data: [] },
+      { label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.45)', borderRadius: 3, data: [] },
+      { label: 'Rendimento CDI (sólido = lançado, claro = esperado)', backgroundColor: ACC(), borderRadius: 3, data: [] }
     ] },
     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
@@ -2843,16 +2845,17 @@ function updateFlowChart() {
   const base = { rec: avg('totalRec'), des: avg('totalDesp'), inv: avg('inv') };
   const pick = (m, k, bk) => fut(m) ? base[bk] : (ms[m].isPending ? 0 : ms[m][k]);
   const ds = flowChart.data.datasets;
+  const rend = ms.map((x, m) => patrimonyFor(y, m, true).rend);
+  const realR = ms.map((x, m) => incomeSrcTotal(y, m, 'Rendimento CDI') > 0);
   ds[0].data = ms.map((x, m) => pick(m, 'totalRec', 'rec'));
   ds[1].data = ms.map((x, m) => pick(m, 'totalDesp', 'des'));
   ds[2].data = ms.map((x, m) => pick(m, 'inv', 'inv'));
-  ds[3].data = ms.map((x, m) => (fut(m) || ms[m].isPending) ? 0 : ms[m].rend);
-  ds[4].data = ms.map((x, m) => patrimonyFor(y, m).ini * monthlyRate());
+  ds[3].data = rend;
   ds[0].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.28)' : '#0E0F12');
   ds[1].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.10)' : 'rgba(14, 15, 18, 0.22)');
   ds[2].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.18)' : 'rgba(14, 15, 18, 0.45)');
-  ds[3].backgroundColor = ACC();
-  gid('chartSubLabel').textContent = 'Real até o mês atual · meses futuros projetados com as médias realizadas';
+  ds[3].backgroundColor = ms.map((x, m) => realR[m] ? ACC() : 'rgba(155, 184, 211, 0.45)');
+  gid('chartSubLabel').textContent = 'Real até o mês atual · rendimento esperado sobre o saldo até ser lançado · meses futuros com as médias';
   flowChart.update();
 }
 
@@ -3018,6 +3021,7 @@ function invCard(g, a) {
       <div class="jar-label"><b>${BRL(bal)}</b><span>de ${BRL(a.tt)} (valor de hoje)</span></div></div>
     <div class="inv-grid" style="margin-top:14px">
       <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
+      <label class="inv-field">Já guardado (R$)<input class="app-input-field" type="number" step="0.01" data-f="open" value="${g.open || 0}"></label>
       <label class="inv-field">Prazo<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
     </div>
     <div class="arb-spotlight-grid" style="margin:14px 0 0">${cellI('Ritmo médio/mês', BRL(a.C))}${cellI('Falta guardar', BRL(falta))}${cellI('Necessário/mês', BRL(a.reqC))}${cellI('Valor Alvo da Meta', BRL(a.tt))}</div>
@@ -3051,7 +3055,7 @@ gid('view-invest').addEventListener('change', e => {
   if (k) INV.prem[k] = k === 'ref' ? e.target.value : (parseFloat(e.target.value) || 0);
   else if (f) {
     const g = INV.goals.find(x => x.id === +e.target.closest('[data-id]').dataset.id);
-    g[f] = ['months', 'target', 'balance', 'contrib'].includes(f) ? (parseFloat(e.target.value) || 0) : e.target.value;
+    g[f] = ['months', 'target', 'balance', 'contrib', 'open'].includes(f) ? (parseFloat(e.target.value) || 0) : e.target.value;
   } else return;
   invSave(); renderInvest();
 });
@@ -3065,7 +3069,8 @@ gid('invAdd').onclick = () => {
   if (!name) { gid('invMsg').textContent = 'Dê um nome para a meta.'; return; }
   if (tv <= 0) { gid('invMsg').textContent = 'Informe o valor-alvo.'; return; }
   if (!dl) { gid('invMsg').textContent = 'Informe o prazo.'; return; }
-  INV.goals.push({ id: Date.now(), name, target: tv, deadline: dl });
+  INV.goals.push({ id: Date.now(), name, target: tv, deadline: dl, open: parseFloat(gid('invNewOpen').value) || 0 });
+  gid('invNewOpen').value = '';
   gid('invNewName').value = ''; gid('invNewTarget').value = ''; gid('invMsg').textContent = '';
   invSave(); renderInvest(); updateApplication();
 };
@@ -3128,20 +3133,25 @@ let patChart = null;
 const patSave = () => localStorage.setItem('cfo_patr', JSON.stringify(PAT));
 const monthlyRate = () => Math.pow(1 + INV.prem.cdi / 100 * INV.prem.pct / 100, 1 / 12) - 1;
 // Saldo e movimentos de um mês civil a partir do patrimônio informado
-function patrimonyFor(year, idx) {
-  const k = year * 12 + idx, i = monthlyRate();
-  const first = (S.invest || []).length ? Math.min(...S.invest.map(e => e.year * 12 + e.i)) : k + 1;
-  let P = 0;
+function patrimonyFor(year, idx, projected) {
+  // Timeline: saldo inicial entra no mês atual; rendimento é real quando lançado, senão esperado sobre o saldo;
+  // meses futuros (com projected) usam a média de aportes realizados
+  const k = year * 12 + idx, i = monthlyRate(), t0 = new Date(), now = t0.getFullYear() * 12 + t0.getMonth();
+  const starts = (S.invest || []).map(e => e.year * 12 + e.i);
+  const anchor = t0.getFullYear() * 12;   // saldo inicial = saldo de 1º de janeiro do ano atual
+  const first = Math.min(anchor, starts.length ? Math.min(...starts) : anchor);
+  let P = 0, res = { ini: 0, rend: 0, aporte: 0, end: 0 };
   for (let t = first; t <= k; t++) {
+    if (t === anchor) P += PAT.open || 0;
     const y = Math.floor(t / 12), m = t % 12;
     const real = incomeSrcTotal(y, m, 'Rendimento CDI');
     const rend = real > 0 ? real : P * i;
-    const inv = investTotal(y, m);
+    const inv = (projected && t > now) ? investAvg() : investTotal(y, m);
     const ini = P;
     P = P + rend + inv;
-    if (t === k) return { ini, rend, aporte: inv, end: P };
+    if (t === k) res = { ini, rend, aporte: inv, end: P };
   }
-  return { ini: 0, rend: 0, aporte: 0, end: 0 };
+  return res;
 }
 function patrimonyNow() {
   const t = new Date();
@@ -3241,6 +3251,7 @@ function renderPatrimony() {
   const y = S.year, i = S.lastAnchorMonth, pm = patrimonyFor(y, i), P = patrimonyNow(), A = investAvg();
   const rec = patRecommendation(y, i), already = investTotal(y, i);
   gid('patMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
+  if (gid('patOpen') && document.activeElement !== gid('patOpen')) gid('patOpen').value = PAT.open || 0;
   gid('recMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
   gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês', BRL(pm.rend))
     + cellI('Investido no mês', BRL(already)) + cellI('Média mensal investida', BRL(A));
@@ -3462,7 +3473,7 @@ gid('cmList').addEventListener('click', e => {
 /* ==================== LEDGER DE INVESTIMENTOS (v14) ==================== */
 const investTotal = (y, i, goalId) => (S.invest || []).filter(e => e.year === y && e.i === i && (goalId === undefined || e.goal === goalId)).reduce((s, e) => s + e.v, 0);
 const incomeSrcTotal = (y, i, src) => (S.incomes || []).filter(x => x.year === y && x.i === i && x.src === src).reduce((s, x) => s + x.v, 0);
-function goalBal(g) { return (S.invest || []).filter(e => e.goal === g.id).reduce((s, e) => s + e.v, 0); }
+function goalBal(g) { return (g.open || 0) + (S.invest || []).filter(e => e.goal === g.id).reduce((s, e) => s + e.v, 0); }
 function avgOverSixMonths(filterFn) {
   const b = S.year * 12 + S.lastAnchorMonth; let s = 0;
   for (let k = 0; k < 6; k++) { const x = b - k; s += (S.invest || []).filter(e => e.year * 12 + e.i === x && filterFn(e)).reduce((a, e) => a + e.v, 0); }
