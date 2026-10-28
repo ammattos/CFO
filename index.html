@@ -1497,6 +1497,22 @@ button, input, select {
 .cc-big{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
 .cc-big.accent{color:var(--accent-text)}
 .cc-sub{font-size:12px;color:var(--muted);line-height:1.5}
+/* ===== v17 ===== */
+.inv-stat{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.inv-stat span{font-size:12px;color:var(--muted)}
+.inv-stat b{font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.inv-divider{height:.5px;background:var(--hairline);margin:16px 0}
+.goal-item{padding:18px;border-radius:18px;background:var(--bg-card);border:.5px solid var(--hairline);display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.goal-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.goal-name{font-weight:600;font-size:15px;background:none;border:none;color:var(--ink);padding:0;min-width:0;flex:1}
+.goal-status{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;white-space:nowrap}
+.goal-amount{font-size:13px;color:var(--muted)}
+.goal-amount b{color:var(--ink);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.goal-track{height:5px;border-radius:99px;background:rgba(14,15,18,.07);overflow:hidden}
+.goal-track i{display:block;height:100%;background:var(--ink);border-radius:99px}
+.goal-facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted)}
+.goal-edit summary{font-size:12px;color:var(--muted);cursor:pointer}
+.goal-edit[open] .inv-grid{margin-top:12px}
 </style>
 </head>
 <body>
@@ -1735,26 +1751,6 @@ button, input, select {
       </div>
     </section>
 
-    <!-- CONSTRUÇÃO DE PATRIMÔNIO (ledger mensal) -->
-    <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Construção de Patrimônio</h2><div class="glass-card-sub" id="patMonthLabel">Mês selecionado</div></div></div>
-      <div class="inv-grid" style="margin-top:0"><label class="inv-field wide">Já tenho guardado (saldo atual, R$)<input class="app-input-field" id="patOpen" data-p="open" type="number" step="0.01"></label></div>
-      <div class="arb-spotlight-grid" id="patSummary" style="margin:14px 0 0"></div>
-      <div class="inv-grid" style="margin-top:14px">
-        <label class="inv-field">Investido neste mês (R$)<input class="app-input-field" id="patNewVal" type="number" step="0.01" placeholder="0,00"></label>
-        <label class="inv-field">Destino<select class="app-input-field" id="patNewGoal"></select></label>
-      </div>
-      <button class="manage-cats-btn" id="patAdd">Registrar investimento</button>
-      <div class="lx-err" id="patMsg"></div>
-      <div class="cm-section-title" style="margin-top:14px"><span>Investimentos do mês</span><span id="patMonthTotal"></span></div>
-      <div id="patList"></div>
-    </section>
-
-    <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Recomendação de Aporte</h2><div class="glass-card-sub" id="recMonthLabel">Mês selecionado</div></div></div>
-      <div id="patRec"></div>
-    </section>
-
     <section class="glass-card">
       <div class="glass-card-header"><div><h2 class="glass-card-title">Efeito Bola de Neve</h2><div class="glass-card-sub">O que um gasto de hoje custa no seu futuro</div></div></div>
       <div class="inv-grid" style="margin-top:0">
@@ -1765,7 +1761,6 @@ button, input, select {
       <div id="patHorizons" class="hz-list"></div>
       <button class="manage-cats-btn" id="hzAdd">+ Nova simulação</button>
       <div class="chart-container-box" style="height:200px"><canvas id="chartPatr"></canvas></div>
-      <button class="manage-cats-btn" onclick="goToTab('view-invest')">Editar metas de investimento</button>
     </section>
 
     <!-- Arbitragem Geográfica: Scroller de Cidades sem Cortes -->
@@ -1843,33 +1838,56 @@ button, input, select {
     </section>
   </main>
 
-  <!-- ==================== TAB 5: PLANEJAMENTO DE INVESTIMENTOS ==================== -->
+  <!-- ==================== TAB 5: INVESTIMENTOS ==================== -->
   <main id="view-invest" class="view">
-    <div class="section-headline">Planejamento de Investimentos</div>
+    <div class="section-headline">Investimentos</div>
+
     <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Premissas</h2><div class="glass-card-sub">Taxas e referências das projeções</div></div></div>
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Patrimônio</h2><div class="glass-card-sub" id="patMonthLabel">Mês selecionado</div></div></div>
+      <div class="inv-stat"><span>Patrimônio hoje</span><b id="patToday">R$ 0,00</b></div>
+      <label class="inv-field">Já tenho guardado (saldo atual, R$)<input class="app-input-field" id="patOpen" data-p="open" type="number" step="0.01"></label>
+      <div class="inv-divider"></div>
+      <div class="inv-grid" style="margin-top:0">
+        <label class="inv-field">Investi neste mês (R$)<input class="app-input-field" id="patNewVal" type="number" step="0.01" placeholder="0,00"></label>
+        <label class="inv-field">Destino<select class="app-input-field" id="patNewGoal"></select></label>
+      </div>
+      <button class="manage-cats-btn" id="patAdd">Registrar</button>
+      <div class="lx-err" id="patMsg"></div>
+      <div class="cm-section-title" style="margin-top:12px"><span>Investido neste mês</span><span id="patMonthTotal"></span></div>
+      <div id="patList"></div>
+    </section>
+
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Quanto investir este mês</h2><div class="glass-card-sub" id="recMonthLabel">Mês selecionado</div></div></div>
+      <div id="patRec"></div>
+    </section>
+
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Metas</h2><div class="glass-card-sub">Valores-alvo em valores de hoje</div></div></div>
+      <div id="invGoals"></div>
+      <div class="inv-grid" style="margin-top:14px">
+        <label class="inv-field wide">Nova meta<input class="app-input-field" id="invNewName" placeholder="Ex.: Carro novo, Viagem Japão"></label>
+        <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" id="invNewTarget" type="number" step="0.01"></label>
+        <label class="inv-field">Já guardado (R$)<input class="app-input-field" id="invNewOpen" type="number" step="0.01"></label>
+        <label class="inv-field wide">Prazo<input class="app-input-field" id="invNewDeadline" type="month"></label>
+      </div>
+      <button class="manage-cats-btn" id="invAdd">Criar meta</button>
+      <div class="lx-err" id="invMsg"></div>
+    </section>
+
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Premissas</h2><div class="glass-card-sub">Taxas usadas nas projeções</div></div></div>
       <div class="inv-grid" style="margin-top:0">
         <label class="inv-field">CDI (% a.a.)<input class="app-input-field" id="inv_cdi" data-k="cdi" type="number" step="0.01"></label>
         <label class="inv-field">% do CDI<input class="app-input-field" id="inv_pct" data-k="pct" type="number" step="0.5"></label>
         <label class="inv-field">IPCA (% a.a.)<input class="app-input-field" id="inv_ipca" data-k="ipca" type="number" step="0.01"></label>
-        <label class="inv-field wide">Média de custos mensais (R$)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
+        <label class="inv-field">Custos mensais de referência (R$)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
       </div>
       <button class="manage-cats-btn" id="invUseApp">Usar média de todos os custos do app</button>
-      <p class="inv-note">Revise CDI e IPCA conforme as taxas vigentes. IR de renda fixa pela tabela regressiva, aplicada pelo prazo total. IOF e corretagem não considerados.</p>
     </section>
-    <section class="glass-card"><div class="arb-spotlight-grid" id="invSummary" style="margin:0"></div></section>
-    <div id="invGoals"></div>
-    <div class="inv-grid" style="margin-top:0">
-      <label class="inv-field wide">Nome da meta<input class="app-input-field" id="invNewName" placeholder="Ex.: Carro novo, Viagem Japão"></label>
-      <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" id="invNewTarget" type="number" step="0.01"></label>
-      <label class="inv-field">Já guardado (R$)<input class="app-input-field" id="invNewOpen" type="number" step="0.01"></label>
-      <label class="inv-field">Prazo<input class="app-input-field" id="invNewDeadline" type="month"></label>
-    </div>
-    <button class="manage-cats-btn" id="invAdd">Criar meta</button>
-    <div class="lx-err" id="invMsg"></div>
   </main>
 
-  <!-- ==================== FLOATING DOCK TRANSLÚCIDA ==================== -->
+  <!-- ==================== FLOATING DOCK TRANSLÚCIDA  <!-- ==================== FLOATING DOCK TRANSLÚCIDA ==================== -->
   <nav class="floating-dock">
     <div class="dock-item-btn active" data-target="view-home" role="button" aria-label="Início">
       <div class="dock-icon-wrapper">
@@ -3012,29 +3030,25 @@ function invCalc(g) {
 }
 const cellI = (c, v) => `<div class="arb-spotlight-item"><div class="caption">${c}</div><div class="val num">${v}</div></div>`;
 function invCard(g, a) {
-  const bal = goalBal(g), done = a.tt > 0 && bal >= a.tt;
-  const falta = Math.max(0, a.tt - bal);
-  const prev = done ? 'concluída' : (a.C > 0 ? Math.ceil(falta / a.C) + ' meses' : 'sem aportes ainda');
-  return `<section class="glass-card" data-id="${g.id}">
-    <div class="inv-goal-head"><input data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="badge-tag ${done ? 'accent' : ''}">${done ? 'Concluída' : (a.ok ? 'No prazo' : 'Aporte insuficiente')}</span></div>
-    <div class="jar"><div class="jar-fill" style="height:${(a.prog * 100).toFixed(1)}%"></div>
-      <div class="jar-label"><b>${BRL(bal)}</b><span>de ${BRL(a.tt)} (valor de hoje)</span></div></div>
-    <div class="inv-grid" style="margin-top:14px">
-      <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
-      <label class="inv-field">Já guardado (R$)<input class="app-input-field" type="number" step="0.01" data-f="open" value="${g.open || 0}"></label>
-      <label class="inv-field">Prazo<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
-    </div>
-    <div class="arb-spotlight-grid" style="margin:14px 0 0">${cellI('Ritmo médio/mês', BRL(a.C))}${cellI('Falta guardar', BRL(falta))}${cellI('Necessário/mês', BRL(a.reqC))}${cellI('Valor Alvo da Meta', BRL(a.tt))}</div>
-    <p class="inv-note">Previsão: ${prev}. Para guardar dinheiro nesta meta, registre em Construção de Patrimônio escolhendo a meta como destino.</p>
-    <div style="text-align:right;margin-top:8px"><button class="inv-danger" data-del="${g.id}">Remover meta</button></div>
-  </section>`;
+  const bal = goalBal(g), done = a.tt > 0 && bal >= a.tt, falta = Math.max(0, a.tt - bal);
+  const prev = done ? 'concluída' : (a.C > 0 ? `${Math.ceil(falta / a.C)} meses no ritmo atual` : 'sem aportes ainda');
+  return `<div class="goal-item" data-id="${g.id}">
+    <div class="goal-top"><input class="goal-name" data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="goal-status">${done ? 'concluída' : (a.ok ? 'no prazo' : 'aporte insuficiente')}</span></div>
+    <div class="goal-amount"><b>${BRL(bal)}</b> de ${BRL(a.tt)} <span>(valor de hoje)</span></div>
+    <div class="goal-track"><i style="width:${(a.prog * 100).toFixed(1)}%"></i></div>
+    <div class="goal-facts"><span>Falta ${BRL(falta)}</span><span>Ritmo ${BRL(a.C)}/mês</span><span>${prev}</span></div>
+    <details class="goal-edit"><summary>Editar</summary>
+      <div class="inv-grid">
+        <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
+        <label class="inv-field">Prazo<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
+        <label class="inv-field">Já guardado (R$)<input class="app-input-field" type="number" step="0.01" data-f="open" value="${g.open || 0}"></label>
+      </div>
+      <button class="inv-danger" data-del="${g.id}" style="margin-top:12px">Remover meta</button>
+    </details>
+  </div>`;
 }
 function renderInvest() {
-  const rows = INV.goals.map(g => ({ g, a: invCalc(g) }));
-  const sum = f => rows.reduce((s, r) => s + f(r), 0);
-  gid('invSummary').innerHTML = cellI('Metas', INV.goals.length) + cellI('Total guardado', BRL(sum(r => goalBal(r.g))))
-    + cellI('Ritmo médio/mês', BRL(sum(r => r.a.C))) + cellI('Necessário/mês', BRL(sum(r => r.a.reqC)));
-  gid('invGoals').innerHTML = rows.map(({ g, a }) => invCard(g, a)).join('');
+  gid('invGoals').innerHTML = INV.goals.map(g => invCard(g, invCalc(g))).join('') || '<div class="lx-empty">Nenhuma meta criada ainda.</div>';
 }
 function invSummaryText() {
   return INV.goals.map(g => { const a = invCalc(g); return `${g.name}: alvo ${BRL(a.tt)} (hoje) até ${g.deadline}, guardado ${BRL(goalBal(g))}, ritmo ${BRL(a.C)}/mês`; }).join('; ') || 'nenhuma meta cadastrada';
@@ -3248,35 +3262,30 @@ gid('patHorizons').addEventListener('click', e => {
 gid('hzAdd').onclick = () => { HZ.push({ label: `Simulação ${HZ.length + 1}`, v: 5, u: 'a' }); hzSave(); renderPatrimony(); };
 
 function renderPatrimony() {
-  const y = S.year, i = S.lastAnchorMonth, pm = patrimonyFor(y, i), P = patrimonyNow(), A = investAvg();
+  const y = S.year, i = S.lastAnchorMonth, P = patrimonyNow(), A = investAvg();
   const rec = patRecommendation(y, i), already = investTotal(y, i);
   gid('patMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
-  if (gid('patOpen') && document.activeElement !== gid('patOpen')) gid('patOpen').value = PAT.open || 0;
   gid('recMonthLabel').textContent = `${MONTH_FULL[i]} ${y}`;
-  gid('patSummary').innerHTML = cellI('Patrimônio hoje', BRL(P)) + cellI('Rendimento do mês', BRL(pm.rend))
-    + cellI('Investido no mês', BRL(already)) + cellI('Média mensal investida', BRL(A));
+  gid('patToday').textContent = BRL(P);
+  const po = gid('patOpen');
+  if (document.activeElement !== po) po.value = PAT.open || 0;
   const sel = gid('patNewGoal'), cur = sel.value;
   sel.innerHTML = '<option value="">Patrimônio geral</option>' + INV.goals.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
   sel.value = cur;
   const list = (S.invest || []).filter(e => e.year === y && e.i === i);
   gid('patMonthTotal').textContent = BRL(already);
   gid('patList').innerHTML = list.map(e => `<div class="lx-item"><div class="lx-item-info"><b>${BRL(e.v)}</b><span>${e.goal ? esc(goalName(e.goal)) : 'Patrimônio geral'}</span></div><button class="lx-del" data-pat-del="${e.id}">Excluir</button></div>`).join('')
-    || '<div class="lx-empty">Nenhum investimento registrado neste mês.</div>';
+    || '<div class="lx-empty">Nenhum investimento neste mês.</div>';
   const row = (l, v, strong) => `<div class="rec-row${strong ? ' strong' : ''}"><span>${l}</span><b>${v}</b></div>`;
-  const grp = (title, key) => `<div class="rec-h"><span>${title}</span><span>${BRL(rec.prev[key])}</span></div>`
-    + (rec.lines[key].map(([c, v]) => row(esc(c), BRL(v))).join('') || row('Nenhuma prevista', BRL(0)));
-  gid('patRec').innerHTML = row('Receita do mês (inclui rendimento real)', BRL(rec.receita), true)
-    + row('Despesas previstas', BRL(rec.despPrev), true)
-    + grp('Fixas', 'FIX') + grp('Essenciais', 'ESS') + grp('Variáveis', 'NESS')
+  gid('patRec').innerHTML = row('Receita do mês', BRL(rec.receita))
+    + row('Despesas previstas', BRL(rec.despPrev))
     + row('Disponível para investir', BRL(rec.disp), true)
     + row('Investimento sugerido', BRL(rec.total), true)
-    + row('Já investido neste mês', BRL(already))
-    + row('Falta investir', BRL(Math.max(0, rec.total - already)), true)
-    + '<div class="rec-h"><span>Metas</span></div>'
-    + (rec.rows.length ? rec.rows.map(r => row(esc(r.g.name), BRL(r.alloc))).join('') : row('Nenhuma meta cadastrada', BRL(0)));
+    + row('Já investido', BRL(already))
+    + row('Falta investir', BRL(Math.max(0, rec.total - already)), true);
   renderHorizons(P, A);
   renderCC();
-  const maxN = Math.min(480, Math.max(12, ...HZ.map(hzMonths))), s = patSeries(P, A, maxN), ctx = document.getElementById('chartPatr');
+  const maxN = Math.min(480, Math.max(12, ...HZ.map(hzMonths))), ser = patSeries(P, A, maxN), ctx = document.getElementById('chartPatr');
   if (!patChart && ctx) {
     patChart = new Chart(ctx, {
       type: 'bar',
@@ -3291,13 +3300,18 @@ function renderPatrimony() {
     });
   }
   if (patChart) {
-    patChart.data.labels = s.labels;
-    patChart.data.datasets[0].data = s.principal;
-    patChart.data.datasets[1].data = s.yields;
+    patChart.data.labels = ser.labels;
+    patChart.data.datasets[0].data = ser.principal;
+    patChart.data.datasets[1].data = ser.yields;
     patChart.data.datasets[1].backgroundColor = ACC();
     patChart.update();
   }
 }
+gid('view-invest').addEventListener('change', e => {
+  if (e.target.dataset.p !== 'open') return;
+  PAT.open = parseFloat(e.target.value) || 0;
+  patSave(); updateApplication();
+});
 gid('view-strategy').addEventListener('change', e => {
   const k = e.target.dataset.p;
   if (!k) return;
