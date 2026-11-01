@@ -1513,6 +1513,15 @@ button, input, select {
 .goal-facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted)}
 .goal-edit summary{font-size:12px;color:var(--muted);cursor:pointer}
 .goal-edit[open] .inv-grid{margin-top:12px}
+/* ===== v19 ===== */
+.today-card{margin:16px 20px 0 20px;padding:20px;border-radius:22px;background:var(--bg-card);border:.5px solid var(--hairline);box-shadow:var(--shadow-subtle)}
+.today-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.today-hint{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.today-grid span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.today-grid b{display:block;font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+.alert-list{margin:12px 20px 0 20px;display:flex;flex-direction:column;gap:8px}
+.alert-item{padding:12px 14px;border-radius:14px;background:var(--bg-deep);font-size:12.5px;line-height:1.5;color:var(--ink);border-left:2px solid var(--ink)}
 </style>
 </head>
 <body>
@@ -1584,6 +1593,8 @@ button, input, select {
 
   <!-- ==================== TAB 1: EXECUTIVE HOME ==================== -->
   <main id="view-home" class="view active">
+    <div id="todayCard"></div>
+    <div id="alertBar"></div>
 
     <!-- HERO DESTAQUE: CONSOLIDAÇÃO PATRIMONIAL & PRIVATE WEALTH -->
     <section class="hero-wealth-consolidation">
@@ -1846,9 +1857,11 @@ button, input, select {
       <div class="glass-card-header"><div><h2 class="glass-card-title">Patrimônio</h2><div class="glass-card-sub" id="patMonthLabel">Mês selecionado</div></div></div>
       <div class="inv-stat"><span>Patrimônio hoje</span><b id="patToday">R$ 0,00</b></div>
       <label class="inv-field">Já tenho guardado (saldo atual, R$)<input class="app-input-field" id="patOpen" data-p="open" type="number" step="0.01"></label>
+      <label class="inv-field">% do CDI do saldo atual<input class="app-input-field" id="patOpenPct" data-p="openPct" type="number" step="0.5"></label>
       <div class="inv-divider"></div>
       <div class="inv-grid" style="margin-top:0">
         <label class="inv-field">Investi neste mês (R$)<input class="app-input-field" id="patNewVal" type="number" step="0.01" placeholder="0,00"></label>
+        <label class="inv-field">% do CDI deste aporte<input class="app-input-field" id="patNewPct" type="number" step="0.5"></label>
         <label class="inv-field">Destino<select class="app-input-field" id="patNewGoal"></select></label>
       </div>
       <button class="manage-cats-btn" id="patAdd">Registrar</button>
@@ -1876,14 +1889,26 @@ button, input, select {
     </section>
 
     <section class="glass-card">
-      <div class="glass-card-header"><div><h2 class="glass-card-title">Premissas</h2><div class="glass-card-sub">Taxas usadas nas projeções</div></div></div>
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Taxas e premissas</h2><div class="glass-card-sub">Cada taxa vale a partir do mês informado. Meses anteriores mantêm a taxa da época.</div></div></div>
       <div class="inv-grid" style="margin-top:0">
-        <label class="inv-field">CDI (% a.a.)<input class="app-input-field" id="inv_cdi" data-k="cdi" type="number" step="0.01"></label>
-        <label class="inv-field">% do CDI<input class="app-input-field" id="inv_pct" data-k="pct" type="number" step="0.5"></label>
-        <label class="inv-field">IPCA (% a.a.)<input class="app-input-field" id="inv_ipca" data-k="ipca" type="number" step="0.01"></label>
+        <div class="rate-form" style="grid-column:1/-1">
+          <label class="inv-field">Índices a partir de<input class="app-input-field" id="rateYm" type="month"></label>
+          <label class="inv-field">CDI (% a.a.)<input class="app-input-field" id="rateCdi" type="number" step="0.01"></label>
+          <label class="inv-field">IPCA (% a.a.)<input class="app-input-field" id="rateIpca" type="number" step="0.01"></label>
+          <label class="inv-field">% do CDI para novos aportes<input class="app-input-field" id="defPct" type="number" step="0.5"></label>
+        </div>
+        <button class="manage-cats-btn" id="rateAdd" style="grid-column:1/-1">Registrar índices deste mês em diante</button>
+        <div class="lx-err" id="rateMsg" style="grid-column:1/-1"></div>
+        <div id="rateList" style="grid-column:1/-1"></div>
         <label class="inv-field">Custos mensais de referência (R$)<input class="app-input-field" id="inv_ess" data-k="ess" type="number" step="0.01"></label>
       </div>
       <button class="manage-cats-btn" id="invUseApp">Usar média de todos os custos do app</button>
+    </section>
+    <section class="glass-card">
+      <div class="glass-card-header"><div><h2 class="glass-card-title">Dados</h2><div class="glass-card-sub">Os dados ficam neste navegador. Faça backup de vez em quando.</div></div></div>
+      <button class="manage-cats-btn" id="bkExport">Exportar backup (.json)</button>
+      <label class="inv-field" style="margin-top:12px">Restaurar backup<input class="app-input-field" id="bkFile" type="file" accept="application/json,.json"></label>
+      <div class="lx-err" id="bkMsg"></div>
     </section>
   </main>
 
@@ -1934,6 +1959,7 @@ button, input, select {
         <label class="lx-label">Pagamento<select class="app-input-field" id="lxPay" onchange="lxUpdate()"><option value="debit">Débito / Pix</option><option value="c6">C6 Carbon</option></select></label>
         <label class="lx-label">Parcelas (quantidade)<input class="app-input-field" id="lxParc" type="number" inputmode="numeric" min="1" step="1" value="1" oninput="lxUpdate()"></label>
       </div>
+      <label class="lx-check"><input type="checkbox" id="lxPont"><span><b>Pontual</b><small>Compra única. Não entra na média de custos recorrentes.</small></span></label>
       <label class="lx-check"><input type="checkbox" id="lxFlash" onchange="lxUpdate()"><span><b>Despesa flash</b><small>Paga com VT/VR. Sai de todos os cálculos quando o Flash estiver ativo.</small></span></label>
     </div>
     <div class="lx-card" id="lxIncomeBox" hidden>
@@ -2730,7 +2756,7 @@ function lxShow(title, submitLabel) {
 function openMindfulExpenseModal() {
   lxEdit = null;
   gid('lxValue').value = ''; gid('lxDesc').value = ''; gid('lxIncDesc').value = ''; gid('lxErr').textContent = '';
-  gid('lxFlash').checked = catFlash(lxCat); gid('lxPay').value = 'debit';
+  gid('lxFlash').checked = catFlash(lxCat); gid('lxPont').checked = false; gid('lxPay').value = 'debit';
   gid('lxParc').value = '1'; gid('lxParc').disabled = false;
   gid('lxMonth').innerHTML = MONTH_FULL.map((m, i) => `<option value="${i}">${m} ${S.year}</option>`).join('');
   gid('lxMonth').value = S.lastAnchorMonth; gid('lxMonth').disabled = false;
@@ -2756,6 +2782,7 @@ function openLxEdit(kind, id) {
     gid('lxValue').value = r.v;
     gid('lxPay').value = r.c6 ? 'c6' : 'debit';
     gid('lxFlash').checked = r.flash === undefined ? catFlash(r.cat) : !!r.flash;
+    gid('lxPont').checked = !!r.pont;
     gid('lxParc').value = '1'; gid('lxParc').disabled = true;
     gid('lxMonth').disabled = parcelado;
     renderMindfulCategories();
@@ -2783,7 +2810,7 @@ function lxSubmit() {
       if (!r) return;
       const base = gid('lxDesc').value.trim() || lxCat;
       r.desc = r.parcTotal > 1 ? `${base} (${r.parcCur}/${r.parcTotal})` : base;
-      r.cat = lxCat; r.v = v; r.c6 = gid('lxPay').value === 'c6'; r.flash = gid('lxFlash').checked;
+      r.cat = lxCat; r.v = v; r.c6 = gid('lxPay').value === 'c6'; r.flash = gid('lxFlash').checked; r.pont = gid('lxPont').checked;
       if (r.parcTotal <= 1) { r.i = mi; r.year = S.year; }
     } else {
       const r = S.incomes.find(x => String(x.id) === lxEdit.id);
@@ -2795,11 +2822,11 @@ function lxSubmit() {
   } else {
     if (!lxCat) { err.textContent = 'Escolha uma categoria.'; return; }
     const desc = gid('lxDesc').value.trim() || lxCat, n = Math.max(1, Math.floor(+gid('lxParc').value || 1));
-    const c6 = gid('lxPay').value === 'c6', flash = gid('lxFlash').checked, sid = 'série' + Date.now();
+    const c6 = gid('lxPay').value === 'c6', flash = gid('lxFlash').checked, pont = gid('lxPont').checked, sid = 'série' + Date.now();
     for (let k = 0; k < n; k++) {
       const t = mi + k;
       S.extras.push({ id: Date.now() + k + Math.random(), seriesId: sid, year: S.year + Math.floor(t / 12), i: t % 12,
-        cat: lxCat, desc: n > 1 ? `${desc} (${k + 1}/${n})` : desc, v: v / n, c6, flash, parcTotal: n, parcCur: k + 1 });
+        cat: lxCat, desc: n > 1 ? `${desc} (${k + 1}/${n})` : desc, v: v / n, c6, flash, pont, parcTotal: n, parcCur: k + 1 });
     }
   }
   closeMindfulExpenseModal();
@@ -3019,29 +3046,41 @@ const invSave = () => localStorage.setItem('cfo_inv', JSON.stringify(INV));
 const ymIdx = s => { const [y, m] = (s || '').split('-').map(Number); return y * 12 + m - 1; };
 const irRate = n => n <= 6 ? 0.225 : n <= 12 ? 0.20 : n <= 24 ? 0.175 : 0.15;
 function invCalc(g) {
-  const p = INV.prem, i = Math.pow(1 + p.cdi / 100 * p.pct / 100, 1 / 12) - 1, ipca = p.ipca / 100;
+  const cdi = currentRate().cdi / 100, ipca = currentRate().ipca / 100;
   const n = Math.max(1, ymIdx(g.deadline) - todayIdx()), t = irRate(n);
-  const tt = g.target || 0, Tn = tt * Math.pow(1 + ipca, n / 12);
-  const P = goalBal(g), C = goalAvg(g);
+  const tt = g.target || 0, Tn = tt * Math.pow(1 + ipca, n / 12);     // alvo no prazo, corrigido pela inflação
+  const t0 = new Date(), L = ledgerAt(t0.getFullYear(), t0.getMonth(), false);
+  const P = L.goals[g.id] || 0, pct = L.goalPct[g.id] || INV.defPct;
+  const i = Math.max(1e-9, Math.pow(1 + cdi * pct / 100, 1 / 12) - 1), C = goalAvg(g);
   const gg = Math.pow(1 + i, n), A = (gg - 1) / i, kP = 1 + (1 - t) * (gg - 1), kC = n + (1 - t) * (A - n);
   const net = P * kP + C * kC;
-  return { n, t, tt, Tn, C, reqC: Math.max(0, (Tn - P * kP) / kC), net, real: net / Math.pow(1 + ipca, n / 12),
-           prog: tt > 0 ? Math.min(1, P / tt) : 0, ok: net >= Tn - 0.005 };
+  let months = null;                                                  // meses para atingir Tn no ritmo atual
+  if (P >= Tn) months = 0;
+  else if (C > 0) for (let m = 1; m <= 600; m++) {
+    const tm = irRate(m), gm = Math.pow(1 + i, m), Am = (gm - 1) / i;
+    if (P * (1 + (1 - tm) * (gm - 1)) + C * (m + (1 - tm) * (Am - m)) >= Tn) { months = m; break; }
+  }
+  return { n, t, tt, Tn, C, months, pct, bal: P, yieldAcc: L.goalYield[g.id] || 0,
+           reqC: Math.max(0, (Tn - P * kP) / kC), net, real: net / Math.pow(1 + ipca, n / 12),
+           prog: Tn > 0 ? Math.min(1, P / Tn) : 0, ok: net >= Tn - 0.005 };
 }
 const cellI = (c, v) => `<div class="arb-spotlight-item"><div class="caption">${c}</div><div class="val num">${v}</div></div>`;
+const fmtYM = s => { const [y, m] = (s || '').split('-'); return m ? `${MONTH_FULL[+m - 1]}/${y}` : ''; };
 function invCard(g, a) {
-  const bal = goalBal(g), done = a.tt > 0 && bal >= a.tt, falta = Math.max(0, a.tt - bal);
-  const prev = done ? 'concluída' : (a.C > 0 ? `${Math.ceil(falta / a.C)} meses no ritmo atual` : 'sem aportes ainda');
+  const done = a.Tn > 0 && a.bal >= a.Tn, falta = Math.max(0, a.Tn - a.bal);
+  const prev = done ? 'concluída' : (a.months !== null ? `em ${a.months} ${a.months === 1 ? 'mês' : 'meses'} no seu ritmo` : 'seu ritmo atual não atinge o alvo');
   return `<div class="goal-item" data-id="${g.id}">
     <div class="goal-top"><input class="goal-name" data-f="name" value="${esc(g.name)}" aria-label="Nome da meta"><span class="goal-status">${done ? 'concluída' : (a.ok ? 'no prazo' : 'aporte insuficiente')}</span></div>
-    <div class="goal-amount"><b>${BRL(bal)}</b> de ${BRL(a.tt)} <span>(valor de hoje)</span></div>
+    <div class="goal-amount"><b>${BRL(a.bal)}</b> de ${BRL(a.Tn)} <span>alvo em ${fmtYM(g.deadline)}, corrigido pela inflação</span></div>
     <div class="goal-track"><i style="width:${(a.prog * 100).toFixed(1)}%"></i></div>
-    <div class="goal-facts"><span>Falta ${BRL(falta)}</span><span>Ritmo ${BRL(a.C)}/mês</span><span>${prev}</span></div>
+    <div class="goal-facts"><span>Precisa ${BRL(a.reqC)}/mês</span><span>Seu ritmo ${BRL(a.C)}/mês</span><span>${prev}</span></div>
+    <div class="goal-facts"><span>Carteira a ${a.pct.toFixed(1)}% do CDI</span><span>Rendeu ${BRL(a.yieldAcc)}</span><span>Falta ${BRL(falta)}</span></div>
     <details class="goal-edit"><summary>Editar</summary>
       <div class="inv-grid">
-        <label class="inv-field">Valor-alvo (hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
+        <label class="inv-field">Valor-alvo (valor de hoje)<input class="app-input-field" type="number" step="0.01" data-f="target" value="${g.target || 0}"></label>
         <label class="inv-field">Prazo<input class="app-input-field" type="month" data-f="deadline" value="${g.deadline}"></label>
         <label class="inv-field">Já guardado (R$)<input class="app-input-field" type="number" step="0.01" data-f="open" value="${g.open || 0}"></label>
+        <label class="inv-field">% do CDI do saldo inicial<input class="app-input-field" type="number" step="0.5" data-f="openPct" value="${g.openPct || INV.defPct}"></label>
       </div>
       <button class="inv-danger" data-del="${g.id}" style="margin-top:12px">Remover meta</button>
     </details>
@@ -3053,23 +3092,27 @@ function renderInvest() {
 function invSummaryText() {
   return INV.goals.map(g => { const a = invCalc(g); return `${g.name}: alvo ${BRL(a.tt)} (hoje) até ${g.deadline}, guardado ${BRL(goalBal(g))}, ritmo ${BRL(a.C)}/mês`; }).join('; ') || 'nenhuma meta cadastrada';
 }
-function avgEssentials() {
-  let sum = 0, cnt = 0;
-  for (let i = 0; i < 12; i++) {
-    const m = calculateSingleMonth(i, S.year);
-    if (m.isPending) continue;
-    cnt++;
-    for (const c in customCategories) sum += m.cats[c] || 0;
-  }
-  return cnt ? sum / cnt : 0;
+// Custo recorrente do mês: total de custos menos os pontuais (exceto os que já saem pelo Flash)
+function recurringCost(y, m) {
+  const ms = calculateSingleMonth(m, y);
+  if (ms.isPending) return null;
+  const pont = (S.extras || []).filter(e => e.year === y && e.i === m && e.pont && !(S.exFlash && (e.flash === undefined ? catFlash(e.cat) : e.flash))).reduce((s, e) => s + e.v, 0);
+  return ms.totalDesp - pont;
 }
-['cdi', 'pct', 'ipca', 'ess'].forEach(k => gid('inv_' + k).value = INV.prem[k]);
+// Média aparada dos últimos 6 meses com dados (sem o maior e o menor quando há ao menos 4)
+function avgEssentials() {
+  const b = S.year * 12 + S.lastAnchorMonth, vals = [];
+  for (let k = 0; k < 6; k++) { const x = b - k, v = recurringCost(Math.floor(x / 12), x % 12); if (v !== null) vals.push(v); }
+  if (vals.length >= 4) { vals.sort((a, b) => a - b); vals.shift(); vals.pop(); }
+  return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : 0;
+}
+gid('inv_ess').value = INV.prem.ess;
 gid('view-invest').addEventListener('change', e => {
   const k = e.target.dataset.k, f = e.target.dataset.f;
   if (k) INV.prem[k] = k === 'ref' ? e.target.value : (parseFloat(e.target.value) || 0);
   else if (f) {
     const g = INV.goals.find(x => x.id === +e.target.closest('[data-id]').dataset.id);
-    g[f] = ['months', 'target', 'balance', 'contrib', 'open'].includes(f) ? (parseFloat(e.target.value) || 0) : e.target.value;
+    g[f] = ['months', 'target', 'balance', 'contrib', 'open', 'openPct'].includes(f) ? (parseFloat(e.target.value) || 0) : e.target.value;
   } else return;
   invSave(); renderInvest();
 });
@@ -3083,7 +3126,7 @@ gid('invAdd').onclick = () => {
   if (!name) { gid('invMsg').textContent = 'Dê um nome para a meta.'; return; }
   if (tv <= 0) { gid('invMsg').textContent = 'Informe o valor-alvo.'; return; }
   if (!dl) { gid('invMsg').textContent = 'Informe o prazo.'; return; }
-  INV.goals.push({ id: Date.now(), name, target: tv, deadline: dl, open: parseFloat(gid('invNewOpen').value) || 0 });
+  INV.goals.push({ id: Date.now(), name, target: tv, deadline: dl, open: parseFloat(gid('invNewOpen').value) || 0, openPct: INV.defPct });
   gid('invNewOpen').value = '';
   gid('invNewName').value = ''; gid('invNewTarget').value = ''; gid('invMsg').textContent = '';
   invSave(); renderInvest(); updateApplication();
@@ -3145,27 +3188,13 @@ const monthStrNow = () => { const t = new Date(); return `${t.getFullYear()}-${S
 let PAT = JSON.parse(localStorage.getItem('cfo_patr') || 'null') || { base: 0, baseYm: monthStrNow(), aporte: 0 };
 let patChart = null;
 const patSave = () => localStorage.setItem('cfo_patr', JSON.stringify(PAT));
-const monthlyRate = () => Math.pow(1 + INV.prem.cdi / 100 * INV.prem.pct / 100, 1 / 12) - 1;
+const monthlyRate = () => Math.pow(1 + currentRate().cdi / 100 * portfolioPct() / 100, 1 / 12) - 1;
 // Saldo e movimentos de um mês civil a partir do patrimônio informado
+// Ledger único: cada movimento entra uma vez. Contas = Patrimônio geral + uma por meta.
+// Rendimento do mês: real quando lançado, senão esperado sobre o saldo total; rateado pelo saldo de cada conta.
 function patrimonyFor(year, idx, projected) {
-  // Timeline: saldo inicial entra no mês atual; rendimento é real quando lançado, senão esperado sobre o saldo;
-  // meses futuros (com projected) usam a média de aportes realizados
-  const k = year * 12 + idx, i = monthlyRate(), t0 = new Date(), now = t0.getFullYear() * 12 + t0.getMonth();
-  const starts = (S.invest || []).map(e => e.year * 12 + e.i);
-  const anchor = t0.getFullYear() * 12;   // saldo inicial = saldo de 1º de janeiro do ano atual
-  const first = Math.min(anchor, starts.length ? Math.min(...starts) : anchor);
-  let P = 0, res = { ini: 0, rend: 0, aporte: 0, end: 0 };
-  for (let t = first; t <= k; t++) {
-    if (t === anchor) P += PAT.open || 0;
-    const y = Math.floor(t / 12), m = t % 12;
-    const real = incomeSrcTotal(y, m, 'Rendimento CDI');
-    const rend = real > 0 ? real : P * i;
-    const inv = (projected && t > now) ? investAvg() : investTotal(y, m);
-    const ini = P;
-    P = P + rend + inv;
-    if (t === k) res = { ini, rend, aporte: inv, end: P };
-  }
-  return res;
+  const L = ledgerAt(year, idx, projected);
+  return { ini: L.ini, rend: L.rend, aporte: L.aporte, end: L.total };
 }
 function patrimonyNow() {
   const t = new Date();
@@ -3242,10 +3271,17 @@ function renderHorizons(P, A) {
 function renderCC() {
   const V = parseFloat(gid('ccVal').value) || 0, Y = Math.max(1, Math.floor(parseFloat(gid('ccYears').value) || 1));
   const r = projectPat(V, 0, Y * 12);
+  const t = new Date(), base = t.getFullYear() * 12 + t.getMonth();
+  let inc = 0, cnt = 0;
+  for (let k = 0; k < 6; k++) { const x = base - k, ms = calculateSingleMonth(Math.floor(x / 12), x % 12); if (!ms.isPending) { inc += ms.totalRec; cnt++; } }
+  const renda = cnt ? inc / cnt : 0;
+  const top = INV.goals.map(g => ({ g, a: invCalc(g) })).filter(x => x.a.C > 0).sort((x, y) => y.a.C - x.a.C)[0];
   gid('ccOut').innerHTML = `<div class="cc-card">
-    <div class="cc-sub">${BRL(V)} hoje, se fossem investidos a ${INV.prem.pct}% do CDI, em ${Y} ${Y === 1 ? 'ano' : 'anos'} viram</div>
+    <div class="cc-sub">${BRL(V)} hoje, se fossem investidos a ${INV.defPct}% do CDI, em ${Y} ${Y === 1 ? 'ano' : 'anos'} viram</div>
     <div class="cc-big accent">${BRL(r.net)}</div>
     <div class="cc-sub">líquidos de IR (${BRL(r.real)} em valor de hoje). Gastar agora custa ${BRL(r.net - V)} do seu patrimônio futuro.</div>
+    ${renda > 0 ? `<div class="cc-sub">Equivale a ${(V / renda).toFixed(1)} meses da sua receita líquida média.</div>` : ''}
+    ${top ? `<div class="cc-sub">Equivale a ${(V / top.a.C).toFixed(1)} meses do seu ritmo atual em "${esc(top.g.name)}".</div>` : ''}
   </div>`;
 }
 gid('patHorizons').addEventListener('change', e => {
@@ -3269,6 +3305,8 @@ function renderPatrimony() {
   gid('patToday').textContent = BRL(P);
   const po = gid('patOpen');
   if (document.activeElement !== po) po.value = PAT.open || 0;
+  const pp = gid('patOpenPct');
+  if (document.activeElement !== pp) pp.value = PAT.openPct || INV.defPct;
   const sel = gid('patNewGoal'), cur = sel.value;
   sel.innerHTML = '<option value="">Patrimônio geral</option>' + INV.goals.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
   sel.value = cur;
@@ -3308,8 +3346,10 @@ function renderPatrimony() {
   }
 }
 gid('view-invest').addEventListener('change', e => {
-  if (e.target.dataset.p !== 'open') return;
-  PAT.open = parseFloat(e.target.value) || 0;
+  const p = e.target.dataset.p;
+  if (p !== 'open' && p !== 'openPct') return;
+  if (p === 'open') PAT.open = parseFloat(e.target.value) || 0;
+  else PAT.openPct = parseFloat(e.target.value) || INV.defPct;
   patSave(); updateApplication();
 });
 gid('view-strategy').addEventListener('change', e => {
@@ -3484,14 +3524,117 @@ gid('cmList').addEventListener('click', e => {
   else if (t.cmDel !== undefined) cmDelete(t.cmDel);
 });
 
+/* ==================== ÍNDICES E CARTEIRA POR LOTES (v20) ==================== */
+INV.rates = (INV.rates || [{ ym: '2026-01', cdi: 14.4, ipca: 4.5 }]).map(r => ({ ym: r.ym, cdi: r.cdi, ipca: r.ipca }));
+INV.defPct = INV.defPct || 102;
+const currentRate = () => INV.rates[INV.rates.length - 1];
+function rateAt(y, m) {
+  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
+  let r = INV.rates[0];
+  for (const x of INV.rates) if (x.ym <= ym) r = x;
+  return r;
+}
+function syncPrem() { const c = currentRate(); INV.prem = { ...INV.prem, cdi: c.cdi, ipca: c.ipca, pct: INV.defPct }; }
+syncPrem();
+function renderRates() {
+  gid('rateList').innerHTML = INV.rates.slice().reverse().map(r =>
+    `<div class="rec-row"><span>a partir de ${fmtYM(r.ym)}</span><b>CDI ${r.cdi}% · IPCA ${r.ipca}%</b></div>`).join('');
+}
+gid('rateAdd').onclick = () => {
+  const ym = gid('rateYm').value, cdi = parseFloat(gid('rateCdi').value), ipca = parseFloat(gid('rateIpca').value);
+  if (!ym || !(cdi > 0) || isNaN(ipca)) { gid('rateMsg').textContent = 'Preencha mês, CDI e IPCA.'; return; }
+  INV.rates = INV.rates.filter(r => r.ym !== ym).concat([{ ym, cdi, ipca }]).sort((a, b) => a.ym < b.ym ? -1 : 1);
+  syncPrem(); invSave(); renderRates(); gid('rateMsg').textContent = ''; updateApplication();
+};
+gid('defPct').onchange = () => {
+  const v = parseFloat(gid('defPct').value);
+  if (v > 0) { INV.defPct = v; syncPrem(); invSave(); updateApplication(); }
+};
+gid('defPct').value = INV.defPct;
+renderRates();
+
+// Carteira: cada aporte é um lote com a sua própria taxa (% do CDI). Rendimento real lançado substitui o esperado do mês e é rateado pelos lotes.
+function ledgerAt(year, idx, projected) {
+  const k = year * 12 + idx, t0 = new Date(), anchor = t0.getFullYear() * 12, now = anchor + t0.getMonth();
+  const starts = (S.invest || []).map(e => e.year * 12 + e.i);
+  const first = Math.min(anchor, starts.length ? Math.min(...starts) : anchor);
+  const lots = [], cum = {};
+  const acctOf = goal => (goal != null && INV.goals.some(g => g.id === goal)) ? 'g' + goal : 'general';
+  let res = { general: 0, goals: {}, goalPct: {}, goalYield: {}, total: 0, pct: INV.defPct, rend: 0, aporte: 0, ini: 0 };
+  for (let t = first; t <= k; t++) {
+    const y = Math.floor(t / 12), m = t % 12;
+    if (t === anchor) {
+      if ((PAT.open || 0) > 0) lots.push({ acct: 'general', bal: PAT.open, pct: PAT.openPct || INV.defPct });
+      INV.goals.forEach(g => { if ((g.open || 0) > 0) lots.push({ acct: 'g' + g.id, bal: g.open, pct: g.openPct || INV.defPct }); });
+    }
+    const ini = lots.reduce((s, l) => s + l.bal, 0);
+    const cdi = rateAt(y, m).cdi / 100;
+    const ex = lots.map(l => l.bal * (Math.pow(1 + cdi * l.pct / 100, 1 / 12) - 1));
+    const totEx = ex.reduce((a, b) => a + b, 0);
+    const real = incomeSrcTotal(y, m, 'Rendimento CDI');
+    const factor = real > 0 && totEx > 0 ? real / totEx : 1;
+    lots.forEach((l, j) => { const yv = ex[j] * factor; l.bal += yv; cum[l.acct] = (cum[l.acct] || 0) + yv; });
+    const rendMes = real > 0 ? real : totEx;
+    const future = projected && t > now;
+    let inv;
+    if (future) { inv = investAvg(); if (inv > 0) lots.push({ acct: 'general', bal: inv, pct: INV.defPct }); }
+    else {
+      inv = investTotal(y, m);
+      (S.invest || []).filter(e => e.year === y && e.i === m).forEach(e => lots.push({ acct: acctOf(e.goal), bal: e.v, pct: e.pct || INV.defPct }));
+    }
+    if (t === k) {
+      const tot = lots.reduce((s, l) => s + l.bal, 0);
+      const bal = a => lots.filter(l => l.acct === a).reduce((s, l) => s + l.bal, 0);
+      const pctOf = a => { const L = lots.filter(l => l.acct === a), b = bal(a); return b > 0 ? L.reduce((s, l) => s + l.bal * l.pct, 0) / b : INV.defPct; };
+      res = { general: bal('general'), goals: {}, goalPct: {}, goalYield: {}, total: tot,
+              pct: tot > 0 ? lots.reduce((s, l) => s + l.bal * l.pct, 0) / tot : INV.defPct, rend: rendMes, aporte: inv, ini };
+      INV.goals.forEach(g => { const a = 'g' + g.id; res.goals[g.id] = bal(a); res.goalPct[g.id] = pctOf(a); res.goalYield[g.id] = cum[a] || 0; });
+    }
+  }
+  return res;
+}
+const portfolioPct = () => { const t = new Date(); return ledgerAt(t.getFullYear(), t.getMonth(), false).pct; };
+
+// Backup em arquivo
+const BK_KEYS = ['cfo_extras', 'cfo_incomes', 'cfo_invest', 'cfo_cats', 'cfo_isrc', 'cfo_data', 'cfo_patr', 'cfo_inv', 'cfo_hz', 'cfo_accent_v4', 'cfo_v3_clean'];
+gid('bkExport').onclick = () => {
+  const data = {};
+  BK_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+  const blob = new Blob([JSON.stringify({ app: 'cfo-pessoal', version: 20, exported: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `backup-cfo-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+};
+gid('bkFile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const j = JSON.parse(rd.result);
+      if (!j.data) throw new Error('arquivo sem dados');
+      BK_KEYS.forEach(k => { if (j.data[k] !== undefined) localStorage.setItem(k, j.data[k]); });
+      gid('bkMsg').textContent = 'Backup restaurado. Recarregando…';
+      setTimeout(() => location.reload(), 600);
+    } catch (err) { gid('bkMsg').textContent = 'Não foi possível restaurar: ' + err.message; }
+  };
+  rd.readAsText(f);
+};
+
 /* ==================== LEDGER DE INVESTIMENTOS (v14) ==================== */
 const investTotal = (y, i, goalId) => (S.invest || []).filter(e => e.year === y && e.i === i && (goalId === undefined || e.goal === goalId)).reduce((s, e) => s + e.v, 0);
 const incomeSrcTotal = (y, i, src) => (S.incomes || []).filter(x => x.year === y && x.i === i && x.src === src).reduce((s, x) => s + x.v, 0);
-function goalBal(g) { return (g.open || 0) + (S.invest || []).filter(e => e.goal === g.id).reduce((s, e) => s + e.v, 0); }
+function goalBal(g) { const t = new Date(); const L = ledgerAt(t.getFullYear(), t.getMonth(), false); return L.goals[g.id] || 0; }
 function avgOverSixMonths(filterFn) {
-  const b = S.year * 12 + S.lastAnchorMonth; let s = 0;
-  for (let k = 0; k < 6; k++) { const x = b - k; s += (S.invest || []).filter(e => e.year * 12 + e.i === x && filterFn(e)).reduce((a, e) => a + e.v, 0); }
-  return s / 6;
+  // Média mensal dos últimos 6 meses até o mês selecionado, contando apenas desde o primeiro aporte
+  const end = S.year * 12 + S.lastAnchorMonth, matches = (S.invest || []).filter(filterFn);
+  if (!matches.length) return 0;
+  const first = Math.min(...matches.map(e => e.year * 12 + e.i));
+  const window = Math.max(1, Math.min(6, end - first + 1));
+  let total = 0;
+  for (let k = 0; k < window; k++) { const x = end - k; total += matches.filter(e => e.year * 12 + e.i === x).reduce((a, e) => a + e.v, 0); }
+  return total / window;
 }
 const goalAvg = g => avgOverSixMonths(e => e.goal === g.id);
 const investAvg = () => avgOverSixMonths(() => true);
@@ -3499,7 +3642,8 @@ function goalName(id) { const g = INV.goals.find(x => x.id === id); return g ? g
 gid('patAdd').onclick = () => {
   const v = parseFloat(gid('patNewVal').value) || 0, msg = gid('patMsg'), gv = gid('patNewGoal').value;
   if (v <= 0) { msg.textContent = 'Informe um valor maior que zero.'; return; }
-  S.invest.push({ id: Date.now(), year: S.year, i: S.lastAnchorMonth, v, goal: gv ? +gv : null });
+  S.invest.push({ id: Date.now(), year: S.year, i: S.lastAnchorMonth, v, goal: gv ? +gv : null, pct: parseFloat(gid('patNewPct').value) || INV.defPct });
+  gid('patNewPct').value = '';
   gid('patNewVal').value = ''; msg.textContent = '';
   updateApplication();
 };
@@ -3511,6 +3655,53 @@ gid('patList').addEventListener('click', e => {
 });
 gid('ccVal').addEventListener('input', renderCC);
 gid('ccYears').addEventListener('input', renderCC);
+
+/* ==================== HOJE E ALERTAS (v19) ==================== */
+function commitmentsNext12() {
+  const t = new Date(), base = t.getFullYear() * 12 + t.getMonth();
+  return S.extras.filter(e => e.parcTotal > 1 && e.year * 12 + e.i > base && e.year * 12 + e.i <= base + 12).reduce((s, e) => s + e.v, 0);
+}
+function renderHoje() {
+  const t = new Date(), y = t.getFullYear(), m = t.getMonth(), dim = new Date(y, m + 1, 0).getDate(), left = dim - t.getDate() + 1;
+  const ms = calculateSingleMonth(m, y);
+  if (ms.isPending) { gid('todayCard').innerHTML = `<div class="today-card"><div class="today-title">Hoje</div><div class="today-hint">Registre a receita do mês para ver quanto você pode gastar hoje.</div></div>`; return; }
+  let cap = 0, spent = 0;
+  for (const c in customCategories) if (inBudget(c) && customCategories[c].group !== 'FIX') { cap += ms.budget[c] || 0; spent += ms.cats[c] || 0; }
+  const restante = Math.max(0, cap - spent), rec = patRecommendation(y, m), falta = Math.max(0, rec.total - investTotal(y, m));
+  gid('todayCard').innerHTML = `<div class="today-card">
+    <div class="today-title">Hoje · dia ${t.getDate()} de ${dim}</div>
+    <div class="today-grid">
+      <div><span>Pode gastar hoje</span><b>${BRL(restante / left)}</b></div>
+      <div><span>Falta investir no mês</span><b>${BRL(falta)}</b></div>
+      <div><span>Patrimônio</span><b>${BRL(patrimonyNow())}</b></div>
+    </div>
+    <div class="today-hint">Orçamento flexível restante (${BRL(restante)}) dividido pelos dias que faltam no mês.</div>
+    <div class="today-hint">Compromissos em parcelas nos próximos 12 meses: ${BRL(commitmentsNext12())}.</div>
+  </div>`;
+}
+function buildAlerts() {
+  const out = [], y = S.year, i = S.lastAnchorMonth, ms = calculateSingleMonth(i, y);
+  if (!ms.isPending) {
+    for (const c in customCategories) {
+      if (!inBudget(c)) continue;
+      const cap = ms.budget[c] || 0, sp = ms.cats[c] || 0;
+      if (cap > 0 && sp >= cap) out.push(`${esc(c)}: teto de ${BRL(cap)} estourado em ${BRL(sp - cap)}.`);
+      else if (cap > 0 && sp >= 0.8 * cap) out.push(`${esc(c)}: ${Math.round(sp / cap * 100)}% do teto já usado.`);
+    }
+  }
+  INV.goals.forEach(g => {
+    const a = invCalc(g);
+    if (!a.ok && a.n > 0) out.push(`${esc(g.name)}: o ritmo atual não atinge o alvo no prazo. Precisa de ${BRL(a.reqC)}/mês e aporta ${BRL(a.C)}.`);
+  });
+  const nextIdx = y * 12 + i + 1;
+  const parcelas = S.extras.filter(e => e.parcTotal > 1 && e.year * 12 + e.i === nextIdx).reduce((s, e) => s + e.v, 0);
+  if (parcelas > 0) out.push(`Parcelas já comprometidas para o próximo mês: ${BRL(parcelas)}.`);
+  return out.slice(0, 4);
+}
+function renderAlerts() {
+  const items = buildAlerts();
+  gid('alertBar').innerHTML = items.length ? `<div class="alert-list">${items.map(x => `<div class="alert-item">${x}</div>`).join('')}</div>` : '';
+}
 
 /* ==================== GLOBAL ROUTER & CONTROLS ==================== */
 function goToTab(targetId) {
@@ -3537,6 +3728,8 @@ function toggleRingFencing() {
 function updateApplication() {
   persist();
   renderPatrimony();
+  renderHoje();
+  renderAlerts();
   renderDateTrack();
   renderConsolidationHero();
   renderStrategicInsights();
