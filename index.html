@@ -13,8 +13,8 @@
 /* ==================== GRAMÁTICA VISUAL & LUXO REFINADO ==================== */
 :root {
   /* Superfícies Alabastro & Papel Mineral Nobre */
-  --bg-deep: #F7F6F3;
-  --bg-warm: #EFECE6;
+  --bg-deep: #F4F5F7;
+  --bg-warm: #EBEDF1;
   --bg-card: #FFFFFF;
   --bg-surface-glass: rgba(255, 255, 255, 0.86);
 
@@ -373,7 +373,7 @@ button, input, select {
 /* ==================== HERO: CONSOLIDAÇÃO PATRIMONIAL ==================== */
 .hero-wealth-consolidation {
   position: relative;
-  background: linear-gradient(160deg, #FFFFFF 0%, #F9F8F5 100%);
+  background: linear-gradient(160deg, #FFFFFF 0%, #FFFFFF 100%);
   border-radius: var(--radius-lg);
   padding: 26px 22px;
   margin-bottom: 22px;
@@ -566,7 +566,7 @@ button, input, select {
   width: 28px;
   height: 19px;
   border-radius: 4px;
-  background: linear-gradient(135deg, #ECC87E 0%, #C5A059 50%, #9A7B38 100%);
+  background: linear-gradient(135deg, var(--steel-soft) 0%, var(--accent-blue) 50%, var(--accent-text) 100%);
   border: 0.5px solid rgba(0, 0, 0, 0.3);
 }
 .card-mid-balance {
@@ -1103,7 +1103,7 @@ button, input, select {
 #mindfulExpenseModal {
   position: fixed;
   inset: 0;
-  background: #F7F6F3;
+  background: #F4F5F7;
   z-index: 300;
   display: none;
   flex-direction: column;
@@ -1560,15 +1560,15 @@ button, input, select {
 /* ===== v32 ===== */
 .rec-row b{color:var(--muted) !important;font-weight:400 !important;font-size:13px !important}
 .rec-row.strong{color:var(--muted);font-weight:400}
-.lux-card{background:linear-gradient(160deg,#0E0F12 0%,#1B1D22 100%);color:#F4F1EA;border-radius:26px;padding:26px 22px;box-shadow:0 24px 60px rgba(14,15,18,.18);position:relative;overflow:hidden;margin:16px 20px}
+.lux-card{background:linear-gradient(160deg,#0E0F12 0%,#1B1D22 100%);color:#FFFFFF;border-radius:26px;padding:26px 22px;box-shadow:0 24px 60px rgba(14,15,18,.18);position:relative;overflow:hidden;margin:16px 20px}
 .lux-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 0%,rgba(201,182,138,.20),transparent 60%);pointer-events:none}
-.lux-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#C9B68A;font-weight:600}
-.lux-total{font-size:34px;font-weight:600;letter-spacing:-.02em;margin:8px 0 2px;font-variant-numeric:tabular-nums;color:#F4F1EA}
+.lux-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel-soft);font-weight:600}
+.lux-total{font-size:34px;font-weight:600;letter-spacing:-.02em;margin:8px 0 2px;font-variant-numeric:tabular-nums;color:#FFFFFF}
 .lux-sub{font-size:12px;color:rgba(244,241,234,.6)}
-.lux-rule{height:1px;background:linear-gradient(90deg,#C9B68A,transparent);margin:16px 0}
+.lux-rule{height:1px;background:linear-gradient(90deg,var(--steel-soft),transparent);margin:16px 0}
 .lux-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 .lux-grid span{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,241,234,.55);font-weight:600}
-.lux-grid b{font-size:15px;color:#F4F1EA;font-variant-numeric:tabular-nums;font-weight:600}
+.lux-grid b{font-size:15px;color:#FFFFFF;font-variant-numeric:tabular-nums;font-weight:600}
 .ins-card{padding:16px;border-radius:18px;background:var(--bg-deep);display:flex;flex-direction:column;gap:6px}
 .ins-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;color:var(--ink);gap:8px}
 .ins-big{font-size:17px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1582,6 +1582,49 @@ button, input, select {
 .hz-del{margin-left:auto}
 .eng-row{display:grid;grid-template-columns:64px 1fr 64px 1fr auto;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 .eng-row .app-input-field{min-width:0;padding:8px}
+/* ===== v34: sistema visual ===== */
+:root{
+  --bg-deep:#F4F5F7; --bg-warm:#EBEDF1; --bg-card:#FFFFFF;
+  --ink:#101216; --ink-secondary:#454B57; --muted:#5E6470;
+  --hairline:rgba(16,18,22,.08); --hairline-strong:rgba(16,18,22,.14);
+  --shadow-subtle:none; --shadow-elevated:0 1px 2px rgba(16,18,22,.05);
+  --accent-glow:rgba(155,184,211,.30);
+  --radius-card:16px; --radius-control:12px; --gutter:20px; --rhythm:16px;
+}
+/* Mesma margem lateral e mesmo ritmo vertical em todas as abas */
+.view:not(.active){display:none !important}
+.view>*:empty{display:none !important}
+.view.active{display:flex !important;flex-direction:column;gap:var(--rhythm);padding:16px var(--gutter) calc(120px + env(safe-area-inset-bottom)) var(--gutter)}
+.view>*{margin:0 !important;width:100%;box-sizing:border-box}
+.glass-card{margin:0 !important;padding:20px;border-radius:var(--radius-card);border:1px solid var(--hairline);box-shadow:none;background:var(--bg-card)}
+.glass-card .glass-card{border:0}
+.hero-wealth-consolidation{margin:0 !important;border-radius:var(--radius-card);box-shadow:none;border:1px solid var(--hairline);background:var(--bg-card);padding:22px 20px}
+.reference-card-container,.strategic-insights-section,.alert-list,.ins-list,.today-card{margin:0 !important}
+.c6-carbon-card{border-radius:var(--radius-card)}
+.section-headline{margin:0;padding:0 2px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+#insightsDeck,.ins-list{display:flex;flex-direction:column;gap:12px}
+/* Rótulos em frase normal, sem caixa-alta, na mesma escala */
+.inv-field,.cm-section-title,.rec-h,.goal-kpis span,.goal-status,.lux-label,.lux-grid span,.hz-values span,.today-grid span,.cm-help,.ins-top,.lx-label{text-transform:none !important;letter-spacing:0 !important;font-size:12px !important;font-weight:500 !important;color:var(--muted) !important}
+.cm-section-title{font-weight:600 !important;color:var(--ink) !important;font-size:13px !important}
+.rec-h{font-weight:600 !important;color:var(--ink) !important}
+/* Linhas de lista: rótulo à esquerda e valor à direita, mesmo tamanho */
+.rec-row{padding:12px 0;border-bottom:1px solid var(--hairline);font-size:13px;color:var(--muted)}
+.rec-row b{color:var(--muted) !important;font-weight:400 !important;font-size:13px !important}
+/* Cartão de patrimônio: o único destaque escuro, com brilho do acento escolhido */
+.lux-wrap{padding:0 !important;background:none !important;border:0 !important;box-shadow:none !important}
+.lux-card{margin:0;border-radius:var(--radius-card);padding:22px 20px;background:var(--ink);color:#FFFFFF;box-shadow:none}
+.lux-card::before{background:radial-gradient(120% 90% at 100% 0%, var(--accent-glow), transparent 62%)}
+.lux-label{font-size:12px !important;font-weight:600 !important;color:var(--steel-soft) !important;letter-spacing:0 !important;text-transform:none !important}
+.lux-total{font-size:32px;font-weight:700;letter-spacing:-.02em}
+.lux-sub{font-size:12px;color:rgba(255,255,255,.62)}
+.lux-rule{background:rgba(255,255,255,.12)}
+.lux-grid{gap:16px}
+.lux-grid span{color:rgba(255,255,255,.62) !important;font-size:12px !important}
+.lux-grid b{font-size:15px;font-weight:600}
+/* Cards internos: mesmo raio e mesmo recuo */
+.goal-item,.hz-card,.ins-card,.insight-bespoke-card{border-radius:var(--radius-control);padding:16px;border:1px solid var(--hairline);box-shadow:none}
+.goal-kpis{gap:14px}
+.goal-kpis b{font-size:14px}
 </style>
 </head>
 <body>
@@ -1894,7 +1937,7 @@ button, input, select {
 
   <!-- ==================== TAB 3: WEALTH STRATEGY (ENGENHARIA PATRIMONIAL REDESENHADA) ==================== -->
   <main id="view-strategy" class="view">
-    <section class="glass-card" style="padding:0;background:none;box-shadow:none;border:none">
+    <section class="glass-card lux-wrap">
       <div class="lux-card">
         <div class="lux-label">Patrimônio total</div>
         <div class="lux-total" id="trkTotal">R$ 0,00</div>
@@ -3329,6 +3372,7 @@ function applyAccent(hex) {
   st.setProperty('--accent-blue-soft', rgba(base, 0.08));
   st.setProperty('--accent-blue-line', rgba(base, 0.22));
   st.setProperty('--accent-chart-soft', rgba(base, 0.35));
+  st.setProperty('--accent-glow', rgba(base, 0.30));
   try {
     if (typeof knotHero !== 'undefined' && knotHero) knotHero.material.color.set(hex);
     if (typeof polyWealth !== 'undefined' && polyWealth) polyWealth.material.color.set(hex);
@@ -3965,14 +4009,25 @@ gid('engAddRow').onclick = () => { engRows.push({ m: 12, c: 14.4 }); renderEngRo
 gid('engValor').addEventListener('input', calcEng);
 gid('engPct').addEventListener('input', calcEng);
 
+/* ==================== PALETA DERIVADA DO ACENTO (v34) ==================== */
+// n tons distintos a partir da cor escolhida: alterna escuro e claro, sem cores fixas
+function accentPalette(n) {
+  const base = hexToRgb(cssVar('--accent-blue')), ink = [16, 18, 22], white = [255, 255, 255];   // cor atualmente aplicada
+  const steps = [0, 0.45, -0.45, 0.22, -0.22, 0.68, -0.68, 0.85, -0.85, 0.1, -0.1, 0.56];
+  return Array.from({ length: n }, (_, k) => {
+    const t = steps[k % steps.length];
+    const c = t === 0 ? base : (t > 0 ? mixC(base, ink, t) : mixC(base, white, -t));
+    return rgbToHex(c);
+  });
+}
+
 /* ==================== GRÁFICOS COMPLEMENTARES (v26) ==================== */
 let donutChart = null, saveChart = null, patYearChart = null, goalsEvoChart = null;
 function renderExtraCharts() {
   if (typeof Chart === 'undefined' || !document.getElementById('chartDonut')) return;
   const p = calculateConsolidatedPeriod(S.selectedMonths, S.year);
   const cats = Object.keys(customCategories).filter(c => (p.cats[c] || 0) > 0);
-  const PAL = ['#0E0F12','#225C8A','#C9B68A','#8E9199','#7A4E9B','#B5651D','#2F6B4F','#9BB8D3','#5F626C','#D8C3A5','#6B2D3C','#3E6A8A'];
-  const shades = cats.map((_, k) => PAL[k % PAL.length]);
+  const shades = accentPalette(cats.length);
   const t = new Date(), nowIdx = t.getFullYear() * 12 + t.getMonth();
   const ms = [...Array(12).keys()].map(m => calculateSingleMonth(m, S.year));
   const fut = m => S.year * 12 + m > nowIdx;
@@ -3992,9 +4047,9 @@ function renderExtraCharts() {
   patYearChart.update();
   if (document.getElementById('chartGoalsEvo')) {
     const gl = INV.goals.map(g => ({ g, data: [...Array(12).keys()].map(m => (g.open || 0) + (S.invest || []).filter(e => e.goal === g.id && e.year * 12 + e.i <= S.year * 12 + m).reduce((a, e) => a + e.v, 0)) }));
-    const pal = ['#0E0F12','#225C8A','#C9B68A','#8E9199','#7A4E9B','#B5651D','#2F6B4F','#9BB8D3'];
+    const pal = accentPalette(INV.goals.length);
     if (!goalsEvoChart) goalsEvoChart = new Chart(document.getElementById('chartGoalsEvo'), { type: 'line', data: { labels: M, datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } }, scales: { y: { ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
-    goalsEvoChart.data.datasets = gl.map((x, k) => ({ label: x.g.name, data: x.data, borderColor: pal[k % pal.length], backgroundColor: 'transparent', tension: .3, pointRadius: 2 }));
+    goalsEvoChart.data.datasets = gl.map((x, k) => ({ label: x.g.name, data: x.data, borderColor: pal[k], backgroundColor: 'transparent', tension: .3, pointRadius: 2 }));
     goalsEvoChart.update();
   }
 }
