@@ -1779,10 +1779,7 @@ button, input, select {
     <div class="section-headline">Maiores compras no cartão</div>
     <div id="topC6" class="ins-list"></div>
 
-    <section class="glass-card">
-      <div class="cm-section-title" style="margin-top:16px"><span>Histórico do custo de oportunidade</span><span id="ccHistTotal"></span></div>
-      <div id="ccHist"></div>
-    </section>
+    
 
     
 
@@ -3066,22 +3063,33 @@ gid('expenseLogList').addEventListener('click', e => {
 
 /* ==================== GRÁFICO CONSOLIDADO (CHART.JS) ==================== */
 let flowChart;
+// Helpers de gráfico: valores compactos, cor com transparência e cor do texto da marca
+const compactBRL = v => Math.abs(v) >= 1000 ? `R$ ${(v / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mil` : BRL(v);
+const withAlpha = (hex, a) => { const [r, g, b] = hexToRgb(hex); return `rgba(${r}, ${g}, ${b}, ${a})`; };
+const CHART_GRID = 'rgba(16, 18, 22, 0.06)';
+const chartBase = {
+  responsive: true, maintainAspectRatio: false, animation: { duration: 500, easing: 'easeOutQuart' },
+  interaction: { mode: 'index', intersect: false },
+  plugins: { legend: { position: 'bottom', align: 'start', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 11 }, padding: 14 } },
+             tooltip: { backgroundColor: '#101216', titleFont: { size: 12 }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 10 } },
+  scales: { x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#5E6470' } },
+            y: { grid: { color: CHART_GRID }, border: { display: false }, ticks: { font: { size: 10 }, color: '#5E6470', callback: compactBRL } } }
+};
 function initCharts() {
   Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-  Chart.defaults.color = '#868993';
-  Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
+  Chart.defaults.color = '#5E6470';
+  const z = () => Array(12).fill(0);
   flowChart = new Chart(document.getElementById('chartFlow').getContext('2d'), {
     type: 'bar',
     data: { labels: M, datasets: [
-      { label: 'Receita', backgroundColor: '#0E0F12', borderRadius: 3, data: [] },
-      { label: 'Despesas', backgroundColor: 'rgba(14, 15, 18, 0.22)', borderRadius: 3, data: [] },
-      { label: 'Investimentos', backgroundColor: 'rgba(14, 15, 18, 0.45)', borderRadius: 3, data: [] },
-      { label: 'Rendimento CDI (sólido = lançado, claro = esperado)', backgroundColor: ACC(), borderRadius: 3, data: [] }
+      { label: 'Receita', data: z(), backgroundColor: Array(12).fill('#101216'), borderRadius: 4, maxBarThickness: 16 },
+      { label: 'Despesas', data: z(), backgroundColor: Array(12).fill('#9AA1AD'), borderRadius: 4, maxBarThickness: 16 },
+      { label: 'Investimentos', data: z(), backgroundColor: Array(12).fill('#9BB8D3'), borderRadius: 4, maxBarThickness: 16 },
+      { label: 'Rendimento', data: z(), backgroundColor: Array(12).fill('#4E7396'), borderRadius: 4, maxBarThickness: 16 }
     ] },
-    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 7, usePointStyle: true, font: { size: 10 } } } },
-      scales: { x: { grid: { display: false }, ticks: { color: '#868993', font: { size: 10 } } },
-                y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } } } }
+    options: { ...chartBase,
+      plugins: { ...chartBase.plugins, tooltip: { ...chartBase.plugins.tooltip, callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y)}` } } },
+      scales: { ...chartBase.scales, x: { ...chartBase.scales.x, stacked: false }, y: { ...chartBase.scales.y, beginAtZero: true } } }
   });
 }
 function updateFlowChart() {
@@ -3091,20 +3099,18 @@ function updateFlowChart() {
   const fut = m => y * 12 + m > nowIdx;
   const done = ms.filter((x, m) => !fut(m) && !x.isPending);
   const avg = k => done.length ? done.reduce((s, x) => s + x[k], 0) / done.length : 0;
+  // Meses futuros: receita, despesa e investimento pela média dos meses realizados; investimento pelo plano recorrente
   const base = { rec: avg('totalRec'), des: avg('totalDesp'), inv: recurringTotal() };
   const pick = (m, k, bk) => fut(m) ? base[bk] : (ms[m].isPending ? 0 : ms[m][k]);
-  const ds = flowChart.data.datasets;
   const rend = ms.map((x, m) => patrimonyFor(y, m, true).rend);
-  const realR = ms.map((x, m) => incomeSrcTotal(y, m, 'Rendimento CDI') > 0);
+  const cols = [ '#101216', '#9AA1AD', ACC(), ACCT() ];
+  const ds = flowChart.data.datasets;
   ds[0].data = ms.map((x, m) => pick(m, 'totalRec', 'rec'));
   ds[1].data = ms.map((x, m) => pick(m, 'totalDesp', 'des'));
   ds[2].data = ms.map((x, m) => pick(m, 'inv', 'inv'));
   ds[3].data = rend;
-  ds[0].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.28)' : '#0E0F12');
-  ds[1].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.10)' : 'rgba(14, 15, 18, 0.22)');
-  ds[2].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.18)' : 'rgba(14, 15, 18, 0.45)');
-  ds[3].backgroundColor = ms.map((x, m) => realR[m] ? ACC() : 'rgba(155, 184, 211, 0.45)');
-  gid('chartSubLabel').textContent = 'Real até o mês atual · rendimento esperado sobre o saldo até ser lançado · meses futuros com as médias';
+  ds.forEach((d, k) => { d.backgroundColor = ms.map((x, m) => fut(m) ? withAlpha(cols[k], 0.38) : cols[k]); });
+  gid('chartSubLabel').textContent = 'Meses realizados em cor cheia · meses futuros projetados em tom claro';
   flowChart.update();
 }
 
@@ -3348,6 +3354,7 @@ const ACCENT_DEFAULT = '#9BB8D3';
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const ACC = () => cssVar('--accent-blue');
 const ACCS = () => cssVar('--accent-chart-soft');
+const ACCT = () => cssVar('--accent-text');
 const normHex = h => {
   let x = String(h || '').trim().replace(/^#/, '');
   if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(x)) return null;
@@ -3377,7 +3384,8 @@ function applyAccent(hex) {
     if (typeof knotHero !== 'undefined' && knotHero) knotHero.material.color.set(hex);
     if (typeof polyWealth !== 'undefined' && polyWealth) polyWealth.material.color.set(hex);
   } catch (e) { console.warn(e); }
-  if (typeof flowChart !== 'undefined' && flowChart) { flowChart.data.datasets[3].backgroundColor = hex; updateFlowChart(); }
+  if (typeof flowChart !== 'undefined' && flowChart) { updateFlowChart(); }
+  if (typeof renderExtraCharts === 'function') renderExtraCharts();   // rosca, taxa, patrimônio e metas seguem a nova cor
 }
 const loadAccent = () => normHex(localStorage.getItem('cfo_accent_v4')) || ACCENT_DEFAULT;
 function openPersonal() {
@@ -3538,7 +3546,6 @@ function renderPatrimony() {
   renderHorizons(P, A);
   gid('projBase').textContent = `Partindo do patrimônio total de hoje, ${BRL(P)}, e de ${BRL(A)} em aportes mensais recorrentes.`;
   renderCC();
-  renderCCHist();
   const maxN = Math.min(480, Math.max(12, ...HZ.map(hzMonths))), ser = patSeries(P, A, maxN), ctx = document.getElementById('chartPatr');
   if (!patChart && ctx) {
     patChart = new Chart(ctx, {
@@ -4023,33 +4030,81 @@ function accentPalette(n) {
 
 /* ==================== GRÁFICOS COMPLEMENTARES (v26) ==================== */
 let donutChart = null, saveChart = null, patYearChart = null, goalsEvoChart = null;
+// Rosca: total no centro e percentual por categoria na legenda
+const donutCenter = { id: 'donutCenter', afterDraw(ch) {
+  const arc = ch.getDatasetMeta(0).data[0]; if (!arc || ch.$total == null) return;
+  const { ctx } = ch; ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#5E6470'; ctx.font = '11px "Plus Jakarta Sans", sans-serif'; ctx.fillText('Total', arc.x, arc.y - 11);
+  ctx.fillStyle = '#101216'; ctx.font = '600 15px "Plus Jakarta Sans", sans-serif'; ctx.fillText(BRL(ch.$total), arc.x, arc.y + 9); ctx.restore(); } };
+// Linha de referência de 20% na taxa de poupança
+const refLine20 = { id: 'refLine20', afterDatasetsDraw(ch) {
+  const yPx = ch.scales.y.getPixelForValue(20), { ctx, chartArea: a } = ch;
+  ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(16, 18, 22, 0.35)'; ctx.beginPath(); ctx.moveTo(a.left, yPx); ctx.lineTo(a.right, yPx); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle = '#5E6470'; ctx.font = '10px "Plus Jakarta Sans", sans-serif'; ctx.textAlign = 'right'; ctx.fillText('meta 20%', a.right, yPx - 5); ctx.restore(); } };
+
 function renderExtraCharts() {
   if (typeof Chart === 'undefined' || !document.getElementById('chartDonut')) return;
+  const t = new Date(), y = S.year, nowIdx = t.getFullYear() * 12 + t.getMonth();
+  const fut = m => y * 12 + m > nowIdx;
+  const nowM = y === t.getFullYear() ? t.getMonth() : (y < t.getFullYear() ? 11 : -1);
   const p = calculateConsolidatedPeriod(S.selectedMonths, S.year);
   const cats = Object.keys(customCategories).filter(c => (p.cats[c] || 0) > 0);
-  const shades = accentPalette(cats.length);
-  const t = new Date(), nowIdx = t.getFullYear() * 12 + t.getMonth();
-  const ms = [...Array(12).keys()].map(m => calculateSingleMonth(m, S.year));
-  const fut = m => S.year * 12 + m > nowIdx;
-  const rateSeries = ms.map(x => (x.isPending || x.totalRec <= 0) ? null : +(x.econ / x.totalRec * 100).toFixed(1));
-  const patSeries = ms.map((x, m) => patrimonyFor(S.year, m, true).end);
-  if (!donutChart) donutChart = new Chart(document.getElementById('chartDonut'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } } } });
+  const vals = cats.map(c => p.cats[c]);
+  const total = vals.reduce((a, b) => a + b, 0);
+  const pal = accentPalette(Math.max(1, cats.length));
+
+  // Rosca
+  if (!donutChart) donutChart = new Chart(document.getElementById('chartDonut'), {
+    type: 'doughnut', plugins: [donutCenter],
+    data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 2, borderColor: '#FFFFFF', hoverOffset: 4 }] },
+    options: { ...chartBase, cutout: '66%', scales: undefined, interaction: { mode: 'nearest', intersect: true },
+      plugins: { legend: { position: 'right', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', font: { size: 11 }, padding: 10,
+          generateLabels: ch => ch.data.labels.map((l, i) => ({ text: `${l}  ${ch.$total ? ((ch.data.datasets[0].data[i] / ch.$total) * 100).toFixed(0) + '%' : ''}`,
+            fillStyle: ch.data.datasets[0].backgroundColor[i], strokeStyle: 'transparent', index: i })) } },
+        tooltip: { ...chartBase.plugins.tooltip, callbacks: { label: c => `${c.label}: ${BRL(c.parsed)}` } } } } });
+  donutChart.$total = total;
   donutChart.data.labels = cats;
-  donutChart.data.datasets[0].data = cats.map(c => p.cats[c]);
-  donutChart.data.datasets[0].backgroundColor = shades;
+  donutChart.data.datasets[0].data = vals;
+  donutChart.data.datasets[0].backgroundColor = pal;
   donutChart.update();
-  if (!saveChart) saveChart = new Chart(document.getElementById('chartSaveRate'), { type: 'bar', data: { labels: M, datasets: [{ label: 'Taxa de poupança (%)', data: [], backgroundColor: ACC(), borderRadius: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => v + '%', font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
-  saveChart.data.datasets[0].data = rateSeries;
-  saveChart.data.datasets[0].backgroundColor = ms.map((x, m) => fut(m) ? 'rgba(14, 15, 18, 0.18)' : ACC());
+
+  // Taxa de poupança por mês
+  const ms = [...Array(12).keys()].map(m => calculateSingleMonth(m, y));
+  const rateVals = ms.map(x => (x.isPending || x.totalRec <= 0) ? null : +(x.econ / x.totalRec * 100).toFixed(1));
+  const rateCol = rateVals.map((v, m) => { const c = v == null ? '#C7CCD4' : (v < 0 ? '#101216' : (v >= 20 ? ACC() : '#B4BBC6')); return fut(m) ? withAlpha(c.startsWith('#') ? c : '#9AA1AD', 0.38) : c; });
+  if (!saveChart) saveChart = new Chart(document.getElementById('chartSaveRate'), {
+    type: 'bar', plugins: [refLine20],
+    data: { labels: M, datasets: [{ label: 'Taxa de poupança', data: Array(12).fill(null), backgroundColor: Array(12).fill('#B4BBC6'), borderRadius: 4, maxBarThickness: 18 }] },
+    options: { ...chartBase, plugins: { ...chartBase.plugins, legend: { display: false }, tooltip: { ...chartBase.plugins.tooltip, callbacks: { label: c => c.parsed.y == null ? 'sem receita registrada' : `${c.parsed.y.toFixed(1)}% da receita` } } },
+      scales: { ...chartBase.scales, y: { ...chartBase.scales.y, ticks: { ...chartBase.scales.y.ticks, callback: v => `${v}%` } } } } });
+  saveChart.data.datasets[0].data = rateVals;
+  saveChart.data.datasets[0].backgroundColor = rateCol;
   saveChart.update();
-  if (!patYearChart) patYearChart = new Chart(document.getElementById('chartPatYear'), { type: 'line', data: { labels: M, datasets: [{ label: 'Patrimônio total', data: [], borderColor: '#0E0F12', backgroundColor: 'rgba(14, 15, 18, 0.08)', fill: true, tension: .3, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
+
+  // Patrimônio ao longo do ano: contínuo até o mês atual, tracejado nos meses projetados
+  const patSeries = ms.map((x, m) => patrimonyFor(y, m, true).end);
+  if (!patYearChart) patYearChart = new Chart(document.getElementById('chartPatYear'), {
+    type: 'line',
+    data: { labels: M, datasets: [{ label: 'Patrimônio', data: Array(12).fill(0), borderColor: ACC(), backgroundColor: 'rgba(155,184,211,0.18)', fill: true, tension: 0.35, borderWidth: 2.5,
+      pointRadius: 3, pointBackgroundColor: '#FFFFFF', pointBorderColor: ACC(), pointBorderWidth: 2,
+      segment: { borderDash: c => (c.p1DataIndex > nowM ? [5, 5] : undefined) } }] },
+    options: { ...chartBase, plugins: { ...chartBase.plugins, legend: { display: false }, tooltip: { ...chartBase.plugins.tooltip, callbacks: { label: c => BRL(c.parsed.y) } } } } });
   patYearChart.data.datasets[0].data = patSeries;
+  patYearChart.data.datasets[0].borderColor = ACC();
+  patYearChart.data.datasets[0].pointBorderColor = ACC();
+  patYearChart.data.datasets[0].backgroundColor = withAlpha(ACC(), 0.18);
   patYearChart.update();
+
+  // Evolução das metas: capital guardado em cada meta ao longo do ano
   if (document.getElementById('chartGoalsEvo')) {
-    const gl = INV.goals.map(g => ({ g, data: [...Array(12).keys()].map(m => (g.open || 0) + (S.invest || []).filter(e => e.goal === g.id && e.year * 12 + e.i <= S.year * 12 + m).reduce((a, e) => a + e.v, 0)) }));
-    const pal = accentPalette(INV.goals.length);
-    if (!goalsEvoChart) goalsEvoChart = new Chart(document.getElementById('chartGoalsEvo'), { type: 'line', data: { labels: M, datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } }, scales: { y: { ticks: { callback: v => `R$ ${Math.round(v / 1000)}k`, font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
-    goalsEvoChart.data.datasets = gl.map((x, k) => ({ label: x.g.name, data: x.data, borderColor: pal[k], backgroundColor: 'transparent', tension: .3, pointRadius: 2 }));
+    const pal2 = accentPalette(Math.max(1, INV.goals.length));
+    const series = INV.goals.map((g, k) => ({ label: g.name, color: pal2[k],
+      data: [...Array(12).keys()].map(m => (g.open || 0) + (S.invest || []).filter(e => e.goal === g.id && e.year * 12 + e.i <= y * 12 + m).reduce((a, e) => a + e.v, 0)) }));
+    if (!goalsEvoChart) goalsEvoChart = new Chart(document.getElementById('chartGoalsEvo'), {
+      type: 'line', data: { labels: M, datasets: [] },
+      options: { ...chartBase, plugins: { ...chartBase.plugins, tooltip: { ...chartBase.plugins.tooltip, callbacks: { label: c => `${c.dataset.label}: ${BRL(c.parsed.y)}` } } } } });
+    goalsEvoChart.data.datasets = series.map(x => ({ label: x.label, data: x.data, borderColor: x.color, backgroundColor: x.color,
+      pointRadius: 2.5, borderWidth: 2.25, tension: 0.3, fill: false }));
     goalsEvoChart.update();
   }
 }
